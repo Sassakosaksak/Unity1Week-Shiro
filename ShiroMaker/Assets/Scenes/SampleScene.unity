@@ -546,7 +546,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 280813255}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1611096173}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: StartInvasion
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &280813255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40413,6 +40425,7 @@ GameObject:
   m_Component:
   - component: {fileID: 479766257}
   - component: {fileID: 479766256}
+  - component: {fileID: 479766258}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -40449,6 +40462,23 @@ Transform:
   - {fileID: 446900921}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &479766258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 479766255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a242517d4af04eaaba7142448b22c1a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 519420031}
+  cellSize: 1
+  lineColor: {r: 0.2, g: 0.95, b: 1, a: 0.15686275}
+  lineWidth: 0.025
+  zPosition: 0
 --- !u!1 &493001510
 GameObject:
   m_ObjectHideFlags: 0
@@ -40461,6 +40491,7 @@ GameObject:
   - component: {fileID: 493001514}
   - component: {fileID: 493001513}
   - component: {fileID: 493001512}
+  - component: {fileID: 493001515}
   m_Layer: 5
   m_Name: Resource
   m_TagString: Untagged
@@ -40570,6 +40601,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 493001510}
   m_CullTransparentMesh: 1
+--- !u!114 &493001515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493001510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33ff618afbd4d0b4ba7b57dd7dcc61c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  placeablePrefab: {fileID: 100000, guid: 13920cffa6934f7db2f812eaf1d906f8, type: 3}
+  worldCamera: {fileID: 519420031}
+  placedParent: {fileID: 1706911676}
+  placementOffset: {x: 0, y: 0}
+  snapToGrid: 1
+  gridSize: 1
+  placementZ: 0
+  previewAlpha: 0.55
+  blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -41421,6 +41473,7 @@ GameObject:
   - component: {fileID: 878373438}
   - component: {fileID: 878373437}
   - component: {fileID: 878373436}
+  - component: {fileID: 878373439}
   m_Layer: 0
   m_Name: Yuusha
   m_TagString: Untagged
@@ -41584,6 +41637,21 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &878373439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878373433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d31bda962679e146ae50039b8fa8022, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activePhase: 1
+  targetBehaviours:
+  - {fileID: 878373436}
 --- !u!1 &927021738
 GameObject:
   m_ObjectHideFlags: 0
@@ -42121,6 +42189,7 @@ GameObject:
   - component: {fileID: 1249875699}
   - component: {fileID: 1249875698}
   - component: {fileID: 1249875697}
+  - component: {fileID: 1249875700}
   m_Layer: 5
   m_Name: Resource
   m_TagString: Untagged
@@ -42230,6 +42299,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249875695}
   m_CullTransparentMesh: 1
+--- !u!114 &1249875700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249875695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33ff618afbd4d0b4ba7b57dd7dcc61c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  placeablePrefab: {fileID: 100000, guid: 3a96a402688541369ab0feba46a60b5a, type: 3}
+  worldCamera: {fileID: 519420031}
+  placedParent: {fileID: 1706911676}
+  placementOffset: {x: 0, y: 0}
+  snapToGrid: 1
+  gridSize: 1
+  placementZ: 0
+  previewAlpha: 0.55
+  blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
 --- !u!1 &1421672579
 GameObject:
   m_ObjectHideFlags: 0
@@ -43051,6 +43141,7 @@ GameObject:
   - component: {fileID: 1979762484}
   - component: {fileID: 1979762483}
   - component: {fileID: 1979762482}
+  - component: {fileID: 1979762485}
   m_Layer: 5
   m_Name: Resource
   m_TagString: Untagged
@@ -43160,6 +43251,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1979762480}
   m_CullTransparentMesh: 1
+--- !u!114 &1979762485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979762480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33ff618afbd4d0b4ba7b57dd7dcc61c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  placeablePrefab: {fileID: 100000, guid: f215b825fa1c42898cfe08f20d39af74, type: 3}
+  worldCamera: {fileID: 519420031}
+  placedParent: {fileID: 1706911676}
+  placementOffset: {x: 0, y: 0}
+  snapToGrid: 1
+  gridSize: 1
+  placementZ: 0
+  previewAlpha: 0.55
+  blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
