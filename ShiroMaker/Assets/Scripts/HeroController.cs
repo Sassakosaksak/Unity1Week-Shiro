@@ -3,9 +3,19 @@ using UnityEngine;
 public class HeroController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1f;
-    [SerializeField] private GameController gameController;
 
+    private GameController gameController;
     private bool isStopped;
+
+    private void Start()
+    {
+        gameController = GameController.Instance;
+
+        if (gameController == null)
+        {
+            Debug.LogWarning("GameController was not found in the scene.", this);
+        }
+    }
 
     private void Update()
     {
