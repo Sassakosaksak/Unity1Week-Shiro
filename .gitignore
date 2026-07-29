@@ -1,25 +1,33 @@
+# ===== Unity =====
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
-[Uu]ser[Ss]ettings/
+UserSettings/
 
+# ===== Visual Studio / C# =====
 .vs/
-.vscode/
-.idea/
-
 *.csproj
+*.unityproj
 *.sln
+*.suo
 *.user
-*.pidb
-*.booproj
-*.svd
-*.pdb
-*.mdb
-*.opendb
-*.VC.db
+*.userprefs
 
-sysinfo.txt
-*.stackdump
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Others =====
+*.log
+*.tmp
+*.bak
+/2D-Action/Assets/Textures
+/2D-Action/Assets/TilePalettes
+/2D-Action/Assets/Editor
+/2D-Action/Assets/Plugins
+/2D-Action/Assets/Libraries
+*.otf
+/2D-Action/Assets/Audios
