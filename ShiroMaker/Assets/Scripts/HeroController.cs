@@ -3,6 +3,7 @@ using UnityEngine;
 public class HeroController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1f;
+    [SerializeField] private GameController gameController;
 
     private bool isDefeated;
 
@@ -32,6 +33,9 @@ public class HeroController : MonoBehaviour
         }
 
         isDefeated = true;
-        Debug.Log("Defeat");
+        if (gameController != null)
+        {
+            gameController.ShowFailure();
+        }
     }
 }
