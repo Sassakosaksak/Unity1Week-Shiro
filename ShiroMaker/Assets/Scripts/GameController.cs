@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DefaultExecutionOrder(-1000)]
 public class GameController : MonoBehaviour
@@ -14,10 +15,18 @@ public class GameController : MonoBehaviour
         Rewinding
     }
 
+    private enum ReturnMode
+    {
+        LastPlaced,
+        AllPlaced
+    }
+
     [SerializeField] private GameObject successObject;
     [SerializeField] private GameObject failureObject;
     [SerializeField] private GameObject preparationUiObject;
     [SerializeField] private GameObject invasionUiObject;
+    [SerializeField] private Button returnButton;
+    [SerializeField] private ReturnMode returnMode = ReturnMode.LastPlaced;
     [SerializeField, Min(0f)] private float rewindDuration = 0.45f;
     [SerializeField] private Ease rewindEase = Ease.OutCubic;
 
@@ -27,6 +36,7 @@ public class GameController : MonoBehaviour
 
     private readonly List<HeroSnapshot> heroSnapshots = new List<HeroSnapshot>();
     private readonly List<TrapSnapshot> trapSnapshots = new List<TrapSnapshot>();
+    private readonly List<GameObject> placedTrapHistory = new List<GameObject>();
     private Sequence rewindSequence;
 
     private void Awake()
@@ -53,6 +63,7 @@ public class GameController : MonoBehaviour
     {
         SetResultObjectsActive(false, false);
         ApplyPhaseUi(CurrentPhase);
+        UpdateReturnButtonState();
     }
 
     public void StartInvasion()
@@ -74,6 +85,33 @@ public class GameController : MonoBehaviour
         ChangePhase(GamePhase.Result);
         SetResultObjectsActive(false, true);
         Debug.Log("Defeat");
+    }
+
+    public void RegisterPlacedTrap(GameObject placedTrap)
+    {
+        if (placedTrap == null || CurrentPhase != GamePhase.Preparation)
+        {
+            return;
+        }
+
+        placedTrapHistory.Add(placedTrap);
+        UpdateReturnButtonState();
+    }
+
+    public void ReturnPlacedTrap()
+    {
+        if (CurrentPhase != GamePhase.Preparation)
+        {
+            return;
+        }
+
+        if (returnMode == ReturnMode.AllPlaced)
+        {
+            ReturnAllPlacedTraps();
+            return;
+        }
+
+        ReturnLastPlacedTrap();
     }
 
     public void RewindInvasion()
@@ -124,6 +162,7 @@ public class GameController : MonoBehaviour
 
         CurrentPhase = nextPhase;
         ApplyPhaseUi(CurrentPhase);
+        UpdateReturnButtonState();
         PhaseChanged?.Invoke(CurrentPhase);
     }
 
@@ -152,6 +191,65 @@ public class GameController : MonoBehaviour
             invasionUiObject.SetActive(phase == GamePhase.Invasion);
         }
     }
+
+    private void ReturnLastPlacedTrap()
+    {
+        // RemoveMissingPlacedTraps();
+
+        if (placedTrapHistory.Count == 0)
+        {
+            UpdateReturnButtonState();
+            return;
+        }
+
+        int lastIndex = placedTrapHistory.Count - 1;
+        GameObject placedTrap = placedTrapHistory[lastIndex];
+        placedTrapHistory.RemoveAt(lastIndex);
+
+        if (placedTrap != null)
+        {
+            Destroy(placedTrap);
+        }
+
+        UpdateReturnButtonState();
+    }
+
+    private void ReturnAllPlacedTraps()
+    {
+        for (int i = placedTrapHistory.Count - 1; i >= 0; i--)
+        {
+            if (placedTrapHistory[i] != null)
+            {
+                Destroy(placedTrapHistory[i]);
+            }
+        }
+
+        placedTrapHistory.Clear();
+        UpdateReturnButtonState();
+    }
+
+    private void UpdateReturnButtonState()
+    {
+        if (returnButton == null)
+        {
+            return;
+        }
+
+        // RemoveMissingPlacedTraps();
+        returnButton.interactable = CurrentPhase == GamePhase.Preparation && placedTrapHistory.Count > 0;
+    }
+
+    // 別口でトラップが消えた場合の処理。現状不要なのでコメントアウト
+    // private void RemoveMissingPlacedTraps()
+    // {
+    //     for (int i = placedTrapHistory.Count - 1; i >= 0; i--)
+    //     {
+    //         if (placedTrapHistory[i] == null)
+    //         {
+    //             placedTrapHistory.RemoveAt(i);
+    //         }
+    //     }
+    // }
 
     private void CaptureInvasionSnapshot()
     {

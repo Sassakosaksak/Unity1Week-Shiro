@@ -43466,6 +43466,8 @@ MonoBehaviour:
   failureObject: {fileID: 790078588}
   preparationUiObject: {fileID: 453300990}
   invasionUiObject: {fileID: 58785854}
+  returnButton: {fileID: 1908524380}
+  returnMode: 0
   rewindDuration: 0.45
   rewindEase: 9
 --- !u!4 &1611096174
@@ -43922,11 +43924,23 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1908524381}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1611096173}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: ReturnPlacedTrap
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1908524381
 MonoBehaviour:
   m_ObjectHideFlags: 0

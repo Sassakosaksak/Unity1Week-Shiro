@@ -90,6 +90,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             GameObject placedObject = Instantiate(placeablePrefab, previewObject.transform.position, previewObject.transform.rotation, placedParent);
             placedObject.name = placeablePrefab.name;
             placedObject.SetActive(true);
+            GameController.Instance?.RegisterPlacedTrap(placedObject);
         }
 
         // Destroy はフレーム終端まで遅延するため、手元のプレビュー状態は先に消す
