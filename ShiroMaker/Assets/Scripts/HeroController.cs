@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 public class HeroController : MonoBehaviour
@@ -7,7 +8,11 @@ public class HeroController : MonoBehaviour
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField, Range(1, 5)] private int maxHp = 3;
     [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer blinkRenderer;
     [SerializeField, Min(0f)] private float flinchDuration = 1f;
+    [SerializeField, Min(0f)] private float invincibilityDuration = 5f;
+    [SerializeField, Range(0f, 1f)] private float invincibilityBlinkAlpha = 0.1f;
+    [SerializeField, Min(0.01f)] private float invincibilityBlinkInterval = 0.2f;
     [SerializeField, Min(0f)] private float knockbackDistance = 0.45f;
     [SerializeField, Min(0.01f)] private float knockbackDuration = 0.18f;
     [SerializeField, Min(0f)] private float deathResultDelay = 0.8f;
@@ -22,8 +27,11 @@ public class HeroController : MonoBehaviour
     private bool isFlinching;
     private bool isDead;
     private float flinchRemainingTime;
+    private float invincibilityRemainingTime;
     private float knockbackRemainingTime;
     private Vector3 knockbackVelocity;
+    private Tween invincibilityBlinkTween;
+    private float blinkRendererDefaultAlpha = 1f;
 
     public int MaxHp => maxHp;
     public int CurrentHp => currentHp;
@@ -38,6 +46,21 @@ public class HeroController : MonoBehaviour
         {
             animator = GetComponentInChildren<Animator>();
         }
+
+        if (blinkRenderer == null)
+        {
+            blinkRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+
+        if (blinkRenderer != null)
+        {
+            blinkRendererDefaultAlpha = blinkRenderer.color.a;
+        }
+    }
+
+    private void OnDisable()
+    {
+        StopInvincibilityBlink();
     }
 
     private void Start()
@@ -56,6 +79,8 @@ public class HeroController : MonoBehaviour
         {
             return;
         }
+
+        UpdateInvincibility();
 
         if (isFlinching)
         {
@@ -89,7 +114,7 @@ public class HeroController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (isStopped || isDead || damage <= 0)
+        if (isStopped || isDead || invincibilityRemainingTime > 0f || damage <= 0)
         {
             return;
         }
@@ -138,10 +163,27 @@ public class HeroController : MonoBehaviour
     {
         isFlinching = true;
         flinchRemainingTime = flinchDuration;
+        invincibilityRemainingTime = invincibilityDuration;
         knockbackRemainingTime = knockbackDuration;
         knockbackVelocity = Vector3.left * (knockbackDistance / Mathf.Max(knockbackDuration, 0.01f));
         SetMoving(false);
         SetTrigger(HurtHash);
+        StartInvincibilityBlink();
+    }
+
+    private void UpdateInvincibility()
+    {
+        if (invincibilityRemainingTime <= 0f)
+        {
+            return;
+        }
+
+        invincibilityRemainingTime = Mathf.Max(0f, invincibilityRemainingTime - Time.deltaTime);
+
+        if (invincibilityRemainingTime <= 0f)
+        {
+            StopInvincibilityBlink();
+        }
     }
 
     private void UpdateFlinch()
@@ -168,6 +210,7 @@ public class HeroController : MonoBehaviour
     {
         isDead = true;
         Stop();
+        StopInvincibilityBlink();
         SetTrigger(DeathHash);
         StartCoroutine(ShowSuccessAfterDeath());
     }
@@ -201,6 +244,35 @@ public class HeroController : MonoBehaviour
         }
 
         animator.SetTrigger(triggerHash);
+    }
+
+    private void StartInvincibilityBlink()
+    {
+        if (blinkRenderer == null || invincibilityDuration <= 0f)
+        {
+            return;
+        }
+
+        invincibilityBlinkTween?.Kill();
+        blinkRendererDefaultAlpha = blinkRenderer.color.a;
+        invincibilityBlinkTween = blinkRenderer
+            .DOFade(invincibilityBlinkAlpha, invincibilityBlinkInterval)
+            .SetLoops(-1, LoopType.Yoyo);
+    }
+
+    private void StopInvincibilityBlink()
+    {
+        invincibilityBlinkTween?.Kill();
+        invincibilityBlinkTween = null;
+
+        if (blinkRenderer == null)
+        {
+            return;
+        }
+
+        Color color = blinkRenderer.color;
+        color.a = blinkRendererDefaultAlpha;
+        blinkRenderer.color = color;
     }
 
     private void Stop()

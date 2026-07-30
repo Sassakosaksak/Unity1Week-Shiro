@@ -41708,6 +41708,7 @@ MonoBehaviour:
   maxHp: 2
   animator: {fileID: 0}
   flinchDuration: 1
+  invincibilityDuration: 5.78
   knockbackDistance: 0.45
   knockbackDuration: 0.18
   deathResultDelay: 0.8
