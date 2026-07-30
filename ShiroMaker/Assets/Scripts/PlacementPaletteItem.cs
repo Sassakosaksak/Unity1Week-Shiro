@@ -16,6 +16,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     [SerializeField] private Color blockedPreviewColor = new Color(1f, 0.25f, 0.25f, 0.45f);
 
     private GameObject previewObject;
+    private PlaceableAnchor previewAnchor;
     private SpriteRenderer[] previewRenderers;
     private Color[] previewBaseColors;
 
@@ -32,6 +33,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewObject = Instantiate(placeablePrefab);
         previewObject.name = $"{placeablePrefab.name} Preview";
         previewObject.SetActive(true);
+        previewAnchor = previewObject.GetComponent<PlaceableAnchor>();
 
         foreach (Collider2D collider2D in previewObject.GetComponentsInChildren<Collider2D>())
         {
@@ -93,6 +95,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         // Destroy はフレーム終端まで遅延するため、手元のプレビュー状態は先に消す
         Destroy(previewObject);
         previewObject = null;
+        previewAnchor = null;
         previewRenderers = null;
         previewBaseColors = null;
     }
@@ -139,7 +142,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             worldPosition.y = SnapToCellCenter(worldPosition.y);
         }
 
-        previewObject.transform.position = worldPosition;
+        previewObject.transform.position = GetRootPositionForCellCenter(worldPosition);
 
         bool canPlace = IsInsideCameraView(eventData.position) && !UiPointerUtility.IsOverUi(eventData);
         ApplyPreviewColor(canPlace);
@@ -156,6 +159,19 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         float halfCellSize = gridSize * 0.5f;
 
         return cellStart + halfCellSize;
+    }
+
+    /// <summary>
+    /// セル中心へ合わせる配置ルート位置
+    /// </summary>
+    private Vector3 GetRootPositionForCellCenter(Vector3 cellCenter)
+    {
+        if (previewAnchor == null)
+        {
+            return cellCenter;
+        }
+
+        return previewAnchor.GetRootPositionForCellCenter(cellCenter);
     }
 
     /// <summary>
