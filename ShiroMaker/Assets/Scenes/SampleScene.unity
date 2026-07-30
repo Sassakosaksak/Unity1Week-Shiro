@@ -41706,6 +41706,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   maxHp: 2
+  animator: {fileID: 0}
+  flinchDuration: 1
+  knockbackDistance: 0.45
+  knockbackDuration: 0.18
+  deathResultDelay: 0.8
 --- !u!50 &878373437
 Rigidbody2D:
   serializedVersion: 5
