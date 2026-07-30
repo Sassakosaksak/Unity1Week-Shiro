@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlacementGridOverlay : MonoBehaviour
 {
     [SerializeField] private Camera targetCamera;
+    [SerializeField] private BoxCollider2D CameraBounds;
     [SerializeField] private float cellSize = 1f;
     [SerializeField] private Color lineColor = new Color(0.2f, 0.95f, 1f, 0.45f);
     [SerializeField] private float lineWidth = 0.025f;
@@ -77,7 +78,7 @@ public class PlacementGridOverlay : MonoBehaviour
     }
 
     /// <summary>
-    /// カメラ表示範囲へのグリッド線生成
+    /// CameraBounds 範囲へのグリッド線生成
     /// </summary>
     private void BuildGrid()
     {
@@ -96,7 +97,7 @@ public class PlacementGridOverlay : MonoBehaviour
         lineMaterial = new Material(Shader.Find("Sprites/Default"));
         lineMaterial.name = "Placement Grid Material";
 
-        Bounds bounds = GetCameraBounds();
+        Bounds bounds = GetGridBounds();
         float minX = Mathf.Floor(bounds.min.x / cellSize) * cellSize;
         float maxX = Mathf.Ceil(bounds.max.x / cellSize) * cellSize;
         float minY = Mathf.Floor(bounds.min.y / cellSize) * cellSize;
@@ -114,10 +115,18 @@ public class PlacementGridOverlay : MonoBehaviour
     }
 
     /// <summary>
-    /// 対象カメラの表示範囲取得
+    /// グリッド生成範囲の取得
     /// </summary>
-    private Bounds GetCameraBounds()
+    private Bounds GetGridBounds()
     {
+        if (CameraBounds != null)
+        {
+            Bounds bounds = CameraBounds.bounds;
+            bounds.center = new Vector3(bounds.center.x, bounds.center.y, zPosition);
+            bounds.size = new Vector3(bounds.size.x, bounds.size.y, 0f);
+            return bounds;
+        }
+
         float height = targetCamera.orthographicSize * 2f;
         float width = height * targetCamera.aspect;
         Vector3 center = targetCamera.transform.position;

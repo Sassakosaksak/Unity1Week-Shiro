@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,7 +18,6 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     private GameObject previewObject;
     private SpriteRenderer[] previewRenderers;
     private Color[] previewBaseColors;
-    private readonly List<RaycastResult> uiRaycastResults = new List<RaycastResult>();
 
     /// <summary>
     /// 配置開始時のプレビュー生成
@@ -143,7 +141,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         previewObject.transform.position = worldPosition;
 
-        bool canPlace = IsInsideCameraView(eventData.position) && !IsOverUi(eventData);
+        bool canPlace = IsInsideCameraView(eventData.position) && !UiPointerUtility.IsOverUi(eventData);
         ApplyPreviewColor(canPlace);
         return canPlace;
     }
@@ -189,18 +187,4 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
     }
 
-    /// <summary>
-    /// ポインター位置に UI があるか判定
-    /// </summary>
-    private bool IsOverUi(PointerEventData eventData)
-    {
-        if (EventSystem.current == null)
-        {
-            return false;
-        }
-
-        uiRaycastResults.Clear();
-        EventSystem.current.RaycastAll(eventData, uiRaycastResults);
-        return uiRaycastResults.Count > 0;
-    }
 }
