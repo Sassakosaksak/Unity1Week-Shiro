@@ -43,7 +43,7 @@ public class HeroController : MonoBehaviour
         if (other.TryGetComponent(out TrapBase trap))
         {
             Stop();
-            trap.Activate(this);
+            trap.OnHeroHit(this);
             ShowSuccess();
         }
     }
