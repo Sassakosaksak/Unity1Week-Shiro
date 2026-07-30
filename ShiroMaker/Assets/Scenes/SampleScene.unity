@@ -41706,9 +41706,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   maxHp: 2
-  animator: {fileID: 0}
+  animator: {fileID: 321238338}
+  blinkRenderer: {fileID: 321238339}
   flinchDuration: 1
-  invincibilityDuration: 5.78
+  invincibilityDuration: 5
+  invincibilityBlinkAlpha: 0.1
+  invincibilityBlinkInterval: 0.2
   knockbackDistance: 0.45
   knockbackDuration: 0.18
   deathResultDelay: 0.8
