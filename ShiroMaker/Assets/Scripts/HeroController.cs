@@ -131,6 +131,23 @@ public class HeroController : MonoBehaviour
         StartFlinch();
     }
 
+    public void RestoreForRewind(int hp)
+    {
+        StopAllCoroutines();
+        StopInvincibilityBlink();
+
+        currentHp = Mathf.Clamp(hp, 0, maxHp);
+        HealthChanged?.Invoke(currentHp, maxHp);
+
+        isStopped = false;
+        isFlinching = false;
+        isDead = false;
+        flinchRemainingTime = 0f;
+        invincibilityRemainingTime = 0f;
+        knockbackRemainingTime = 0f;
+        SetMoving(false);
+    }
+
     private void OnValidate()
     {
         maxHp = Mathf.Clamp(maxHp, 1, 5);

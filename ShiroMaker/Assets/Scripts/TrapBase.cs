@@ -55,6 +55,20 @@ public abstract class TrapBase : MonoBehaviour
         hero.TakeDamage(damage);
     }
 
+    public virtual void RestoreForRewind()
+    {
+        isStopped = false;
+
+        if (animator == null)
+        {
+            return;
+        }
+
+        animator.speed = 1f;
+        animator.Rebind();
+        animator.Update(0f);
+    }
+
     /// <summary>
     /// 罠ロジックと必要なAnimatorを停止
     /// </summary>

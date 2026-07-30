@@ -40,6 +40,12 @@ public class SpikeTrap : TrapBase
         }
     }
 
+    public override void RestoreForRewind()
+    {
+        base.RestoreForRewind();
+        nextDetectTime = 0f;
+    }
+
     /// <summary>
     /// 検知できる状態か判定
     /// </summary>
