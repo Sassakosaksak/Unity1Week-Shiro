@@ -1,11 +1,24 @@
+using System;
 using UnityEngine;
 
 public class HeroController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1f;
+    [SerializeField, Range(1, 5)] private int maxHp = 3;
 
     private GameController gameController;
+    private int currentHp;
     private bool isStopped;
+
+    public int MaxHp => maxHp;
+    public int CurrentHp => currentHp;
+
+    public event Action<int, int> HealthChanged;
+
+    private void Awake()
+    {
+        currentHp = maxHp;
+    }
 
     private void Start()
     {
@@ -40,12 +53,34 @@ public class HeroController : MonoBehaviour
             return;
         }
 
-        if (other.TryGetComponent(out TrapBase trap))
+        TrapBase trap = other.GetComponentInParent<TrapBase>();
+        if (trap != null)
+        {
+            trap.OnHeroHit(this);
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (isStopped || damage <= 0)
+        {
+            return;
+        }
+
+        currentHp = Mathf.Max(0, currentHp - damage);
+        HealthChanged?.Invoke(currentHp, maxHp);
+
+        if (currentHp <= 0)
         {
             Stop();
-            trap.OnHeroHit(this);
             ShowSuccess();
         }
+    }
+
+    private void OnValidate()
+    {
+        maxHp = Mathf.Clamp(maxHp, 1, 5);
+        currentHp = Mathf.Clamp(currentHp, 0, maxHp);
     }
 
     private void ShowDefeat()

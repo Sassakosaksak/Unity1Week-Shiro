@@ -4,6 +4,7 @@ public abstract class TrapBase : MonoBehaviour
 {
     [SerializeField] private Animator animator;
     [SerializeField] private bool pauseAnimatorOnResult;
+    [SerializeField, Min(0)] private int damage = 1;
 
     private GameController gameController;
     private bool isStopped;
@@ -44,7 +45,15 @@ public abstract class TrapBase : MonoBehaviour
         }
     }
 
-    public abstract void OnHeroHit(HeroController hero);
+    public virtual void OnHeroHit(HeroController hero)
+    {
+        if (hero == null)
+        {
+            return;
+        }
+
+        hero.TakeDamage(damage);
+    }
 
     /// <summary>
     /// 罠ロジックと必要なAnimatorを停止

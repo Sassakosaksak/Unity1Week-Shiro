@@ -40,10 +40,6 @@ public class SpikeTrap : TrapBase
         }
     }
 
-    public override void OnHeroHit(HeroController hero)
-    {
-    }
-
     /// <summary>
     /// 検知できる状態か判定
     /// </summary>
