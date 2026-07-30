@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 357138232157469103}
+  pauseAnimatorOnResult: 1
   heroLayer:
     serializedVersion: 2
     m_Bits: 0

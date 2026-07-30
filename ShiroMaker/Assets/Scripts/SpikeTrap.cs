@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class SpikeTrap : TrapBase
 {
-    [SerializeField] private Animator animator;
     [SerializeField] private LayerMask heroLayer;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private float detectionRadius = 1f;
@@ -14,12 +13,9 @@ public class SpikeTrap : TrapBase
     private PlaceableAnchor placeableAnchor;
     private float nextDetectTime;
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (animator == null)
-        {
-            animator = GetComponent<Animator>();
-        }
+        base.Awake();
 
         placeableAnchor = GetComponent<PlaceableAnchor>();
     }
@@ -38,9 +34,9 @@ public class SpikeTrap : TrapBase
 
         nextDetectTime = Time.time + detectCooldown;
 
-        if (animator != null)
+        if (TrapAnimator != null)
         {
-            animator.SetTrigger(DetectHash);
+            TrapAnimator.SetTrigger(DetectHash);
         }
     }
 
@@ -53,9 +49,7 @@ public class SpikeTrap : TrapBase
     /// </summary>
     private bool CanDetect()
     {
-        return GameController.Instance != null
-            && GameController.Instance.CurrentPhase == GameController.GamePhase.Invasion
-            && Time.time >= nextDetectTime;
+        return CanRun && Time.time >= nextDetectTime;
     }
 
     /// <summary>

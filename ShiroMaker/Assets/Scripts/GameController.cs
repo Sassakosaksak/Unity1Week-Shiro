@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[DefaultExecutionOrder(-1000)]
 public class GameController : MonoBehaviour
 {
     public enum GamePhase
