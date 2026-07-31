@@ -18,6 +18,8 @@ public class WizardHeroBehavior : HeroJobBehavior
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private Vector2 trapProbeSize = new Vector2(0.8f, 0.8f);
     [SerializeField] private LayerMask trapLayer;
+    [SerializeField] private Color magicRangeGizmoColor = new Color(0.35f, 0.65f, 1f, 0.35f);
+    [SerializeField] private Color spikeProbeGizmoColor = new Color(1f, 0.85f, 0.2f, 0.55f);
 
     private readonly Collider2D[] trapResults = new Collider2D[12];
 
@@ -201,5 +203,23 @@ public class WizardHeroBehavior : HeroJobBehavior
         }
 
         return contactFilter;
+    }
+
+    private Vector3 GetSpikeProbeCenter()
+    {
+        Vector3 moveDirection = Hero != null
+            ? Hero.MoveDirection
+            : Vector3.right;
+
+        return transform.position + moveDirection * gridSize;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = magicRangeGizmoColor;
+        Gizmos.DrawWireSphere(transform.position, magicRange);
+
+        Gizmos.color = spikeProbeGizmoColor;
+        Gizmos.DrawWireCube(GetSpikeProbeCenter(), trapProbeSize);
     }
 }
