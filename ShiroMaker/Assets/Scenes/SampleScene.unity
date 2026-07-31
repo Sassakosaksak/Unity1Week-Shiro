@@ -32965,8 +32965,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
   m_BlockingMask:
@@ -73353,7 +73353,7 @@ TilemapCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
+  m_CompositeOperation: 1
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
@@ -73397,9 +73397,35 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 446900924}
+    m_ColliderPaths:
+    - - X: 380000000
+        Y: 0
+      - X: -200000000
+        Y: 0
+      - X: -200000000
+        Y: 70000000
+      - X: 380000000
+        Y: 70000000
+      - X: 380000000
+        Y: 200000000
+      - X: -250000000
+        Y: 200000000
+      - X: -250000000
+        Y: -130000000
+      - X: 380000000
+        Y: -130000000
   m_CompositePaths:
-    m_Paths: []
+    m_Paths:
+    - - {x: 37.999973, y: -13}
+      - {x: 37.999973, y: 0}
+      - {x: -20, y: 0.0000294}
+      - {x: -19.999971, y: 7}
+      - {x: 38, y: 7.0000296}
+      - {x: 37.999973, y: 20}
+      - {x: -25, y: 19.999971}
+      - {x: -24.999971, y: -13}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -73772,11 +73798,16 @@ MonoBehaviour:
   groundTilemapName: Ground
   cellSize: 1
   lineColor: {r: 0.2, g: 0.95, b: 1, a: 0.15686275}
-  placeableCellColor: {r: 0.3, g: 1, b: 0.35, a: 0.22}
-  blockedCellColor: {r: 1, g: 0.15, b: 0.15, a: 0.22}
+  placeableCellColor: {r: 0.3, g: 1, b: 0.35, a: 0.05882353}
+  blockedCellColor: {r: 1, g: 0.15, b: 0.15, a: 0.05882353}
+  currentPlaceableCellColor: {r: 0.3, g: 1, b: 0.35, a: 0.23529412}
+  currentBlockedCellColor: {r: 1, g: 0.15, b: 0.15, a: 0.23529412}
   lineWidth: 0.025
   zPosition: 0
   fillZOffset: 0.01
+  currentFillZOffset: 0.02
+  fillSortingOrder: -20
+  currentFillSortingOrder: -10
   trapProbeSize: {x: 0.8, y: 0.8}
 --- !u!1 &493001510
 GameObject:
@@ -73920,7 +73951,6 @@ MonoBehaviour:
   gridSize: 1
   placementZ: 0
   previewAlpha: 0.55
-  blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
   placementGridOverlay: {fileID: 479766258}
 --- !u!1 &519420028
 GameObject:
@@ -74480,6 +74510,7 @@ GameObject:
   - component: {fileID: 737004097}
   - component: {fileID: 737004096}
   - component: {fileID: 737004095}
+  - component: {fileID: 737004098}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -74592,6 +74623,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &737004098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737004093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3523325c3884d23abce41c4c879ac6f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  wizardBehavior: {fileID: 1177438454}
 --- !u!1 &781111733
 GameObject:
   m_ObjectHideFlags: 0
@@ -75539,6 +75583,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 983214150}
   m_CullTransparentMesh: 1
+--- !u!1 &1103636762
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1103636763}
+  m_Layer: 0
+  m_Name: HeroesGimmick
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1103636763
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103636762}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -18.538, y: 0.32, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1177438447
 GameObject:
   m_ObjectHideFlags: 0
@@ -75721,9 +75796,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31139ab6189b4e46ae84e881c89311a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magicRange: 4
-  castDuration: 2
+  magicRange: 4.5
+  sealPitCastStartDelay: 0.5
+  attackCastDuration: 2
+  sealPitCastDuration: 2
+  temporaryGroundSettingDuration: 1
   temporaryFloorDuration: 3
+  temporaryGroundPrefab: {fileID: 3475707774734830516, guid: f448c53056b1d9e40979d0a2398679f9, type: 3}
+  temporaryGroundParent: {fileID: 1103636763}
+  temporaryGroundBottomCenterOffset: {x: 0, y: -0.5, z: 0}
   attackTriggerName: Attack1
   sealPitTriggerName: Attack2
   goalTag: Goal
@@ -75732,6 +75813,8 @@ MonoBehaviour:
   trapLayer:
     serializedVersion: 2
     m_Bits: 0
+  magicRangeGizmoColor: {r: 0.35, g: 0.65, b: 1, a: 0.35}
+  spikeProbeGizmoColor: {r: 1, g: 0.85, b: 0.2, a: 0.55}
 --- !u!1 &1186751174
 GameObject:
   m_ObjectHideFlags: 0
@@ -76052,7 +76135,6 @@ MonoBehaviour:
   gridSize: 1
   placementZ: 0
   previewAlpha: 0.55
-  blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
   placementGridOverlay: {fileID: 479766258}
 --- !u!1 &1421672579
 GameObject:
@@ -76923,6 +77005,7 @@ MonoBehaviour:
   damageCollider: {fileID: 0}
   gridSize: 1
   detectionRadius: 1
+  detectFromCellTop: 1
   detectCooldown: 3
 --- !u!1 &1648477657
 GameObject:
@@ -77268,7 +77351,6 @@ MonoBehaviour:
   gridSize: 1
   placementZ: 0
   previewAlpha: 0.55
-  blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
   placementGridOverlay: {fileID: 479766258}
 --- !u!1 &2026073100
 GameObject:
@@ -77447,6 +77529,7 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 1706911676}
   - {fileID: 479766257}
+  - {fileID: 1103636763}
   - {fileID: 472553015}
   - {fileID: 203301977}
   - {fileID: 1186751178}

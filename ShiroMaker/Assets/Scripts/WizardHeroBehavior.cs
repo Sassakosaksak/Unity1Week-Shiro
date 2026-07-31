@@ -10,8 +10,12 @@ public class WizardHeroBehavior : HeroJobBehavior
     }
 
     [SerializeField, Min(0f)] private float magicRange = 4f;
-    [SerializeField, Min(0.01f)] private float castDuration = 2f;
-    [SerializeField, Min(0.01f)] private float temporaryFloorDuration = 3f;
+    [SerializeField, Min(0f)] private float sealPitCastStartDelay = 0.5f;
+    [SerializeField, Min(0.01f)] private float attackCastDuration = 2f;
+    [SerializeField, Min(0.01f)] private float sealPitCastDuration = 2f;
+    [SerializeField] private GameObject temporaryGroundPrefab;
+    [SerializeField] private Transform temporaryGroundParent;
+    [SerializeField] private Vector3 temporaryGroundBottomCenterOffset = new Vector3(0f, -0.5f, 0f);
     [SerializeField] private string attackTriggerName = "Attack1";
     [SerializeField] private string sealPitTriggerName = "Attack2";
     [SerializeField] private string goalTag = "Goal";
@@ -25,8 +29,11 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     private CastKind castKind;
     private float castRemainingTime;
+    private float sealPitDelayRemainingTime;
+    private PitfallTrap pendingSealPit;
     private PitfallTrap castingPit;
     private Transform goalTarget;
+    private bool floorSettingStarted;
 
     public override void Tick()
     {
@@ -43,14 +50,21 @@ public class WizardHeroBehavior : HeroJobBehavior
 
         if (TryFindGoalInRange())
         {
+            CancelPendingSealPit();
             StartCasting(CastKind.Attack, null);
+            return;
+        }
+
+        if (pendingSealPit != null)
+        {
+            UpdateSealPitDelay();
             return;
         }
 
         PitfallTrap pit = FindPitfallInRange();
         if (pit != null)
         {
-            StartCasting(CastKind.SealPit, pit);
+            StartSealPitDelay(pit);
         }
     }
 
@@ -72,20 +86,65 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     public override void OnInterrupted()
     {
+        CancelPendingSealPit();
         CancelCasting();
     }
 
     public override void OnRestored()
     {
+        CancelPendingSealPit();
         CancelCasting();
+    }
+
+    // Called by the StartFloorSetting Animation Event in Attack2.
+    public void StartFloorSettingFromAnimation()
+    {
+        if (castKind != CastKind.SealPit
+            || floorSettingStarted
+            || castingPit == null
+            || !castingPit.CanBeSealed)
+        {
+            return;
+        }
+
+        floorSettingStarted = castingPit.BeginTemporaryGroundSetting(
+            temporaryGroundPrefab,
+            temporaryGroundBottomCenterOffset,
+            temporaryGroundParent);
     }
 
     private void StartCasting(CastKind nextCastKind, PitfallTrap pit)
     {
         castKind = nextCastKind;
-        castRemainingTime = castDuration;
+        castRemainingTime = GetCastDuration(nextCastKind);
         castingPit = pit;
+        floorSettingStarted = false;
         Hero.PlayJobTrigger(GetTriggerName(nextCastKind));
+    }
+
+    private void StartSealPitDelay(PitfallTrap pit)
+    {
+        pendingSealPit = pit;
+        sealPitDelayRemainingTime = sealPitCastStartDelay;
+    }
+
+    private void UpdateSealPitDelay()
+    {
+        if (pendingSealPit == null || !pendingSealPit.CanBeSealed)
+        {
+            CancelPendingSealPit();
+            return;
+        }
+
+        sealPitDelayRemainingTime -= Time.deltaTime;
+        if (sealPitDelayRemainingTime > 0f)
+        {
+            return;
+        }
+
+        PitfallTrap targetPit = pendingSealPit;
+        CancelPendingSealPit();
+        StartCasting(CastKind.SealPit, targetPit);
     }
 
     private void UpdateCasting()
@@ -102,26 +161,31 @@ public class WizardHeroBehavior : HeroJobBehavior
     private void CompleteCasting()
     {
         CastKind completedCastKind = castKind;
-        PitfallTrap completedPit = castingPit;
-        CancelCasting();
+        CancelCasting(false);
 
         if (completedCastKind == CastKind.Attack)
         {
             Hero.CausePlayerDefeat();
-            return;
-        }
-
-        if (completedCastKind == CastKind.SealPit && completedPit != null && completedPit.CanBeSealed)
-        {
-            completedPit.Seal(temporaryFloorDuration);
         }
     }
 
-    private void CancelCasting()
+    private void CancelPendingSealPit()
     {
+        pendingSealPit = null;
+        sealPitDelayRemainingTime = 0f;
+    }
+
+    private void CancelCasting(bool cancelFloorSetting = true)
+    {
+        if (cancelFloorSetting && floorSettingStarted && castingPit != null)
+        {
+            castingPit.CancelTemporaryGroundSetting();
+        }
+
         castKind = CastKind.None;
         castRemainingTime = 0f;
         castingPit = null;
+        floorSettingStarted = false;
     }
 
     private string GetTriggerName(CastKind targetCastKind)
@@ -129,6 +193,13 @@ public class WizardHeroBehavior : HeroJobBehavior
         return targetCastKind == CastKind.Attack
             ? attackTriggerName
             : sealPitTriggerName;
+    }
+
+    private float GetCastDuration(CastKind targetCastKind)
+    {
+        return targetCastKind == CastKind.Attack
+            ? attackCastDuration
+            : sealPitCastDuration;
     }
 
     private bool TryFindGoalInRange()
@@ -151,8 +222,8 @@ public class WizardHeroBehavior : HeroJobBehavior
         ContactFilter2D contactFilter = CreateTrapFilter();
         int count = Physics2D.OverlapCircle(Hero.transform.position, magicRange, contactFilter, trapResults);
 
-        PitfallTrap nearestPit = null;
-        float nearestSqrDistance = float.PositiveInfinity;
+        PitfallTrap rightmostPit = null;
+        float rightmostX = float.NegativeInfinity;
 
         for (int i = 0; i < count; i++)
         {
@@ -163,15 +234,15 @@ public class WizardHeroBehavior : HeroJobBehavior
                 continue;
             }
 
-            float sqrDistance = (pit.transform.position - Hero.transform.position).sqrMagnitude;
-            if (sqrDistance < nearestSqrDistance)
+            float x = pit.transform.position.x;
+            if (x > rightmostX)
             {
-                nearestSqrDistance = sqrDistance;
-                nearestPit = pit;
+                rightmostX = x;
+                rightmostPit = pit;
             }
         }
 
-        return nearestPit;
+        return rightmostPit;
     }
 
     private SpikeTrap FindSpikeAt(Vector3 position)

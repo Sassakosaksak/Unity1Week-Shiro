@@ -18,6 +18,7 @@ public class PitfallTrap : TrapBase
     private int removedTileCount;
     private bool removedGroundTiles;
     private bool isSealed;
+    private TemporaryGround temporaryGround;
 
     public bool CanBeSealed => !isSealed;
 
@@ -48,13 +49,14 @@ public class PitfallTrap : TrapBase
 
     protected override void OnDestroy()
     {
+        DestroyTemporaryGround();
         RestoreGroundTiles();
         base.OnDestroy();
     }
 
     private void Update()
     {
-        if (!isSealed)
+        if (!isSealed || temporaryGround != null)
         {
             return;
         }
@@ -81,6 +83,46 @@ public class PitfallTrap : TrapBase
 
         sealedRideTimeRemaining = duration;
         SetSealed(true);
+    }
+
+    public bool BeginTemporaryGroundSetting(
+        GameObject temporaryGroundPrefab,
+        Vector3 bottomCenterOffset,
+        Transform parent)
+    {
+        if (temporaryGroundPrefab == null)
+        {
+            return false;
+        }
+
+        DestroyTemporaryGround();
+        SetSealed(true);
+
+        GameObject temporaryGroundObject = Instantiate(
+            temporaryGroundPrefab,
+            GetTemporaryGroundBottomCenterPosition(bottomCenterOffset),
+            Quaternion.identity,
+            parent);
+
+        temporaryGround = temporaryGroundObject.GetComponent<TemporaryGround>();
+        if (temporaryGround == null)
+        {
+            temporaryGround = temporaryGroundObject.AddComponent<TemporaryGround>();
+        }
+
+        temporaryGround.Initialize(OnTemporaryGroundExpired);
+        return true;
+    }
+
+    public void CancelTemporaryGroundSetting()
+    {
+        if (temporaryGround == null || !temporaryGround.IsSetting)
+        {
+            return;
+        }
+
+        DestroyTemporaryGround();
+        SetSealed(false);
     }
 
     public void UpdatePlacementPreview(bool canPlace)
@@ -112,6 +154,7 @@ public class PitfallTrap : TrapBase
     {
         base.RestoreForRewind();
         sealedRideTimeRemaining = 0f;
+        DestroyTemporaryGround();
         SetSealed(false);
     }
 
@@ -152,6 +195,30 @@ public class PitfallTrap : TrapBase
                 base.OnHeroHit(hero);
             }
         }
+    }
+
+    private Vector3 GetTemporaryGroundBottomCenterPosition(Vector3 bottomCenterOffset)
+    {
+        return transform.position + bottomCenterOffset;
+    }
+
+    private void OnTemporaryGroundExpired()
+    {
+        temporaryGround = null;
+        SetSealed(false);
+    }
+
+    private void DestroyTemporaryGround()
+    {
+        if (temporaryGround == null)
+        {
+            return;
+        }
+
+        TemporaryGround target = temporaryGround;
+        temporaryGround = null;
+        target.ClearExpiredCallback();
+        Destroy(target.gameObject);
     }
 
     private int FindOverlappingColliders()
@@ -211,6 +278,7 @@ public class PitfallTrap : TrapBase
         }
 
         removedGroundTiles = removedTileCount > 0;
+        ProcessGroundColliderChanges();
     }
 
     private void RestoreGroundTiles()
@@ -232,6 +300,17 @@ public class PitfallTrap : TrapBase
 
         removedTileCount = 0;
         removedGroundTiles = false;
+        ProcessGroundColliderChanges();
+    }
+
+    private void ProcessGroundColliderChanges()
+    {
+        if (groundTilemap != null
+            && groundTilemap.TryGetComponent(out TilemapCollider2D tilemapCollider)
+            && tilemapCollider.hasTilemapChanges)
+        {
+            tilemapCollider.ProcessTilemapChanges();
+        }
     }
 
     private Tilemap FindGroundTilemap()
