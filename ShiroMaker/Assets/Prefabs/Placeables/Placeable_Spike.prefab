@@ -193,4 +193,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e31f08f2053436c89c79b69608601ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPlacementPointOffset: {x: 0, y: 5}
+  localPlacementPointOffset: {x: 0, y: -3.6}

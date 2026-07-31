@@ -6,6 +6,7 @@ public class SpikeTrap : TrapBase
     [SerializeField] private Collider2D damageCollider;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private float detectionRadius = 1f;
+    [SerializeField] private bool detectFromCellTop = true;
     [SerializeField] private float detectCooldown = 3f;
 
     private static readonly int DetectHash = Animator.StringToHash("Detect");
@@ -91,7 +92,7 @@ public class SpikeTrap : TrapBase
     }
 
     /// <summary>
-    /// 設置マスの下端中心
+    /// 設置している床セルの中心、または床セルの上端中心
     /// </summary>
     private Vector2 GetDetectionCenter()
     {
@@ -104,7 +105,9 @@ public class SpikeTrap : TrapBase
             ? placeableAnchor.PlacementPointWorldPosition
             : transform.position;
 
-        return placementPoint + Vector3.down * (gridSize * 0.5f);
+        return detectFromCellTop
+            ? placementPoint + Vector3.up * (gridSize * 0.5f)
+            : placementPoint;
     }
 
     private void OnDrawGizmosSelected()
