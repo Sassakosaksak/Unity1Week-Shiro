@@ -390,7 +390,8 @@ public class PlacementGridOverlay : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Collider2D hit = trapProbeResults[i];
-            if (hit != null && hit.GetComponentInParent<TrapBase>() != null)
+            TrapBase trap = hit != null ? hit.GetComponentInParent<TrapBase>() : null;
+            if (hit != null && hit.enabled && trap != null && trap.enabled)
             {
                 return true;
             }
