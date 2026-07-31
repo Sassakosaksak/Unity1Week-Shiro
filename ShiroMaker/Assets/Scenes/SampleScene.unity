@@ -73943,7 +73943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33ff618afbd4d0b4ba7b57dd7dcc61c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  placeablePrefab: {fileID: 100000, guid: 13920cffa6934f7db2f812eaf1d906f8, type: 3}
+  placeablePrefab: {fileID: 5743323253903589878, guid: da45b6323b1fd1f49811c8d15ec6b987, type: 3}
   worldCamera: {fileID: 519420031}
   placedParent: {fileID: 1706911676}
   placementOffset: {x: 0, y: 0}

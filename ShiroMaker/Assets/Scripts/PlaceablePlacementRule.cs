@@ -3,6 +3,7 @@ using UnityEngine;
 public enum PlacementSurfaceType
 {
     GroundTop,
+    GroundAbove,
     CeilingBottom,
     Air
 }

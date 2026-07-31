@@ -369,6 +369,10 @@ public class PlacementGridOverlay : MonoBehaviour
                 return tilemap.GetTile(cell) != null
                     && tilemap.GetTile(cell + Vector3Int.up) == null;
 
+            case PlacementSurfaceType.GroundAbove:
+                return tilemap.GetTile(cell) == null
+                    && tilemap.GetTile(cell + Vector3Int.down) != null;
+
             case PlacementSurfaceType.CeilingBottom:
                 return tilemap.GetTile(cell) != null
                     && tilemap.GetTile(cell + Vector3Int.down) == null;
