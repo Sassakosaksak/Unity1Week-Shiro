@@ -13,7 +13,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private float placementZ = 0f;
     [SerializeField, Range(0f, 1f)] private float previewAlpha = 0.55f;
-    [SerializeField] private Color blockedPreviewColor = new Color(1f, 0.25f, 0.25f, 0.45f);
+    [SerializeField] private PlacementGridOverlay placementGridOverlay;
 
     private GameObject previewObject;
     private PlaceableAnchor previewAnchor;
@@ -24,6 +24,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     private MonoBehaviour[] previewBehaviours;
     private bool[] previewBehaviourEnabledStates;
     private PitfallTrap previewPitfallTrap;
+    private Vector3 previewCellCenter;
 
     /// <summary>
     /// 配置開始時のプレビュー生成
@@ -70,6 +71,11 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             spriteRenderer.color = color;
         }
 
+        if (placementGridOverlay != null)
+        {
+            placementGridOverlay.ShowPlacementCells(placeablePrefab);
+        }
+
         UpdatePreviewPosition(eventData);
     }
 
@@ -110,6 +116,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
                 GameObject placedObject = Instantiate(placeablePrefab, previewObject.transform.position, previewObject.transform.rotation, placedParent);
                 placedObject.name = placeablePrefab.name;
                 placedObject.SetActive(true);
+                RegisterPlacementOccupancy(placedObject);
                 GameController.Instance?.RegisterPlacedTrap(placedObject);
             }
         }
@@ -130,6 +137,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewBehaviours = null;
         previewBehaviourEnabledStates = null;
         previewPitfallTrap = null;
+        placementGridOverlay?.HidePlacementCells();
     }
 
     /// <summary>
@@ -153,6 +161,11 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             worldCamera = Camera.main;
         }
 
+        if (placementGridOverlay == null)
+        {
+            placementGridOverlay = FindFirstObjectByType<PlacementGridOverlay>();
+        }
+
         return worldCamera != null;
     }
 
@@ -174,10 +187,19 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             worldPosition.y = SnapToCellCenter(worldPosition.y);
         }
 
-        previewObject.transform.position = GetRootPositionForCellCenter(worldPosition);
+        previewCellCenter = worldPosition;
+        previewObject.transform.position = GetRootPositionForCellCenter(previewCellCenter);
 
-        bool canPlace = IsInsideCameraView(eventData.position) && !UiPointerUtility.IsOverUi(eventData);
-        ApplyPreviewColor(canPlace);
+        if (previewPitfallTrap != null)
+        {
+            previewPitfallTrap.CancelPlacementPreview();
+        }
+
+        bool canPlace = IsInsideCameraView(eventData.position)
+            && !UiPointerUtility.IsOverUi(eventData)
+            && CanPlaceAtPreviewCell();
+        ApplyPreviewAlpha();
+        placementGridOverlay?.ShowCurrentPlacementCell(previewCellCenter, canPlace);
 
         if (previewPitfallTrap != null)
         {
@@ -227,16 +249,13 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     /// <summary>
     /// 配置可否に応じたプレビュー色変更
     /// </summary>
-    private void ApplyPreviewColor(bool canPlace)
+    private void ApplyPreviewAlpha()
     {
         for (int i = 0; i < previewRenderers.Length; i++)
         {
             SpriteRenderer spriteRenderer = previewRenderers[i];
-            Color color = canPlace
-                ? previewBaseColors[i]
-                : Color.Lerp(previewBaseColors[i], blockedPreviewColor, 0.65f);
-
-            color.a = canPlace ? previewAlpha : blockedPreviewColor.a;
+            Color color = previewBaseColors[i];
+            color.a = previewAlpha;
             spriteRenderer.color = color;
         }
     }
@@ -250,6 +269,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewObject.name = placeablePrefab.name;
         previewObject.transform.SetParent(placedParent, true);
         previewObject.SetActive(true);
+        RegisterPlacementOccupancy(previewObject);
         GameController.Instance?.RegisterPlacedTrap(previewObject);
 
         previewObject = null;
@@ -261,6 +281,27 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewBehaviours = null;
         previewBehaviourEnabledStates = null;
         previewPitfallTrap = null;
+        placementGridOverlay?.HidePlacementCells();
+    }
+
+    private bool CanPlaceAtPreviewCell()
+    {
+        if (placementGridOverlay == null)
+        {
+            return true;
+        }
+
+        return placementGridOverlay.CanPlace(placeablePrefab, previewCellCenter);
+    }
+
+    private void RegisterPlacementOccupancy(GameObject placedObject)
+    {
+        if (placementGridOverlay == null)
+        {
+            return;
+        }
+
+        placementGridOverlay.RegisterPlacedTrap(placedObject, previewCellCenter);
     }
 
     private void RestorePreviewComponentStates()

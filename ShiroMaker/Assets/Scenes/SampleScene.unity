@@ -73767,10 +73767,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetCamera: {fileID: 519420031}
   CameraBounds: {fileID: 2070000002}
+  placementBounds: {fileID: 1634257237}
+  groundTilemap: {fileID: 446900923}
+  groundTilemapName: Ground
   cellSize: 1
   lineColor: {r: 0.2, g: 0.95, b: 1, a: 0.15686275}
+  placeableCellColor: {r: 0.3, g: 1, b: 0.35, a: 0.22}
+  blockedCellColor: {r: 1, g: 0.15, b: 0.15, a: 0.22}
   lineWidth: 0.025
   zPosition: 0
+  fillZOffset: 0.01
+  trapProbeSize: {x: 0.8, y: 0.8}
 --- !u!1 &493001510
 GameObject:
   m_ObjectHideFlags: 0
@@ -73914,6 +73921,7 @@ MonoBehaviour:
   placementZ: 0
   previewAlpha: 0.55
   blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
+  placementGridOverlay: {fileID: 479766258}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -76045,6 +76053,7 @@ MonoBehaviour:
   placementZ: 0
   previewAlpha: 0.55
   blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
+  placementGridOverlay: {fileID: 479766258}
 --- !u!1 &1421672579
 GameObject:
   m_ObjectHideFlags: 0
@@ -76680,6 +76689,84 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1621974333}
   m_CullTransparentMesh: 1
+--- !u!1 &1634257236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1634257238}
+  - component: {fileID: 1634257237}
+  m_Layer: 0
+  m_Name: PlacementBounds
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &1634257237
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634257236}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -1.992115, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 28, y: 10}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 16.123657, y: 10}
+  m_EdgeRadius: 0
+--- !u!4 &1634257238
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634257236}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6, y: 3.45, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1644823269
 GameObject:
   m_ObjectHideFlags: 0
@@ -77182,6 +77269,7 @@ MonoBehaviour:
   placementZ: 0
   previewAlpha: 0.55
   blockedPreviewColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
+  placementGridOverlay: {fileID: 479766258}
 --- !u!1 &2026073100
 GameObject:
   m_ObjectHideFlags: 0
@@ -77366,6 +77454,7 @@ SceneRoots:
   - {fileID: 1611096174}
   - {fileID: 453300994}
   - {fileID: 2070000001}
+  - {fileID: 1634257238}
   - {fileID: 2026073101}
   - {fileID: 1928039}
   - {fileID: 1479481887}
