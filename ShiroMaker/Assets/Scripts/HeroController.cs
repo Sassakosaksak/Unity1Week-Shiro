@@ -7,6 +7,7 @@ public class HeroController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField, Range(1, 5)] private int maxHp = 3;
+    [SerializeField] private HeroJobBehavior jobBehavior;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer blinkRenderer;
     [SerializeField, Min(0f)] private float flinchDuration = 1f;
@@ -35,6 +36,10 @@ public class HeroController : MonoBehaviour
 
     public int MaxHp => maxHp;
     public int CurrentHp => currentHp;
+    public bool IsInvincible => invincibilityRemainingTime > 0f;
+    public bool IsDead => isDead;
+    public bool IsFlinching => isFlinching;
+    public Vector3 MoveDirection => Vector3.right;
 
     public event Action<int, int> HealthChanged;
 
@@ -45,6 +50,11 @@ public class HeroController : MonoBehaviour
         if (animator == null)
         {
             animator = GetComponentInChildren<Animator>();
+        }
+
+        if (jobBehavior == null)
+        {
+            jobBehavior = GetComponent<HeroJobBehavior>();
         }
 
         if (blinkRenderer == null)
@@ -71,6 +81,11 @@ public class HeroController : MonoBehaviour
         {
             Debug.LogWarning("GameController was not found in the scene.", this);
         }
+
+        if (jobBehavior != null)
+        {
+            jobBehavior.Initialize(this);
+        }
     }
 
     private void Update()
@@ -88,8 +103,23 @@ public class HeroController : MonoBehaviour
             return;
         }
 
-        SetMoving(true);
-        Move(Vector3.right * moveSpeed);
+        if (jobBehavior != null)
+        {
+            jobBehavior.Tick();
+
+            if (isStopped)
+            {
+                return;
+            }
+        }
+
+        bool canMove = jobBehavior == null || jobBehavior.CanMove();
+        SetMoving(canMove);
+
+        if (canMove)
+        {
+            Move(MoveDirection * moveSpeed);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -128,6 +158,7 @@ public class HeroController : MonoBehaviour
             return;
         }
 
+        jobBehavior?.OnInterrupted();
         StartFlinch();
     }
 
@@ -146,6 +177,7 @@ public class HeroController : MonoBehaviour
         invincibilityRemainingTime = 0f;
         knockbackRemainingTime = 0f;
         SetMoving(false);
+        jobBehavior?.OnRestored();
     }
 
     private void OnValidate()
@@ -166,6 +198,39 @@ public class HeroController : MonoBehaviour
         {
             gameController.ShowFailure();
         }
+    }
+
+    public void CausePlayerDefeat()
+    {
+        ShowDefeat();
+    }
+
+    public void Kill()
+    {
+        if (isStopped || isDead)
+        {
+            return;
+        }
+
+        currentHp = 0;
+        HealthChanged?.Invoke(currentHp, maxHp);
+        Die();
+    }
+
+    public void PlayJobTrigger(string triggerName)
+    {
+        if (string.IsNullOrEmpty(triggerName))
+        {
+            return;
+        }
+
+        int triggerHash = Animator.StringToHash(triggerName);
+        if (!HasAnimatorParameter(triggerHash, AnimatorControllerParameterType.Trigger))
+        {
+            return;
+        }
+
+        SetTrigger(triggerHash);
     }
 
     private void ShowSuccess()
@@ -226,6 +291,7 @@ public class HeroController : MonoBehaviour
     private void Die()
     {
         isDead = true;
+        jobBehavior?.OnInterrupted();
         Stop();
         StopInvincibilityBlink();
         SetTrigger(DeathHash);
@@ -261,6 +327,24 @@ public class HeroController : MonoBehaviour
         }
 
         animator.SetTrigger(triggerHash);
+    }
+
+    private bool HasAnimatorParameter(int parameterHash, AnimatorControllerParameterType parameterType)
+    {
+        if (animator == null)
+        {
+            return false;
+        }
+
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            if (parameter.nameHash == parameterHash && parameter.type == parameterType)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void StartInvincibilityBlink()

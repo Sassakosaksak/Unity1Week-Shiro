@@ -3,6 +3,7 @@ using UnityEngine;
 public class SpikeTrap : TrapBase
 {
     [SerializeField] private LayerMask heroLayer;
+    [SerializeField] private Collider2D damageCollider;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private float detectionRadius = 1f;
     [SerializeField] private float detectCooldown = 3f;
@@ -13,11 +14,18 @@ public class SpikeTrap : TrapBase
     private PlaceableAnchor placeableAnchor;
     private float nextDetectTime;
 
+    public bool IsSafeToEnter => damageCollider == null || !damageCollider.enabled;
+
     protected override void Awake()
     {
         base.Awake();
 
         placeableAnchor = GetComponent<PlaceableAnchor>();
+
+        if (damageCollider == null)
+        {
+            damageCollider = GetComponent<Collider2D>();
+        }
     }
 
     private void Update()

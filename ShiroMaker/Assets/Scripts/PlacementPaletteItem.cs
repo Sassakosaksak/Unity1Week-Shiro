@@ -19,6 +19,11 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     private PlaceableAnchor previewAnchor;
     private SpriteRenderer[] previewRenderers;
     private Color[] previewBaseColors;
+    private Collider2D[] previewColliders;
+    private bool[] previewColliderEnabledStates;
+    private MonoBehaviour[] previewBehaviours;
+    private bool[] previewBehaviourEnabledStates;
+    private PitfallTrap previewPitfallTrap;
 
     /// <summary>
     /// 配置開始時のプレビュー生成
@@ -35,15 +40,23 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewObject.SetActive(true);
         previewAnchor = previewObject.GetComponent<PlaceableAnchor>();
 
-        foreach (Collider2D collider2D in previewObject.GetComponentsInChildren<Collider2D>())
+        previewColliders = previewObject.GetComponentsInChildren<Collider2D>();
+        previewColliderEnabledStates = new bool[previewColliders.Length];
+        for (int i = 0; i < previewColliders.Length; i++)
         {
-            collider2D.enabled = false;
+            previewColliderEnabledStates[i] = previewColliders[i].enabled;
+            previewColliders[i].enabled = false;
         }
 
-        foreach (MonoBehaviour behaviour in previewObject.GetComponentsInChildren<MonoBehaviour>())
+        previewBehaviours = previewObject.GetComponentsInChildren<MonoBehaviour>();
+        previewBehaviourEnabledStates = new bool[previewBehaviours.Length];
+        for (int i = 0; i < previewBehaviours.Length; i++)
         {
-            behaviour.enabled = false;
+            previewBehaviourEnabledStates[i] = previewBehaviours[i].enabled;
+            previewBehaviours[i].enabled = false;
         }
+
+        previewPitfallTrap = previewObject.GetComponentInChildren<PitfallTrap>(true);
 
         previewRenderers = previewObject.GetComponentsInChildren<SpriteRenderer>();
         previewBaseColors = new Color[previewRenderers.Length];
@@ -87,10 +100,23 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         if (canPlace)
         {
-            GameObject placedObject = Instantiate(placeablePrefab, previewObject.transform.position, previewObject.transform.rotation, placedParent);
-            placedObject.name = placeablePrefab.name;
-            placedObject.SetActive(true);
-            GameController.Instance?.RegisterPlacedTrap(placedObject);
+            if (previewPitfallTrap != null)
+            {
+                PlacePreviewObject();
+                return;
+            }
+            else
+            {
+                GameObject placedObject = Instantiate(placeablePrefab, previewObject.transform.position, previewObject.transform.rotation, placedParent);
+                placedObject.name = placeablePrefab.name;
+                placedObject.SetActive(true);
+                GameController.Instance?.RegisterPlacedTrap(placedObject);
+            }
+        }
+
+        if (previewPitfallTrap != null)
+        {
+            previewPitfallTrap.CancelPlacementPreview();
         }
 
         // Destroy はフレーム終端まで遅延するため、手元のプレビュー状態は先に消す
@@ -99,6 +125,11 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewAnchor = null;
         previewRenderers = null;
         previewBaseColors = null;
+        previewColliders = null;
+        previewColliderEnabledStates = null;
+        previewBehaviours = null;
+        previewBehaviourEnabledStates = null;
+        previewPitfallTrap = null;
     }
 
     /// <summary>
@@ -147,6 +178,12 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         bool canPlace = IsInsideCameraView(eventData.position) && !UiPointerUtility.IsOverUi(eventData);
         ApplyPreviewColor(canPlace);
+
+        if (previewPitfallTrap != null)
+        {
+            previewPitfallTrap.UpdatePlacementPreview(canPlace);
+        }
+
         return canPlace;
     }
 
@@ -201,6 +238,58 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
 
             color.a = canPlace ? previewAlpha : blockedPreviewColor.a;
             spriteRenderer.color = color;
+        }
+    }
+
+    private void PlacePreviewObject()
+    {
+        RestorePreviewComponentStates();
+        RestorePreviewRendererColors();
+
+        previewPitfallTrap.CommitPlacementPreview();
+        previewObject.name = placeablePrefab.name;
+        previewObject.transform.SetParent(placedParent, true);
+        previewObject.SetActive(true);
+        GameController.Instance?.RegisterPlacedTrap(previewObject);
+
+        previewObject = null;
+        previewAnchor = null;
+        previewRenderers = null;
+        previewBaseColors = null;
+        previewColliders = null;
+        previewColliderEnabledStates = null;
+        previewBehaviours = null;
+        previewBehaviourEnabledStates = null;
+        previewPitfallTrap = null;
+    }
+
+    private void RestorePreviewComponentStates()
+    {
+        for (int i = 0; i < previewColliders.Length; i++)
+        {
+            if (previewColliders[i] != null)
+            {
+                previewColliders[i].enabled = previewColliderEnabledStates[i];
+            }
+        }
+
+        for (int i = 0; i < previewBehaviours.Length; i++)
+        {
+            if (previewBehaviours[i] != null)
+            {
+                previewBehaviours[i].enabled = previewBehaviourEnabledStates[i];
+            }
+        }
+    }
+
+    private void RestorePreviewRendererColors()
+    {
+        for (int i = 0; i < previewRenderers.Length; i++)
+        {
+            if (previewRenderers[i] != null)
+            {
+                previewRenderers[i].color = previewBaseColors[i];
+            }
         }
     }
 

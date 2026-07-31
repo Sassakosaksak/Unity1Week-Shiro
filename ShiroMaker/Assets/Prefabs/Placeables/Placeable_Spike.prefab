@@ -155,6 +155,7 @@ MonoBehaviour:
   heroLayer:
     serializedVersion: 2
     m_Bits: 0
+  damageCollider: {fileID: 0}
   gridSize: 1
   detectionRadius: 1
   detectCooldown: 3
