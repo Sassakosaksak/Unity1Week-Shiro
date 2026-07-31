@@ -32965,8 +32965,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
   m_BlockingMask:
@@ -74480,7 +74480,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4859542314652518118, guid: 8150186ab52eb304698b7d7412ac1e7b, type: 3}
+  m_Sprite: {fileID: 3940009075650407786, guid: 8150186ab52eb304698b7d7412ac1e7b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -74633,8 +74633,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3523325c3884d23abce41c4c879ac6f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   wizardBehavior: {fileID: 1177438454}
 --- !u!1 &781111733
 GameObject:
@@ -75800,8 +75800,6 @@ MonoBehaviour:
   sealPitCastStartDelay: 0.5
   attackCastDuration: 2
   sealPitCastDuration: 2
-  temporaryGroundSettingDuration: 1
-  temporaryFloorDuration: 3
   temporaryGroundPrefab: {fileID: 3475707774734830516, guid: f448c53056b1d9e40979d0a2398679f9, type: 3}
   temporaryGroundParent: {fileID: 1103636763}
   temporaryGroundBottomCenterOffset: {x: 0, y: -0.5, z: 0}
