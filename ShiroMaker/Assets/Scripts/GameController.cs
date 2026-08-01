@@ -15,6 +15,12 @@ public class GameController : MonoBehaviour
         Rewinding
     }
 
+    public enum GameResult
+    {
+        Success,
+        Failure
+    }
+
     private enum ReturnMode
     {
         LastPlaced,
@@ -33,6 +39,7 @@ public class GameController : MonoBehaviour
     public static GameController Instance { get; private set; }
     public GamePhase CurrentPhase { get; private set; }
     public event Action<GamePhase> PhaseChanged;
+    public event Action<GameResult> ResultShown;
 
     private readonly List<HeroSnapshot> heroSnapshots = new List<HeroSnapshot>();
     private readonly List<TrapSnapshot> trapSnapshots = new List<TrapSnapshot>();
@@ -77,6 +84,7 @@ public class GameController : MonoBehaviour
     {
         ChangePhase(GamePhase.Result);
         SetResultObjectsActive(true, false);
+        ResultShown?.Invoke(GameResult.Success);
         Debug.Log("Success");
     }
 
@@ -84,6 +92,7 @@ public class GameController : MonoBehaviour
     {
         ChangePhase(GamePhase.Result);
         SetResultObjectsActive(false, true);
+        ResultShown?.Invoke(GameResult.Failure);
         Debug.Log("Defeat");
     }
 
