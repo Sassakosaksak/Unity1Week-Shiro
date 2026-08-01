@@ -295,13 +295,17 @@ public class HeroController : MonoBehaviour
         Stop();
         StopInvincibilityBlink();
         SetTrigger(DeathHash);
-        StartCoroutine(ShowSuccessAfterDeath());
+        StartCoroutine(ShowSuccessIfAllHeroesAreDeadAfterDelay());
     }
 
-    private IEnumerator ShowSuccessAfterDeath()
+    private IEnumerator ShowSuccessIfAllHeroesAreDeadAfterDelay()
     {
         yield return new WaitForSeconds(deathResultDelay);
-        ShowSuccess();
+
+        if (gameController != null && gameController.AreAllHeroesDead())
+        {
+            ShowSuccess();
+        }
     }
 
     private void Move(Vector3 velocity)

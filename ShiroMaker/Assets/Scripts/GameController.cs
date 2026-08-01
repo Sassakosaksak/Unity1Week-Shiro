@@ -87,6 +87,25 @@ public class GameController : MonoBehaviour
         Debug.Log("Defeat");
     }
 
+    public bool AreAllHeroesDead()
+    {
+        HeroController[] heroes = FindObjectsByType<HeroController>(FindObjectsSortMode.None);
+        if (heroes.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (HeroController hero in heroes)
+        {
+            if (!hero.IsDead)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
     public void RegisterPlacedTrap(GameObject placedTrap)
     {
         if (placedTrap == null || CurrentPhase != GamePhase.Preparation)
