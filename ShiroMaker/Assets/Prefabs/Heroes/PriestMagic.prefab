@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 39083827418153206}
   - component: {fileID: 7431153001685027109}
   - component: {fileID: 3425904611725383776}
+  - component: {fileID: 647638194060210918}
   m_Layer: 0
   m_Name: PriestMagic
   m_TagString: Untagged
@@ -110,3 +111,15 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &647638194060210918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1177905515278820083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a378aa04ea4d464eb091d8bce0f83a3c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

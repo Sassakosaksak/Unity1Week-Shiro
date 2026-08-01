@@ -307,10 +307,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   raiseRange: 2.5
+  spellStartDelay: 0.5
+  spellCooldownDuration: 3
   raiseDuration: 5
+  raiseFlashColor: {r: 0, g: 1, b: 0, a: 1}
+  raiseFlashInterval: 0.1
+  reviveInvincibilityDuration: 2
   healRange: 4.5
+  goalTag: Goal
   healDuration: 1
   healAmount: 1
+  healFlashColor: {r: 0, g: 1, b: 0, a: 1}
+  healColorFadeDuration: 0.2
+  healColorHoldDuration: 1
   priestMagicPrefab: {fileID: 1177905515278820083, guid: 0aa6c02572f154746ad5ec6f12b48796, type: 3}
   priestMagicParent: {fileID: 0}
   raiseMagicOffset: {x: 0, y: 0, z: 0}
@@ -319,7 +328,11 @@ MonoBehaviour:
   healMagicOffset: {x: 0, y: 0, z: 0}
   healMagicLifetime: 0.75
   healMagicPlaybackSpeed: 1
+  attackMagicOffset: {x: -0.2, y: -2.3, z: 0}
+  attackTriggerName: Attack
   raiseTriggerName: Raise
   healTriggerName: Heal
+  raiseEffectTriggerName: Raise
+  healEffectTriggerName: Heal
   raiseRangeGizmoColor: {r: 0.9, g: 0.6, b: 1, a: 0.45}
   healRangeGizmoColor: {r: 0.35, g: 1, b: 0.55, a: 0.35}

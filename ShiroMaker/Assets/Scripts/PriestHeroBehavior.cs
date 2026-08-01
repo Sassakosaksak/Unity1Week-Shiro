@@ -5,6 +5,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     private enum SpellKind
     {
         None,
+        Attack,
         Raise,
         Heal
     }
@@ -17,6 +18,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     [SerializeField, Min(0.01f)] private float raiseFlashInterval = 0.1f;
     [SerializeField, Min(0f)] private float reviveInvincibilityDuration = 2f;
     [SerializeField, Min(0f)] private float healRange = 4.5f;
+    [SerializeField] private string goalTag = "Goal";
     [SerializeField, Min(0.01f)] private float healDuration = 1f;
     [SerializeField, Min(1)] private int healAmount = 1;
     [SerializeField] private Color healFlashColor = Color.green;
@@ -30,6 +32,8 @@ public class PriestHeroBehavior : HeroJobBehavior
     [SerializeField] private Vector3 healMagicOffset;
     [SerializeField, Min(0.01f)] private float healMagicLifetime = 0.75f;
     [SerializeField, Min(0.01f)] private float healMagicPlaybackSpeed = 1f;
+    [SerializeField] private Vector3 attackMagicOffset;
+    [SerializeField] private string attackTriggerName = "Attack";
     [SerializeField] private string raiseTriggerName = "Raise";
     [SerializeField] private string healTriggerName = "Heal";
     [SerializeField] private string raiseEffectTriggerName = "Raise";
@@ -42,9 +46,11 @@ public class PriestHeroBehavior : HeroJobBehavior
     private float spellRemainingTime;
     private SpellKind pendingSpellKind;
     private HeroController pendingSpellTarget;
+    private Transform pendingAttackTarget;
     private float pendingSpellDelayRemaining;
     private float spellCooldownRemaining;
     private GameObject activeMagicEffect;
+    private Transform attackTarget;
 
     public override void Tick()
     {
@@ -75,6 +81,13 @@ public class PriestHeroBehavior : HeroJobBehavior
             return;
         }
 
+        Transform goal = FindGoalInRange();
+        if (goal != null)
+        {
+            BeginAttackAfterDelay(goal);
+            return;
+        }
+
         HeroController reviveTarget = FindRightmostHero(raiseRange, hero => hero.IsDead);
         if (reviveTarget != null)
         {
@@ -98,6 +111,11 @@ public class PriestHeroBehavior : HeroJobBehavior
 
     public override void OnInterrupted()
     {
+        if (spellKind == SpellKind.Attack)
+        {
+            CancelActiveMagicEffect();
+        }
+
         CancelSpell();
         CancelPendingSpell();
     }
@@ -124,6 +142,19 @@ public class PriestHeroBehavior : HeroJobBehavior
         Hero.PlayJobTrigger(nextSpellKind == SpellKind.Raise ? raiseTriggerName : healTriggerName);
     }
 
+    private void StartAttack(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        spellKind = SpellKind.Attack;
+        attackTarget = target;
+        Hero.PlayJobTrigger(attackTriggerName);
+        SpawnAttackMagicEffect(target);
+    }
+
     private void BeginSpellAfterDelay(SpellKind nextSpellKind, HeroController target)
     {
         pendingSpellKind = nextSpellKind;
@@ -131,9 +162,24 @@ public class PriestHeroBehavior : HeroJobBehavior
         pendingSpellDelayRemaining = spellStartDelay;
     }
 
+    private void BeginAttackAfterDelay(Transform target)
+    {
+        pendingSpellKind = SpellKind.Attack;
+        pendingAttackTarget = target;
+        pendingSpellDelayRemaining = spellStartDelay;
+    }
+
     private void UpdatePendingSpell()
     {
-        if (pendingSpellTarget == null)
+        if (pendingSpellKind == SpellKind.Attack)
+        {
+            if (pendingAttackTarget == null)
+            {
+                CancelPendingSpell();
+                return;
+            }
+        }
+        else if (pendingSpellTarget == null)
         {
             CancelPendingSpell();
             return;
@@ -147,12 +193,25 @@ public class PriestHeroBehavior : HeroJobBehavior
 
         SpellKind nextSpellKind = pendingSpellKind;
         HeroController target = pendingSpellTarget;
+        Transform attackSpellTarget = pendingAttackTarget;
         CancelPendingSpell();
+
+        if (nextSpellKind == SpellKind.Attack)
+        {
+            StartAttack(attackSpellTarget);
+            return;
+        }
+
         StartSpell(nextSpellKind, target);
     }
 
     private void UpdateSpell()
     {
+        if (spellKind == SpellKind.Attack)
+        {
+            return;
+        }
+
         if (spellTarget == null)
         {
             CancelSpell();
@@ -208,6 +267,7 @@ public class PriestHeroBehavior : HeroJobBehavior
 
         spellKind = SpellKind.None;
         spellTarget = null;
+        attackTarget = null;
         spellRemainingTime = 0f;
     }
 
@@ -215,6 +275,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     {
         pendingSpellKind = SpellKind.None;
         pendingSpellTarget = null;
+        pendingAttackTarget = null;
         pendingSpellDelayRemaining = 0f;
     }
 
@@ -256,6 +317,49 @@ public class PriestHeroBehavior : HeroJobBehavior
         Destroy(activeMagicEffect, lifetime);
     }
 
+    private void SpawnAttackMagicEffect(Transform target)
+    {
+        if (target == null || priestMagicPrefab == null)
+        {
+            return;
+        }
+
+        CancelActiveMagicEffect();
+
+        activeMagicEffect = Instantiate(
+            priestMagicPrefab,
+            target.position + attackMagicOffset,
+            Quaternion.identity,
+            priestMagicParent);
+
+        PriestMagicEffectRelay effectRelay = activeMagicEffect.GetComponent<PriestMagicEffectRelay>();
+        if (effectRelay != null)
+        {
+            effectRelay.Initialize(this);
+        }
+
+        Animator effectAnimator = activeMagicEffect.GetComponent<Animator>();
+        if (effectAnimator != null)
+        {
+            effectAnimator.SetTrigger(attackTriggerName);
+        }
+    }
+
+    public void OnAttackEffectCompleted(PriestMagicEffectRelay effect)
+    {
+        if (spellKind != SpellKind.Attack
+            || effect == null
+            || effect.gameObject != activeMagicEffect)
+        {
+            return;
+        }
+
+        activeMagicEffect = null;
+        CancelSpell();
+        Destroy(effect.gameObject);
+        Hero?.CausePlayerDefeat();
+    }
+
     private void CancelActiveMagicEffect()
     {
         if (activeMagicEffect == null)
@@ -291,6 +395,19 @@ public class PriestHeroBehavior : HeroJobBehavior
         }
 
         return rightmostHero;
+    }
+
+    private Transform FindGoalInRange()
+    {
+        GameObject goalObject = GameObject.FindGameObjectWithTag(goalTag);
+        if (goalObject == null)
+        {
+            return null;
+        }
+
+        return Vector2.Distance(Hero.transform.position, goalObject.transform.position) <= healRange
+            ? goalObject.transform
+            : null;
     }
 
     private void OnDrawGizmosSelected()
