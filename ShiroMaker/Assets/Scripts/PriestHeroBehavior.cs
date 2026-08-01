@@ -10,6 +10,8 @@ public class PriestHeroBehavior : HeroJobBehavior
     }
 
     [SerializeField, Min(0f)] private float raiseRange = 2.5f;
+    [SerializeField, Min(0f)] private float spellStartDelay = 0.5f;
+    [SerializeField, Min(0f)] private float spellCooldownDuration = 3f;
     [SerializeField, Min(0.01f)] private float raiseDuration = 5f;
     [SerializeField] private Color raiseFlashColor = Color.green;
     [SerializeField, Min(0.01f)] private float raiseFlashInterval = 0.1f;
@@ -28,6 +30,10 @@ public class PriestHeroBehavior : HeroJobBehavior
     private SpellKind spellKind;
     private HeroController spellTarget;
     private float spellRemainingTime;
+    private SpellKind pendingSpellKind;
+    private HeroController pendingSpellTarget;
+    private float pendingSpellDelayRemaining;
+    private float spellCooldownRemaining;
 
     public override void Tick()
     {
@@ -36,16 +42,32 @@ public class PriestHeroBehavior : HeroJobBehavior
             return;
         }
 
+        if (spellCooldownRemaining > 0f)
+        {
+            spellCooldownRemaining = Mathf.Max(0f, spellCooldownRemaining - Time.deltaTime);
+        }
+
         if (spellKind != SpellKind.None)
         {
             UpdateSpell();
             return;
         }
 
+        if (pendingSpellKind != SpellKind.None)
+        {
+            UpdatePendingSpell();
+            return;
+        }
+
+        if (spellCooldownRemaining > 0f)
+        {
+            return;
+        }
+
         HeroController reviveTarget = FindRightmostHero(raiseRange, hero => hero.IsDead);
         if (reviveTarget != null)
         {
-            StartSpell(SpellKind.Raise, reviveTarget);
+            BeginSpellAfterDelay(SpellKind.Raise, reviveTarget);
             return;
         }
 
@@ -54,7 +76,7 @@ public class PriestHeroBehavior : HeroJobBehavior
             hero => !hero.IsDead && hero.CurrentHp < hero.MaxHp);
         if (healTarget != null)
         {
-            StartSpell(SpellKind.Heal, healTarget);
+            BeginSpellAfterDelay(SpellKind.Heal, healTarget);
         }
     }
 
@@ -66,11 +88,14 @@ public class PriestHeroBehavior : HeroJobBehavior
     public override void OnInterrupted()
     {
         CancelSpell();
+        CancelPendingSpell();
     }
 
     public override void OnRestored()
     {
         CancelSpell();
+        CancelPendingSpell();
+        spellCooldownRemaining = 0f;
     }
 
     private void StartSpell(SpellKind nextSpellKind, HeroController target)
@@ -85,6 +110,33 @@ public class PriestHeroBehavior : HeroJobBehavior
         }
 
         Hero.PlayJobTrigger(nextSpellKind == SpellKind.Raise ? raiseTriggerName : healTriggerName);
+    }
+
+    private void BeginSpellAfterDelay(SpellKind nextSpellKind, HeroController target)
+    {
+        pendingSpellKind = nextSpellKind;
+        pendingSpellTarget = target;
+        pendingSpellDelayRemaining = spellStartDelay;
+    }
+
+    private void UpdatePendingSpell()
+    {
+        if (pendingSpellTarget == null)
+        {
+            CancelPendingSpell();
+            return;
+        }
+
+        pendingSpellDelayRemaining -= Time.deltaTime;
+        if (pendingSpellDelayRemaining > 0f)
+        {
+            return;
+        }
+
+        SpellKind nextSpellKind = pendingSpellKind;
+        HeroController target = pendingSpellTarget;
+        CancelPendingSpell();
+        StartSpell(nextSpellKind, target);
     }
 
     private void UpdateSpell()
@@ -110,6 +162,7 @@ public class PriestHeroBehavior : HeroJobBehavior
             if (completedTarget.ReviveAtFullHealth())
             {
                 completedTarget.GrantInvincibility(reviveInvincibilityDuration);
+                StartSpellCooldown();
             }
 
             return;
@@ -118,6 +171,7 @@ public class PriestHeroBehavior : HeroJobBehavior
         if (completedTarget.Heal(healAmount))
         {
             completedTarget.PlayColorPulse(healFlashColor, healColorFadeDuration, healColorHoldDuration);
+            StartSpellCooldown();
         }
     }
 
@@ -131,6 +185,18 @@ public class PriestHeroBehavior : HeroJobBehavior
         spellKind = SpellKind.None;
         spellTarget = null;
         spellRemainingTime = 0f;
+    }
+
+    private void CancelPendingSpell()
+    {
+        pendingSpellKind = SpellKind.None;
+        pendingSpellTarget = null;
+        pendingSpellDelayRemaining = 0f;
+    }
+
+    private void StartSpellCooldown()
+    {
+        spellCooldownRemaining = spellCooldownDuration;
     }
 
     private HeroController FindRightmostHero(float range, System.Predicate<HeroController> predicate)
