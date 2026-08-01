@@ -27,6 +27,7 @@ public class HeroController : MonoBehaviour
     private Collider2D bodyCollider;
     private int currentHp;
     private bool isStopped;
+    private bool isMoving;
     private bool isFlinching;
     private bool isDead;
     private float flinchRemainingTime;
@@ -45,6 +46,7 @@ public class HeroController : MonoBehaviour
     public bool IsInvincible => invincibilityRemainingTime > 0f;
     public bool IsDead => isDead;
     public bool IsFlinching => isFlinching;
+    public bool IsMoving => isMoving;
     public Vector3 MoveDirection => Vector3.right;
 
     public event Action<int, int> HealthChanged;
@@ -497,6 +499,8 @@ public class HeroController : MonoBehaviour
 
     private void SetMoving(bool isMoving)
     {
+        this.isMoving = isMoving;
+
         if (animator == null)
         {
             return;
