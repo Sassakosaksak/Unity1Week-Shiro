@@ -8,6 +8,8 @@ public class HeroSEController : MonoBehaviour
     [SerializeField, Min(0.01f)] private float footstepInterval = 0.5f;
     [SerializeField] private AudioClip attackClip;
     [SerializeField, Range(0f, 1f)] private float attackVolume = 0.7f;
+    [SerializeField] private AudioClip hurtClip;
+    [SerializeField, Range(0f, 1f)] private float hurtVolume = 0.7f;
 
     private float footstepElapsedTime;
 
@@ -40,5 +42,10 @@ public class HeroSEController : MonoBehaviour
     public void PlayAttack()
     {
         SEController.Instance?.Play(attackClip, attackVolume);
+    }
+
+    public void PlayHurt()
+    {
+        SEController.Instance?.Play(hurtClip, hurtVolume);
     }
 }

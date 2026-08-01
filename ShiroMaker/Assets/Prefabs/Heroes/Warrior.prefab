@@ -340,3 +340,5 @@ MonoBehaviour:
   footstepInterval: 1
   attackClip: {fileID: 8300000, guid: 97d2caebdf3ebf241b640bd6a9c84402, type: 3}
   attackVolume: 0.7
+  hurtClip: {fileID: 8300000, guid: 2a214e22049446a42a885b49709a84e6, type: 3}
+  hurtVolume: 0.7

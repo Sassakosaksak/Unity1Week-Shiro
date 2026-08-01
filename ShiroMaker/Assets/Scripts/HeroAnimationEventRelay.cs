@@ -27,4 +27,10 @@ public class HeroAnimationEventRelay : MonoBehaviour
     {
         heroSeController?.PlayAttack();
     }
+
+    // Called by the Hurt Animation Event on the Hero Visual.
+    public void PlayHurt()
+    {
+        heroSeController?.PlayHurt();
+    }
 }

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3763165877448864033}
   - component: {fileID: 5819627501319678583}
   - component: {fileID: 764852901207218466}
+  - component: {fileID: 1884752389301123461}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -124,6 +125,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _color: {r: 0.8018868, g: 0.094562106, b: 0.094562106, a: 1}
+--- !u!114 &1884752389301123461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1803181607693064331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c52331d125dbba04b81d9fe618dd3c06, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  hero: {fileID: 5590721996732973574}
 --- !u!1 &8012925799873910158
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,3 +367,7 @@ MonoBehaviour:
   footstepClip: {fileID: 8300000, guid: 4afa7bc5145b3e549a8d14cac8835cf5, type: 3}
   footstepVolume: 0.1
   footstepInterval: 1
+  attackClip: {fileID: 0}
+  attackVolume: 0.7
+  hurtClip: {fileID: 8300000, guid: 2a214e22049446a42a885b49709a84e6, type: 3}
+  hurtVolume: 0.7
