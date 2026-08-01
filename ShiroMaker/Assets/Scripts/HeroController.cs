@@ -21,8 +21,10 @@ public class HeroController : MonoBehaviour
     private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
     private static readonly int HurtHash = Animator.StringToHash("Hurt");
     private static readonly int DeathHash = Animator.StringToHash("Death");
+    private const float DefaultHeroSeparation = 0.3f;
 
     private GameController gameController;
+    private Collider2D bodyCollider;
     private int currentHp;
     private bool isStopped;
     private bool isFlinching;
@@ -32,7 +34,11 @@ public class HeroController : MonoBehaviour
     private float knockbackRemainingTime;
     private Vector3 knockbackVelocity;
     private Tween invincibilityBlinkTween;
+    private Tween greenFlashTween;
+    private Tween greenFlashStopTween;
     private float blinkRendererDefaultAlpha = 1f;
+    private Color greenFlashDefaultColor = Color.white;
+    private bool isGreenFlashing;
 
     public int MaxHp => maxHp;
     public int CurrentHp => currentHp;
@@ -66,11 +72,14 @@ public class HeroController : MonoBehaviour
         {
             blinkRendererDefaultAlpha = blinkRenderer.color.a;
         }
+
+        bodyCollider = GetComponent<Collider2D>();
     }
 
     private void OnDisable()
     {
         StopInvincibilityBlink();
+        StopGreenFlash();
     }
 
     private void Start()
@@ -113,7 +122,8 @@ public class HeroController : MonoBehaviour
             }
         }
 
-        bool canMove = jobBehavior == null || jobBehavior.CanMove();
+        bool canMove = (jobBehavior == null || jobBehavior.CanMove())
+            && CanMoveInDirection(MoveDirection);
         SetMoving(canMove);
 
         if (canMove)
@@ -218,6 +228,108 @@ public class HeroController : MonoBehaviour
         Die();
     }
 
+    public bool Heal(int amount)
+    {
+        if (isDead || amount <= 0 || currentHp >= maxHp)
+        {
+            return false;
+        }
+
+        currentHp = Mathf.Min(maxHp, currentHp + amount);
+        HealthChanged?.Invoke(currentHp, maxHp);
+        return true;
+    }
+
+    public bool ReviveAtFullHealth()
+    {
+        if (!isDead)
+        {
+            return false;
+        }
+
+        StopAllCoroutines();
+        StopInvincibilityBlink();
+
+        currentHp = maxHp;
+        isStopped = false;
+        isFlinching = false;
+        isDead = false;
+        flinchRemainingTime = 0f;
+        invincibilityRemainingTime = 0f;
+        knockbackRemainingTime = 0f;
+        ResetAnimatorForRewind();
+        SetMoving(false);
+        jobBehavior?.OnRestored();
+        HealthChanged?.Invoke(currentHp, maxHp);
+        return true;
+    }
+
+    public void GrantInvincibility(float duration)
+    {
+        if (duration <= 0f)
+        {
+            return;
+        }
+
+        invincibilityRemainingTime = Mathf.Max(invincibilityRemainingTime, duration);
+        StartInvincibilityBlink();
+    }
+
+    public void StartGreenFlash(Color flashColor, float interval)
+    {
+        if (blinkRenderer == null)
+        {
+            return;
+        }
+
+        StopGreenFlash();
+        greenFlashDefaultColor = blinkRenderer.color;
+        isGreenFlashing = true;
+        flashColor.a = greenFlashDefaultColor.a;
+        greenFlashTween = blinkRenderer
+            .DOColor(flashColor, Mathf.Max(0.01f, interval))
+            .SetLoops(-1, LoopType.Yoyo);
+    }
+
+    public void PlayColorPulse(Color pulseColor, float fadeDuration, float holdDuration)
+    {
+        if (blinkRenderer == null)
+        {
+            return;
+        }
+
+        StopGreenFlash();
+        greenFlashDefaultColor = blinkRenderer.color;
+        isGreenFlashing = true;
+        pulseColor.a = greenFlashDefaultColor.a;
+
+        Sequence pulseSequence = DOTween.Sequence();
+        pulseSequence.Append(blinkRenderer.DOColor(pulseColor, Mathf.Max(0.01f, fadeDuration)));
+        pulseSequence.AppendInterval(Mathf.Max(0f, holdDuration));
+        pulseSequence.Append(blinkRenderer.DOColor(greenFlashDefaultColor, Mathf.Max(0.01f, fadeDuration)));
+        pulseSequence.OnComplete(StopGreenFlash);
+        greenFlashTween = pulseSequence.SetTarget(this);
+    }
+
+    public void StopGreenFlash()
+    {
+        greenFlashTween?.Kill();
+        greenFlashTween = null;
+        greenFlashStopTween?.Kill();
+        greenFlashStopTween = null;
+
+        if (blinkRenderer == null || !isGreenFlashing)
+        {
+            isGreenFlashing = false;
+            return;
+        }
+
+        isGreenFlashing = false;
+        Color restoredColor = greenFlashDefaultColor;
+        restoredColor.a = blinkRenderer.color.a;
+        blinkRenderer.color = restoredColor;
+    }
+
     public void PlayJobTrigger(string triggerName)
     {
         if (string.IsNullOrEmpty(triggerName))
@@ -276,7 +388,7 @@ public class HeroController : MonoBehaviour
         if (knockbackRemainingTime > 0f)
         {
             float knockbackStepTime = Mathf.Min(deltaTime, knockbackRemainingTime);
-            transform.position += knockbackVelocity * knockbackStepTime;
+            transform.position += GetHeroSafeMovement(knockbackVelocity * knockbackStepTime);
             knockbackRemainingTime -= deltaTime;
         }
 
@@ -311,7 +423,66 @@ public class HeroController : MonoBehaviour
 
     private void Move(Vector3 velocity)
     {
-        transform.position += velocity * Time.deltaTime;
+        Vector3 requestedMovement = velocity * Time.deltaTime;
+        transform.position += GetHeroSafeMovement(requestedMovement);
+    }
+
+    private bool CanMoveInDirection(Vector3 direction)
+    {
+        if (direction.x == 0f)
+        {
+            return true;
+        }
+
+        return Mathf.Abs(GetHeroSafeMovement(new Vector3(Mathf.Sign(direction.x) * 0.01f, 0f, 0f)).x) > 0f;
+    }
+
+    private Vector3 GetHeroSafeMovement(Vector3 requestedMovement)
+    {
+        if (bodyCollider == null || requestedMovement.x == 0f)
+        {
+            return requestedMovement;
+        }
+
+        Bounds ownBounds = bodyCollider.bounds;
+        float safeMovementX = requestedMovement.x;
+
+        foreach (HeroController otherHero in FindObjectsByType<HeroController>(FindObjectsSortMode.None))
+        {
+            if (otherHero == null || otherHero == this)
+            {
+                continue;
+            }
+
+            Collider2D otherCollider = otherHero.GetComponent<Collider2D>();
+            if (otherCollider == null || !IsVerticallyOverlapping(ownBounds, otherCollider.bounds))
+            {
+                continue;
+            }
+
+            if (requestedMovement.x > 0f && otherCollider.bounds.min.x >= ownBounds.max.x)
+            {
+                float maximumMovement = otherCollider.bounds.min.x - GetHeroSeparation() - ownBounds.max.x;
+                safeMovementX = Mathf.Min(safeMovementX, Mathf.Max(0f, maximumMovement));
+            }
+            else if (requestedMovement.x < 0f && otherCollider.bounds.max.x <= ownBounds.min.x)
+            {
+                float maximumMovement = otherCollider.bounds.max.x + GetHeroSeparation() - ownBounds.min.x;
+                safeMovementX = Mathf.Max(safeMovementX, Mathf.Min(0f, maximumMovement));
+            }
+        }
+
+        return new Vector3(safeMovementX, requestedMovement.y, requestedMovement.z);
+    }
+
+    private static bool IsVerticallyOverlapping(Bounds first, Bounds second)
+    {
+        return first.min.y < second.max.y && first.max.y > second.min.y;
+    }
+
+    private float GetHeroSeparation()
+    {
+        return DefaultHeroSeparation;
     }
 
     private void SetMoving(bool isMoving)
@@ -365,7 +536,7 @@ public class HeroController : MonoBehaviour
 
     private void StartInvincibilityBlink()
     {
-        if (blinkRenderer == null || invincibilityDuration <= 0f)
+        if (blinkRenderer == null || invincibilityRemainingTime <= 0f)
         {
             return;
         }
