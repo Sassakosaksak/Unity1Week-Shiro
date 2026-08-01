@@ -25,4 +25,13 @@ public abstract class HeroJobBehavior : MonoBehaviour
     public virtual void OnRestored()
     {
     }
+
+    public virtual bool TryHandleGoalContact(Collider2D goal)
+    {
+        return false;
+    }
+
+    public virtual void OnAttackDefeatAnimationEvent()
+    {
+    }
 }

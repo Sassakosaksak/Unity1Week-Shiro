@@ -141,6 +141,11 @@ public class HeroController : MonoBehaviour
 
         if (other.CompareTag("Goal"))
         {
+            if (jobBehavior != null && jobBehavior.TryHandleGoalContact(other))
+            {
+                return;
+            }
+
             ShowDefeat();
             return;
         }
@@ -214,6 +219,11 @@ public class HeroController : MonoBehaviour
     public void CausePlayerDefeat()
     {
         ShowDefeat();
+    }
+
+    public void OnAttackDefeatAnimationEvent()
+    {
+        jobBehavior?.OnAttackDefeatAnimationEvent();
     }
 
     public void Kill()

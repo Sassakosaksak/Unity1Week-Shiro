@@ -56261,6 +56261,7 @@ GameObject:
   - component: {fileID: 321238339}
   - component: {fileID: 321238338}
   - component: {fileID: 321238340}
+  - component: {fileID: 321238341}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -56373,6 +56374,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _color: {r: 0.8018868, g: 0.094562106, b: 0.094562106, a: 1}
+--- !u!114 &321238341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321238336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c52331d125dbba04b81d9fe618dd3c06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hero: {fileID: 878373436}
 --- !u!1 &446900920
 GameObject:
   m_ObjectHideFlags: 0
@@ -74647,7 +74661,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1959250572331444146, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.93
+      value: 0.67
       objectReference: {fileID: 0}
     - target: {fileID: 1959250572331444146, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
       propertyPath: m_LocalPosition.y
@@ -74739,7 +74753,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5590721996732973574, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
       propertyPath: maxHp
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8012925799873910158, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
       propertyPath: m_Name
@@ -75080,13 +75094,14 @@ GameObject:
   - component: {fileID: 878373436}
   - component: {fileID: 878373440}
   - component: {fileID: 878373439}
+  - component: {fileID: 878373441}
   m_Layer: 0
   m_Name: Warrior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &878373435
 Transform:
   m_ObjectHideFlags: 0
@@ -75096,7 +75111,7 @@ Transform:
   m_GameObject: {fileID: 878373433}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.02, y: 0, z: 0}
+  m_LocalPosition: {x: 20.7, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -75117,7 +75132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   maxHp: 2
-  jobBehavior: {fileID: 0}
+  jobBehavior: {fileID: 878373441}
   animator: {fileID: 321238338}
   blinkRenderer: {fileID: 321238339}
   flinchDuration: 1
@@ -75235,6 +75250,19 @@ MonoBehaviour:
   heartScale: 0.5
   sortingLayerName: UI
   sortingOrder: 30
+--- !u!114 &878373441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878373433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c9a0896e504e2fafbb570654de7c85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackTriggerName: Attack01
 --- !u!1 &890653204
 GameObject:
   m_ObjectHideFlags: 0
@@ -75758,7 +75786,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1177438448
 Transform:
   m_ObjectHideFlags: 0
@@ -75768,7 +75796,7 @@ Transform:
   m_GameObject: {fileID: 1177438447}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.31, y: 0, z: 0}
+  m_LocalPosition: {x: 2.55, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
