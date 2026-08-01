@@ -74685,6 +74685,58 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: raiseDuration
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: healFlashColor.a
+      value: 0.6313726
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: healFlashColor.b
+      value: 0.6556604
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: healFlashColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: healFlashColor.r
+      value: 0.6556604
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: healMagicOffset.y
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: priestMagicParent
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: raiseFlashColor.a
+      value: 0.6117647
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: raiseFlashColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: raiseFlashColor.g
+      value: 0.95477766
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: raiseFlashColor.r
+      value: 0.5613208
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: raiseMagicOffset.y
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3882304429218409619, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: spellCooldownDuration
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5590721996732973574, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
       propertyPath: maxHp
       value: 3

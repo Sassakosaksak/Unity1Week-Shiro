@@ -311,6 +311,14 @@ MonoBehaviour:
   healRange: 4.5
   healDuration: 1
   healAmount: 1
+  priestMagicPrefab: {fileID: 1177905515278820083, guid: 0aa6c02572f154746ad5ec6f12b48796, type: 3}
+  priestMagicParent: {fileID: 0}
+  raiseMagicOffset: {x: 0, y: 0, z: 0}
+  raiseMagicLifetime: 1.5
+  raiseMagicPlaybackSpeed: 0.5
+  healMagicOffset: {x: 0, y: 0, z: 0}
+  healMagicLifetime: 0.75
+  healMagicPlaybackSpeed: 1
   raiseTriggerName: Raise
   healTriggerName: Heal
   raiseRangeGizmoColor: {r: 0.9, g: 0.6, b: 1, a: 0.45}

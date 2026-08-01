@@ -22,8 +22,18 @@ public class PriestHeroBehavior : HeroJobBehavior
     [SerializeField] private Color healFlashColor = Color.green;
     [SerializeField, Min(0.01f)] private float healColorFadeDuration = 0.2f;
     [SerializeField, Min(0f)] private float healColorHoldDuration = 1f;
+    [SerializeField] private GameObject priestMagicPrefab;
+    [SerializeField] private Transform priestMagicParent;
+    [SerializeField] private Vector3 raiseMagicOffset;
+    [SerializeField, Min(0.01f)] private float raiseMagicLifetime = 1.5f;
+    [SerializeField, Min(0.01f)] private float raiseMagicPlaybackSpeed = 0.5f;
+    [SerializeField] private Vector3 healMagicOffset;
+    [SerializeField, Min(0.01f)] private float healMagicLifetime = 0.75f;
+    [SerializeField, Min(0.01f)] private float healMagicPlaybackSpeed = 1f;
     [SerializeField] private string raiseTriggerName = "Raise";
     [SerializeField] private string healTriggerName = "Heal";
+    [SerializeField] private string raiseEffectTriggerName = "Raise";
+    [SerializeField] private string healEffectTriggerName = "Heal";
     [SerializeField] private Color raiseRangeGizmoColor = new Color(0.9f, 0.6f, 1f, 0.45f);
     [SerializeField] private Color healRangeGizmoColor = new Color(0.35f, 1f, 0.55f, 0.35f);
 
@@ -34,6 +44,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     private HeroController pendingSpellTarget;
     private float pendingSpellDelayRemaining;
     private float spellCooldownRemaining;
+    private GameObject activeMagicEffect;
 
     public override void Tick()
     {
@@ -95,6 +106,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     {
         CancelSpell();
         CancelPendingSpell();
+        CancelActiveMagicEffect();
         spellCooldownRemaining = 0f;
     }
 
@@ -159,6 +171,12 @@ public class PriestHeroBehavior : HeroJobBehavior
 
         if (completedSpellKind == SpellKind.Raise)
         {
+            SpawnMagicEffect(
+                completedTarget,
+                raiseEffectTriggerName,
+                raiseMagicOffset,
+                raiseMagicLifetime,
+                raiseMagicPlaybackSpeed);
             if (completedTarget.ReviveAtFullHealth())
             {
                 completedTarget.GrantInvincibility(reviveInvincibilityDuration);
@@ -170,6 +188,12 @@ public class PriestHeroBehavior : HeroJobBehavior
 
         if (completedTarget.Heal(healAmount))
         {
+            SpawnMagicEffect(
+                completedTarget,
+                healEffectTriggerName,
+                healMagicOffset,
+                healMagicLifetime,
+                healMagicPlaybackSpeed);
             completedTarget.PlayColorPulse(healFlashColor, healColorFadeDuration, healColorHoldDuration);
             StartSpellCooldown();
         }
@@ -197,6 +221,50 @@ public class PriestHeroBehavior : HeroJobBehavior
     private void StartSpellCooldown()
     {
         spellCooldownRemaining = spellCooldownDuration;
+    }
+
+    private void SpawnMagicEffect(
+        HeroController target,
+        string triggerName,
+        Vector3 positionOffset,
+        float lifetime,
+        float playbackSpeed)
+    {
+        if (target == null || priestMagicPrefab == null)
+        {
+            return;
+        }
+
+        CancelActiveMagicEffect();
+
+        activeMagicEffect = Instantiate(
+            priestMagicPrefab,
+            target.transform.position + positionOffset,
+            Quaternion.identity,
+            priestMagicParent);
+
+        Animator effectAnimator = activeMagicEffect.GetComponent<Animator>();
+        if (effectAnimator != null)
+        {
+            effectAnimator.speed = playbackSpeed;
+            if (!string.IsNullOrEmpty(triggerName))
+            {
+                effectAnimator.SetTrigger(triggerName);
+            }
+        }
+
+        Destroy(activeMagicEffect, lifetime);
+    }
+
+    private void CancelActiveMagicEffect()
+    {
+        if (activeMagicEffect == null)
+        {
+            return;
+        }
+
+        Destroy(activeMagicEffect);
+        activeMagicEffect = null;
     }
 
     private HeroController FindRightmostHero(float range, System.Predicate<HeroController> predicate)
