@@ -6,6 +6,8 @@ public class HeroSEController : MonoBehaviour
     [SerializeField] private AudioClip footstepClip;
     [SerializeField, Range(0f, 1f)] private float footstepVolume = 0.5f;
     [SerializeField, Min(0.01f)] private float footstepInterval = 0.5f;
+    [SerializeField] private AudioClip attackClip;
+    [SerializeField, Range(0f, 1f)] private float attackVolume = 0.7f;
 
     private float footstepElapsedTime;
 
@@ -33,5 +35,10 @@ public class HeroSEController : MonoBehaviour
 
         footstepElapsedTime -= footstepInterval;
         SEController.Instance?.Play(footstepClip, footstepVolume);
+    }
+
+    public void PlayAttack()
+    {
+        SEController.Instance?.Play(attackClip, attackVolume);
     }
 }
