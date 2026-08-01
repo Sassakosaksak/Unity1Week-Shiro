@@ -176,6 +176,7 @@ public class HeroController : MonoBehaviour
         flinchRemainingTime = 0f;
         invincibilityRemainingTime = 0f;
         knockbackRemainingTime = 0f;
+        ResetAnimatorForRewind();
         SetMoving(false);
         jobBehavior?.OnRestored();
     }
@@ -321,6 +322,17 @@ public class HeroController : MonoBehaviour
         }
 
         animator.SetBool(IsMovingHash, isMoving);
+    }
+
+    private void ResetAnimatorForRewind()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        animator.Rebind();
+        animator.Update(0f);
     }
 
     private void SetTrigger(int triggerHash)
