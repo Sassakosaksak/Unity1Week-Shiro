@@ -74262,7 +74262,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b10377e4d517673113d6f876756bd5a5
+  m_ApplyToSortingLayers: 00000000b10377e4d517673113d6f876756bd5a58f6e93eb
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -75645,7 +75645,7 @@ Transform:
   m_GameObject: {fileID: 1177438447}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.25, y: 0, z: 0}
+  m_LocalPosition: {x: -1.06, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -75797,9 +75797,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   magicRange: 4.5
+  attackCastStartDelay: 0.5
   sealPitCastStartDelay: 0.5
   attackCastDuration: 2
   sealPitCastDuration: 2
+  iceAttackPrefab: {fileID: 2983954017381424401, guid: d967f45e10e33f5408d2ee99366fcb32, type: 3}
+  iceAttackParent: {fileID: 0}
   temporaryGroundPrefab: {fileID: 3475707774734830516, guid: f448c53056b1d9e40979d0a2398679f9, type: 3}
   temporaryGroundParent: {fileID: 1103636763}
   temporaryGroundBottomCenterOffset: {x: 0, y: -0.5, z: 0}

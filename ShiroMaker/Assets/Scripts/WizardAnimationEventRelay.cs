@@ -16,4 +16,9 @@ public class WizardAnimationEventRelay : MonoBehaviour
     {
         wizardBehavior?.StartFloorSettingFromAnimation();
     }
+
+    public void SpawnIceAttack()
+    {
+        wizardBehavior?.SpawnIceAttackFromAnimation();
+    }
 }

@@ -10,9 +10,12 @@ public class WizardHeroBehavior : HeroJobBehavior
     }
 
     [SerializeField, Min(0f)] private float magicRange = 4f;
+    [SerializeField, Min(0f)] private float attackCastStartDelay = 0.5f;
     [SerializeField, Min(0f)] private float sealPitCastStartDelay = 0.5f;
     [SerializeField, Min(0.01f)] private float attackCastDuration = 2f;
     [SerializeField, Min(0.01f)] private float sealPitCastDuration = 2f;
+    [SerializeField] private IceAttackEffect iceAttackPrefab;
+    [SerializeField] private Transform iceAttackParent;
     [SerializeField] private GameObject temporaryGroundPrefab;
     [SerializeField] private Transform temporaryGroundParent;
     [SerializeField] private Vector3 temporaryGroundBottomCenterOffset = new Vector3(0f, -0.5f, 0f);
@@ -29,15 +32,23 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     private CastKind castKind;
     private float castRemainingTime;
+    private float attackDelayRemainingTime;
     private float sealPitDelayRemainingTime;
+    private bool isAttackPending;
     private PitfallTrap pendingSealPit;
     private PitfallTrap castingPit;
     private Transform goalTarget;
     private bool floorSettingStarted;
+    private IceAttackEffect activeIceAttack;
 
     public override void Tick()
     {
         if (Hero == null)
+        {
+            return;
+        }
+
+        if (activeIceAttack != null)
         {
             return;
         }
@@ -48,10 +59,16 @@ public class WizardHeroBehavior : HeroJobBehavior
             return;
         }
 
+        if (isAttackPending)
+        {
+            UpdateAttackDelay();
+            return;
+        }
+
         if (TryFindGoalInRange())
         {
             CancelPendingSealPit();
-            StartCasting(CastKind.Attack, null);
+            StartAttackDelay();
             return;
         }
 
@@ -86,14 +103,18 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     public override void OnInterrupted()
     {
+        CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
+        CancelActiveIceAttack();
     }
 
     public override void OnRestored()
     {
+        CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
+        CancelActiveIceAttack();
     }
 
     // Called by the StartFloorSetting Animation Event in Attack2.
@@ -113,6 +134,40 @@ public class WizardHeroBehavior : HeroJobBehavior
             temporaryGroundParent);
     }
 
+    // Called by the SpawnIceAttack Animation Event in Attack1.
+    public void SpawnIceAttackFromAnimation()
+    {
+        if (castKind != CastKind.Attack
+            || activeIceAttack != null
+            || iceAttackPrefab == null
+            || !TryFindGoalInRange())
+        {
+            return;
+        }
+
+        Vector3 targetPosition = goalTarget.position;
+        IceAttackEffect iceAttack = Instantiate(iceAttackPrefab, Vector3.zero, Quaternion.identity, iceAttackParent);
+        PlaceableAnchor placementAnchor = iceAttack.GetComponent<PlaceableAnchor>();
+        iceAttack.transform.position = placementAnchor != null
+            ? placementAnchor.GetRootPositionForCellCenter(targetPosition)
+            : targetPosition;
+
+        activeIceAttack = iceAttack;
+        activeIceAttack.Initialize(this);
+    }
+
+    public void OnIceAttackHit(IceAttackEffect iceAttack)
+    {
+        if (iceAttack == null || iceAttack != activeIceAttack)
+        {
+            return;
+        }
+
+        activeIceAttack = null;
+        Destroy(iceAttack.gameObject);
+        Hero?.CausePlayerDefeat();
+    }
+
     private void StartCasting(CastKind nextCastKind, PitfallTrap pit)
     {
         castKind = nextCastKind;
@@ -126,6 +181,30 @@ public class WizardHeroBehavior : HeroJobBehavior
     {
         pendingSealPit = pit;
         sealPitDelayRemainingTime = sealPitCastStartDelay;
+    }
+
+    private void StartAttackDelay()
+    {
+        isAttackPending = true;
+        attackDelayRemainingTime = attackCastStartDelay;
+    }
+
+    private void UpdateAttackDelay()
+    {
+        if (!TryFindGoalInRange())
+        {
+            CancelPendingAttack();
+            return;
+        }
+
+        attackDelayRemainingTime -= Time.deltaTime;
+        if (attackDelayRemainingTime > 0f)
+        {
+            return;
+        }
+
+        CancelPendingAttack();
+        StartCasting(CastKind.Attack, null);
     }
 
     private void UpdateSealPitDelay()
@@ -160,13 +239,13 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     private void CompleteCasting()
     {
-        CastKind completedCastKind = castKind;
         CancelCasting(false);
+    }
 
-        if (completedCastKind == CastKind.Attack)
-        {
-            Hero.CausePlayerDefeat();
-        }
+    private void CancelPendingAttack()
+    {
+        isAttackPending = false;
+        attackDelayRemainingTime = 0f;
     }
 
     private void CancelPendingSealPit()
@@ -186,6 +265,18 @@ public class WizardHeroBehavior : HeroJobBehavior
         castRemainingTime = 0f;
         castingPit = null;
         floorSettingStarted = false;
+    }
+
+    private void CancelActiveIceAttack()
+    {
+        if (activeIceAttack == null)
+        {
+            return;
+        }
+
+        IceAttackEffect iceAttack = activeIceAttack;
+        activeIceAttack = null;
+        Destroy(iceAttack.gameObject);
     }
 
     private string GetTriggerName(CastKind targetCastKind)
