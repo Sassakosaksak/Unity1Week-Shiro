@@ -357,7 +357,7 @@ public class PriestHeroBehavior : HeroJobBehavior
         activeMagicEffect = null;
         CancelSpell();
         Destroy(effect.gameObject);
-        Hero?.CausePlayerDefeat();
+        MaouController.Instance?.TakeDamage();
     }
 
     private void CancelActiveMagicEffect()

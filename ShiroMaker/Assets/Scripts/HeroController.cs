@@ -148,6 +148,13 @@ public class HeroController : MonoBehaviour
                 return;
             }
 
+            MaouController maou = other.GetComponent<MaouController>();
+            if (maou != null)
+            {
+                maou.TakeDamage();
+                return;
+            }
+
             ShowDefeat();
             return;
         }
@@ -214,7 +221,7 @@ public class HeroController : MonoBehaviour
         Stop();
         if (gameController != null)
         {
-            gameController.ShowFailure();
+            gameController.ResolveResult(GameController.GameResult.Failure);
         }
     }
 
@@ -362,7 +369,7 @@ public class HeroController : MonoBehaviour
     {
         if (gameController != null)
         {
-            gameController.ShowSuccess();
+            gameController.ResolveResult(GameController.GameResult.Success);
         }
     }
 

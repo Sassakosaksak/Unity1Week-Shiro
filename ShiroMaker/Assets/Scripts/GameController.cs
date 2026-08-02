@@ -82,18 +82,26 @@ public class GameController : MonoBehaviour
 
     public void ShowSuccess()
     {
-        ChangePhase(GamePhase.Result);
-        SetResultObjectsActive(true, false);
-        ResultShown?.Invoke(GameResult.Success);
-        Debug.Log("Success");
+        ResolveResult(GameResult.Success);
     }
 
     public void ShowFailure()
     {
+        ResolveResult(GameResult.Failure);
+    }
+
+    public void ResolveResult(GameResult result)
+    {
+        if (CurrentPhase == GamePhase.Result)
+        {
+            return;
+        }
+
         ChangePhase(GamePhase.Result);
-        SetResultObjectsActive(false, true);
-        ResultShown?.Invoke(GameResult.Failure);
-        Debug.Log("Defeat");
+        bool isSuccess = result == GameResult.Success;
+        SetResultObjectsActive(isSuccess, !isSuccess);
+        ResultShown?.Invoke(result);
+        Debug.Log(isSuccess ? "Success" : "Defeat");
     }
 
     public bool AreAllHeroesDead()

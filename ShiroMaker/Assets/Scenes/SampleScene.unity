@@ -33317,6 +33317,7 @@ GameObject:
   m_Component:
   - component: {fileID: 203301977}
   - component: {fileID: 203301978}
+  - component: {fileID: 203301979}
   m_Layer: 0
   m_Name: Maou
   m_TagString: Goal
@@ -33386,6 +33387,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.6543431, y: 1.2246497}
   m_EdgeRadius: 0
+--- !u!114 &203301979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 203301975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5b0a95230f420c85fa04d9a4f6d451, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damagedClip: {fileID: 8300000, guid: baf507bb635dd9349bb2c1e4368ed63a, type: 3}
+  damagedVolume: 0.7
 --- !u!4 &218818660 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7969113453391430753, guid: 388998310fe47854c822a05a3d769b9d, type: 3}

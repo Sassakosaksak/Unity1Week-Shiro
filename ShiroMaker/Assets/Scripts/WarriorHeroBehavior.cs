@@ -5,6 +5,7 @@ public class WarriorHeroBehavior : HeroJobBehavior
     [SerializeField] private string attackTriggerName = "Attack01";
 
     private bool isAttacking;
+    private MaouController targetMaou;
 
     public override bool CanMove()
     {
@@ -14,16 +15,24 @@ public class WarriorHeroBehavior : HeroJobBehavior
     public override void OnInterrupted()
     {
         isAttacking = false;
+        targetMaou = null;
     }
 
     public override void OnRestored()
     {
         isAttacking = false;
+        targetMaou = null;
     }
 
     public override bool TryHandleGoalContact(Collider2D goal)
     {
         if (Hero == null || Hero.IsDead || isAttacking || goal == null || !goal.CompareTag("Goal"))
+        {
+            return false;
+        }
+
+        targetMaou = goal.GetComponent<MaouController>();
+        if (targetMaou == null)
         {
             return false;
         }
@@ -40,6 +49,6 @@ public class WarriorHeroBehavior : HeroJobBehavior
             return;
         }
 
-        Hero.CausePlayerDefeat();
+        targetMaou?.TakeDamage();
     }
 }

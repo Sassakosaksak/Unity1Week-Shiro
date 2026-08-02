@@ -165,7 +165,7 @@ public class WizardHeroBehavior : HeroJobBehavior
 
         activeIceAttack = null;
         Destroy(iceAttack.gameObject);
-        Hero?.CausePlayerDefeat();
+        MaouController.Instance?.TakeDamage();
     }
 
     private void StartCasting(CastKind nextCastKind, PitfallTrap pit)
