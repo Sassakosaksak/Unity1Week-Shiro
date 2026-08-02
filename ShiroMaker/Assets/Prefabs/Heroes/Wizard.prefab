@@ -149,8 +149,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c52331d125dbba04b81d9fe618dd3c06, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   hero: {fileID: 7321854682587322498}
 --- !u!1 &7712739772651246521
 GameObject:
@@ -282,7 +282,7 @@ MonoBehaviour:
   animator: {fileID: 7982226424537810632}
   blinkRenderer: {fileID: 6676567395904434073}
   flinchDuration: 1
-  invincibilityDuration: 5
+  invincibilityDuration: 2.5
   invincibilityBlinkAlpha: 0.1
   invincibilityBlinkInterval: 0.2
   knockbackDistance: 0.45

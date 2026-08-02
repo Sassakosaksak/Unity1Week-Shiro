@@ -135,8 +135,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c52331d125dbba04b81d9fe618dd3c06, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   hero: {fileID: 5590721996732973574}
 --- !u!1 &8012925799873910158
 GameObject:
@@ -211,7 +211,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.045544103, y: 0.52}
+  m_Offset: {x: 0.060011625, y: 0.52}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.34999996, y: -1.8181819}
@@ -221,7 +221,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.8279444, y: 1}
+  m_Size: {x: 0.89545774, y: 1}
   m_EdgeRadius: 0
 --- !u!50 &5773899686295214317
 Rigidbody2D:
@@ -262,16 +262,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b61b7331a0d775340a16fdea6f33afd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 1.8
   maxHp: 1
   jobBehavior: {fileID: 3882304429218409619}
   animator: {fileID: 5819627501319678583}
   blinkRenderer: {fileID: 3763165877448864033}
   flinchDuration: 1
-  invincibilityDuration: 5
+  invincibilityDuration: 2.5
   invincibilityBlinkAlpha: 0.1
   invincibilityBlinkInterval: 0.2
-  knockbackDistance: 0.45
+  knockbackDistance: 0.9
   knockbackDuration: 0.18
   deathResultDelay: 0.8
 --- !u!114 &2727781621057415240
@@ -373,3 +373,7 @@ MonoBehaviour:
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}
   deathVolume: 0.7
+  magicCastingClip: {fileID: 0}
+  magicCastingVolume: 0.7
+  magicShotClip: {fileID: 0}
+  magicShotVolume: 0.7

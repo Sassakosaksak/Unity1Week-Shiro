@@ -268,7 +268,7 @@ MonoBehaviour:
   animator: {fileID: 3783256180434724990}
   blinkRenderer: {fileID: 8103676907500577062}
   flinchDuration: 1
-  invincibilityDuration: 5
+  invincibilityDuration: 2.5
   invincibilityBlinkAlpha: 0.1
   invincibilityBlinkInterval: 0.2
   knockbackDistance: 0.45
@@ -322,6 +322,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackTriggerName: Attack01
+  rockAttackTriggerName: Attack2
+  rockAttackDuration: 0.9
+  gridSize: 1
+  trapProbeSize: {x: 0.8, y: 0.8}
+  rockProbeForwardExtension: 0.5
+  trapLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &1884752389301123456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344,3 +352,7 @@ MonoBehaviour:
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}
   deathVolume: 0.7
+  magicCastingClip: {fileID: 0}
+  magicCastingVolume: 0.7
+  magicShotClip: {fileID: 0}
+  magicShotVolume: 0.7

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1128f0cf1f84c6197be8e3250e95061, type: 3}
   m_Name: LargeStage3
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   initialTraps:
-  - trapType: 3
-    cell: {x: 12, y: 2}
+  - trapType: 1
+    cell: {x: 6, y: 1}
