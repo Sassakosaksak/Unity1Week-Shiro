@@ -33,4 +33,10 @@ public class HeroAnimationEventRelay : MonoBehaviour
     {
         heroSeController?.PlayHurt();
     }
+
+    // Called by the Death Animation Event on the Hero Visual.
+    public void PlayDeath()
+    {
+        heroSeController?.PlayDeath();
+    }
 }

@@ -375,3 +375,5 @@ MonoBehaviour:
   attackVolume: 0.7
   hurtClip: {fileID: 8300000, guid: 2a214e22049446a42a885b49709a84e6, type: 3}
   hurtVolume: 0.7
+  deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}
+  deathVolume: 0.7
