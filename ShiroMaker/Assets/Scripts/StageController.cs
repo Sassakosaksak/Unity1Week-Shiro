@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,7 @@ public class StageController : MonoBehaviour
 
     public static StageController Instance { get; private set; }
     public bool IsFinalSmallStage => currentSmallStage != null && currentSmallStage.NextSmallStage == null;
+    public event Action TrapSuppliesChanged;
 
     private void Awake()
     {
@@ -73,6 +75,11 @@ public class StageController : MonoBehaviour
             && remaining > 0;
     }
 
+    public int GetRemainingTrapSupply(TrapType trapType)
+    {
+        return remainingTrapSupplies.TryGetValue(trapType, out int remaining) ? remaining : 0;
+    }
+
     public bool TryConsumeTrap(GameObject trapPrefab)
     {
         if (firstSmallStage == null)
@@ -89,6 +96,7 @@ public class StageController : MonoBehaviour
         }
 
         remainingTrapSupplies[trapType] = remaining - 1;
+        TrapSuppliesChanged?.Invoke();
         return true;
     }
 
@@ -121,6 +129,7 @@ public class StageController : MonoBehaviour
         DestroyTemporaryGrounds();
 
         remainingTrapSupplies.Clear();
+        TrapSuppliesChanged?.Invoke();
         currentSmallStage = null;
         currentLargeStage = null;
         GameController.Instance?.ClearCurrentStageUndoHistory();
@@ -253,6 +262,8 @@ public class StageController : MonoBehaviour
                 remainingTrapSupplies[supply.TrapType] = supply.Count;
             }
         }
+
+        TrapSuppliesChanged?.Invoke();
     }
 
     private void OnTrapPlaced(GameObject trap)
@@ -275,6 +286,7 @@ public class StageController : MonoBehaviour
         }
 
         remainingTrapSupplies[trapType]++;
+        TrapSuppliesChanged?.Invoke();
     }
 
     private static void DestroyGameObjects(List<GameObject> objects)
