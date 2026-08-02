@@ -165,13 +165,6 @@ public class HeroController : MonoBehaviour
                 return;
             }
 
-            MaouController maou = other.GetComponent<MaouController>();
-            if (maou != null)
-            {
-                maou.TakeDamage();
-                return;
-            }
-
             ShowDefeat();
             return;
         }
