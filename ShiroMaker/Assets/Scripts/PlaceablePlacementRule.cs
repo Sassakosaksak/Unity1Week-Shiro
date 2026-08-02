@@ -2,10 +2,10 @@ using UnityEngine;
 
 public enum PlacementSurfaceType
 {
-    GroundTop,
-    GroundAbove,
-    CeilingBottom,
-    Air
+    GroundTop = 0,
+    GroundAbove = 1,
+    CeilingBottom = 2,
+    Air = 3
 }
 
 public class PlaceablePlacementRule : MonoBehaviour

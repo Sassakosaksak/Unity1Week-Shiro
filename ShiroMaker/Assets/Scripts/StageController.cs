@@ -23,6 +23,7 @@ public class StageController : MonoBehaviour
     private LargeStageDefinition currentLargeStage;
 
     public static StageController Instance { get; private set; }
+    public bool IsFinalSmallStage => currentSmallStage != null && currentSmallStage.NextSmallStage == null;
 
     private void Awake()
     {

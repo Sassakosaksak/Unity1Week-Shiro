@@ -8,6 +8,12 @@ public class EndingController : MonoBehaviour
 
     private bool isPlaying;
 
+    public void Configure(MessageWindowController nextMessageWindow, TextAsset nextDialogue)
+    {
+        messageWindow = nextMessageWindow;
+        dialogue = nextDialogue;
+    }
+
     public void Begin()
     {
         if (messageWindow == null || dialogue == null)

@@ -4,9 +4,9 @@ public class WizardHeroBehavior : HeroJobBehavior
 {
     private enum CastKind
     {
-        None,
-        Attack,
-        SealPit
+        None = 0,
+        Attack = 1,
+        SealPit = 2
     }
 
     [SerializeField, Min(0f)] private float magicRange = 4f;

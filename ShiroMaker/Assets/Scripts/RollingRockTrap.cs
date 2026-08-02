@@ -6,10 +6,10 @@ public class RollingRockTrap : TrapBase
 {
     private enum RockState
     {
-        Waiting,
-        Appearing,
-        Rolling,
-        Breaking
+        Waiting = 0,
+        Appearing = 1,
+        Rolling = 2,
+        Breaking = 3
     }
 
     [SerializeField] private Collider2D damageCollider;

@@ -4,10 +4,10 @@ public class PriestHeroBehavior : HeroJobBehavior
 {
     private enum SpellKind
     {
-        None,
-        Attack,
-        Raise,
-        Heal
+        None = 0,
+        Attack = 1,
+        Raise = 2,
+        Heal = 3
     }
 
     [SerializeField, Min(0f)] private float raiseRange = 2.5f;

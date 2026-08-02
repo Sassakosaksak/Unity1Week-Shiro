@@ -3,18 +3,18 @@ using UnityEngine;
 
 public enum HeroType
 {
-    None,
-    Warrior,
-    Wizard,
-    Priest
+    None = 0,
+    Warrior = 1,
+    Wizard = 2,
+    Priest = 3
 }
 
 public enum TrapType
 {
-    None,
-    Spike,
-    Pitfall,
-    Rock
+    None = 0,
+    Spike = 1,
+    Pitfall = 2,
+    Rock = 3
 }
 
 [Serializable]

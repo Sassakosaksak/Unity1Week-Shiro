@@ -9,28 +9,31 @@ public class GameController : MonoBehaviour
 {
     public enum GamePhase
     {
-        Opening,
-        Preparation,
-        Invasion,
-        Result,
-        Rewinding
+        Preparation = 0,
+        Invasion = 1,
+        Result = 2,
+        Rewinding = 3,
+        Opening = 4,
+        Ending = 5
     }
 
     public enum GameResult
     {
-        Success,
-        Failure
+        Success = 0,
+        Failure = 1
     }
 
     private enum ReturnMode
     {
-        LastPlaced,
-        AllPlaced
+        LastPlaced = 0,
+        AllPlaced = 1
     }
 
     [SerializeField] private GameObject successObject;
     [SerializeField] private GameObject failureObject;
     [SerializeField] private GameObject openingUiObject;
+    [SerializeField] private TextAsset endingDialogue;
+    [SerializeField] private ScreenFadeController screenFadeController;
     [SerializeField] private GameObject preparationUiObject;
     [SerializeField] private GameObject invasionUiObject;
     [SerializeField] private Button returnButton;
@@ -49,6 +52,9 @@ public class GameController : MonoBehaviour
     private readonly List<TrapSnapshot> trapSnapshots = new List<TrapSnapshot>();
     private readonly List<PlacedTrapRecord> placedTrapHistory = new List<PlacedTrapRecord>();
     private Sequence rewindSequence;
+    private GameResult? currentResult;
+    private GameObject endingUiObject;
+    private EndingController endingController;
 
     private void Awake()
     {
@@ -60,6 +66,7 @@ public class GameController : MonoBehaviour
 
         Instance = this;
         CurrentPhase = GamePhase.Opening;
+        CreateEndingUi();
     }
 
     private void OnDestroy()
@@ -87,6 +94,14 @@ public class GameController : MonoBehaviour
     {
         if (StageController.Instance != null && StageController.Instance.AdvanceSmallStage())
         {
+            return;
+        }
+
+        if (StageController.Instance != null
+            && StageController.Instance.IsFinalSmallStage
+            && currentResult == GameResult.Success)
+        {
+            BeginEnding();
             return;
         }
 
@@ -118,6 +133,7 @@ public class GameController : MonoBehaviour
         }
 
         ChangePhase(GamePhase.Result);
+        currentResult = result;
         bool isSuccess = result == GameResult.Success;
         SetResultObjectsActive(isSuccess, !isSuccess);
         ResultShown?.Invoke(result);
@@ -273,6 +289,66 @@ public class GameController : MonoBehaviour
         {
             openingUiObject.SetActive(phase == GamePhase.Opening);
         }
+    }
+
+    private void BeginEnding()
+    {
+        if (CurrentPhase == GamePhase.Ending)
+        {
+            return;
+        }
+
+        SetResultObjectsActive(false, false);
+        ChangePhase(GamePhase.Ending);
+
+        if (screenFadeController == null)
+        {
+            ActivateEndingUi();
+            return;
+        }
+
+        screenFadeController.PlayTransition(ActivateEndingUi);
+    }
+
+    private void ActivateEndingUi()
+    {
+        if (endingUiObject == null || endingController == null)
+        {
+            return;
+        }
+
+        endingUiObject.SetActive(true);
+        endingController.Begin();
+    }
+
+    private void CreateEndingUi()
+    {
+        if (openingUiObject == null)
+        {
+            return;
+        }
+
+        endingUiObject = Instantiate(openingUiObject);
+        endingUiObject.name = "EndingUI";
+
+        OpeningController openingController = endingUiObject.GetComponent<OpeningController>();
+        if (openingController != null)
+        {
+            openingController.enabled = false;
+        }
+
+        Canvas endingCanvas = endingUiObject.GetComponent<Canvas>();
+        if (endingCanvas != null)
+        {
+            endingCanvas.overrideSorting = true;
+            endingCanvas.sortingOrder = 1;
+        }
+
+        endingController = endingUiObject.AddComponent<EndingController>();
+        endingController.Configure(
+            endingUiObject.GetComponent<MessageWindowController>(),
+            endingDialogue);
+        endingUiObject.SetActive(false);
     }
 
     private void ReturnLastPlacedTrap()
