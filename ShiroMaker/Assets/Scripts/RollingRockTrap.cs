@@ -23,6 +23,7 @@ public class RollingRockTrap : TrapBase
 
     private static readonly int AppearHash = Animator.StringToHash("Appear");
     private static readonly int RollingHash = Animator.StringToHash("Rolling");
+    private static readonly int BreakHash = Animator.StringToHash("Break");
     private Color defaultColor = Color.white;
     private float appearRemainingTime;
     private RockState state;
@@ -169,6 +170,7 @@ public class RollingRockTrap : TrapBase
 
         state = RockState.Breaking;
         SetDamageColliderActive(false);
+        TrapAnimator?.SetTrigger(BreakHash);
 
         if (rockRenderer == null)
         {

@@ -88643,7 +88643,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3940009075650407786, guid: 8150186ab52eb304698b7d7412ac1e7b, type: 3}
+  m_Sprite: {fileID: -6421865520154418984, guid: 8150186ab52eb304698b7d7412ac1e7b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -95349,7 +95349,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1138f0cf1f84c6197be8e3250e95061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstSmallStage: {fileID: 11400000, guid: a1f0110c4ba34b37a8d7d84d17b8e011, type: 2}
+  firstSmallStage: {fileID: 11400000, guid: f984d3193d2232d4aa0ec8d76f6bf3cc, type: 2}
   prefabLibrary: {fileID: 2112345679}
   heroSpawnArea: {fileID: 472553016}
   stageCellBounds: {fileID: 1634257237}
