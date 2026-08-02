@@ -33596,8 +33596,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2862843684694506251, guid: 00a42d0b01c14824983e059aa9f0a6d9, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: -6915613040081791657, guid: 00a42d0b01c14824983e059aa9f0a6d9, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -74580,7 +74580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7969113453391430753, guid: 388998310fe47854c822a05a3d769b9d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.5
+      value: 14.61
       objectReference: {fileID: 0}
     - target: {fileID: 7969113453391430753, guid: 388998310fe47854c822a05a3d769b9d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -75281,6 +75281,10 @@ PrefabInstance:
     - target: {fileID: 7501949803919660346, guid: 49fd36455e4dac944add1233bd4cd86d, type: 3}
       propertyPath: m_Name
       value: Warrior
+      objectReference: {fileID: 0}
+    - target: {fileID: 7501949803919660346, guid: 49fd36455e4dac944add1233bd4cd86d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -102,7 +102,7 @@ ScriptedImporter:
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
   importFileNodeState: 1
-  platformSettingsDirtyTick: 639209536450761519
+  platformSettingsDirtyTick: 639212716528639505
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -151,9 +151,93 @@ ScriptedImporter:
   spriteSheetImportData:
   - name: Button_0
     originalName: 
+    pivot: {x: 0, y: 0}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 108
+      width: 62
+      height: 18
+    spriteID: 9c5906bf336101e4b9fa86232e55e904
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Button_1
+    originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
-    border: {x: 3, y: 3, z: 3, w: 3}
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 82
+      width: 62
+      height: 18
+    spriteID: db1946beaa81e9c478ea2d882100f02a
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Button_2
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 56
+      width: 62
+      height: 18
+    spriteID: 2b6a6d3453128d64aa1705efb4bfc205
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Button_3
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 30
+      width: 62
+      height: 18
+    spriteID: 2ae832a955422ca43b00a821676176a6
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Button_4
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
@@ -161,7 +245,7 @@ ScriptedImporter:
       y: 4
       width: 62
       height: 18
-    spriteID: 9c5906bf336101e4b9fa86232e55e904
+    spriteID: eac31f7f4f0cc574fad2be6981cb0d27
     spriteBone: []
     spriteOutline: []
     vertices: []
