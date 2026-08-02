@@ -271,7 +271,7 @@ MonoBehaviour:
   invincibilityDuration: 2.5
   invincibilityBlinkAlpha: 0.1
   invincibilityBlinkInterval: 0.2
-  knockbackDistance: 0.9
+  knockbackDistance: 0.7
   knockbackDuration: 0.18
   deathResultDelay: 0.8
 --- !u!114 &2727781621057415240
@@ -321,14 +321,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fbc7bf793d14fcc9e0a5f0e5f8d11d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  raiseRange: 2.5
+  raiseRange: 5.5
   spellStartDelay: 0.5
   spellCooldownDuration: 2.5
   raiseDuration: 3
   raiseFlashColor: {r: 0.5613208, g: 0.95477766, b: 1, a: 0.6117647}
   raiseFlashInterval: 0.1
   reviveInvincibilityDuration: 2
-  healRange: 4.5
+  healRange: 5.5
   goalTag: Goal
   healDuration: 1
   healAmount: 1

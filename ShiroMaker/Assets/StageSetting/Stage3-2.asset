@@ -17,11 +17,11 @@ MonoBehaviour:
   nextSmallStage: {fileID: 11400000, guid: a1f0330c4ba34b37a8d7d84d17b8e033, type: 2}
   heroes:
   - heroType: 1
-    maxHp: 1
+    maxHp: 2
     spawnColumn: 2
   - heroType: 3
-    maxHp: 1
+    maxHp: 4
     spawnColumn: 4
   trapSupplies:
-  - trapType: 2
-    count: 1
+  - trapType: 1
+    count: 2

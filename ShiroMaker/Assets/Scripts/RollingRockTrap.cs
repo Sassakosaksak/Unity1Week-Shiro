@@ -25,15 +25,22 @@ public class RollingRockTrap : TrapBase
     private static readonly int RollingHash = Animator.StringToHash("Rolling");
     private static readonly int BreakHash = Animator.StringToHash("Break");
     private Color defaultColor = Color.white;
+    private Vector3 initialPosition;
     private float appearRemainingTime;
     private RockState state;
     private Tween breakTween;
 
     public bool IsRolling => state == RockState.Rolling;
 
+    public void CaptureInitialPosition()
+    {
+        initialPosition = transform.position;
+    }
+
     protected override void Awake()
     {
         base.Awake();
+        initialPosition = transform.position;
 
         if (damageCollider == null)
         {
@@ -110,6 +117,14 @@ public class RollingRockTrap : TrapBase
         gameObject.SetActive(true);
         breakTween?.Kill();
         breakTween = null;
+        transform.position = initialPosition;
+        if (rockBody != null)
+        {
+            rockBody.position = initialPosition;
+            rockBody.linearVelocity = Vector2.zero;
+            rockBody.angularVelocity = 0f;
+        }
+
         state = RockState.Waiting;
         appearRemainingTime = 0f;
         SetDamageColliderActive(false);

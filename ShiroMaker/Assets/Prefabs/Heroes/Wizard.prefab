@@ -335,7 +335,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31139ab6189b4e46ae84e881c89311a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magicRange: 4.5
+  magicRange: 5.5
   attackCastStartDelay: 0.5
   sealPitCastStartDelay: 0.5
   attackCastDuration: 2

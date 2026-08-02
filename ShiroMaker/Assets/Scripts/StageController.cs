@@ -143,6 +143,12 @@ public class StageController : MonoBehaviour
             GameObject trap = Instantiate(trapPrefab, Vector3.zero, Quaternion.identity, trapParent);
             PlaceableAnchor anchor = trap.GetComponent<PlaceableAnchor>();
             trap.transform.position = anchor != null ? anchor.GetRootPositionForCellCenter(cellCenter) : cellCenter;
+            RollingRockTrap rock = trap.GetComponentInChildren<RollingRockTrap>();
+            if (rock != null)
+            {
+                rock.CaptureInitialPosition();
+            }
+
             largeStageInitialTraps.Add(trap);
         }
     }
@@ -279,7 +285,7 @@ public class StageController : MonoBehaviour
 
     private static void ResetTrapRuntimeStates()
     {
-        foreach (TrapBase trap in FindObjectsByType<TrapBase>(FindObjectsSortMode.None))
+        foreach (TrapBase trap in FindObjectsByType<TrapBase>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             trap.RestoreForRewind();
         }
