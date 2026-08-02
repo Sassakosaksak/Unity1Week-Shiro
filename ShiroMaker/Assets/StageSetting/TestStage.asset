@@ -18,10 +18,10 @@ MonoBehaviour:
   heroes:
   - heroType: 1
     maxHp: 0
-    spawnColumn: 0
+    spawnColumn: 4
   - heroType: 2
     maxHp: 0
-    spawnColumn: 2
+    spawnColumn: 0
   trapSupplies:
   - trapType: 3
     count: 3

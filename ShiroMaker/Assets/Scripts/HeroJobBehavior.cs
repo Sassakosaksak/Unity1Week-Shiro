@@ -34,4 +34,8 @@ public abstract class HeroJobBehavior : MonoBehaviour
     public virtual void OnAttackDefeatAnimationEvent()
     {
     }
+
+    public virtual void OnRockBreakAnimationEvent()
+    {
+    }
 }

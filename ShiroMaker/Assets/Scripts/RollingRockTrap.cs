@@ -29,6 +29,8 @@ public class RollingRockTrap : TrapBase
     private RockState state;
     private Tween breakTween;
 
+    public bool IsRolling => state == RockState.Rolling;
+
     protected override void Awake()
     {
         base.Awake();
@@ -120,6 +122,25 @@ public class RollingRockTrap : TrapBase
         base.RestoreForRewind();
     }
 
+    public override void OnHeroHit(HeroController hero)
+    {
+        if (hero != null && hero.TryGetComponent(out WarriorHeroBehavior warrior))
+        {
+            warrior.StartRockAttack(this);
+            return;
+        }
+
+        base.OnHeroHit(hero);
+    }
+
+    public void BreakFromWarrior()
+    {
+        if (state == RockState.Rolling)
+        {
+            BeginBreaking();
+        }
+    }
+
     private void StartRolling()
     {
         state = RockState.Rolling;
@@ -171,6 +192,7 @@ public class RollingRockTrap : TrapBase
         state = RockState.Breaking;
         SetDamageColliderActive(false);
         TrapAnimator?.SetTrigger(BreakHash);
+        TrapAnimator?.Play(BreakHash, 0, 0f);
 
         if (rockRenderer == null)
         {

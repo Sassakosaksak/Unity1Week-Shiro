@@ -22,6 +22,12 @@ public class HeroAnimationEventRelay : MonoBehaviour
         hero?.OnAttackDefeatAnimationEvent();
     }
 
+    // Called by the BreakRock Animation Event on the Warrior Attack02 clip.
+    public void BreakRock()
+    {
+        hero?.OnRockBreakAnimationEvent();
+    }
+
     // Called by the Attack01 Animation Event on the Warrior Visual.
     public void PlayAttack()
     {

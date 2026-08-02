@@ -263,6 +263,11 @@ public class HeroController : MonoBehaviour
         jobBehavior?.OnAttackDefeatAnimationEvent();
     }
 
+    public void OnRockBreakAnimationEvent()
+    {
+        jobBehavior?.OnRockBreakAnimationEvent();
+    }
+
     public void Kill()
     {
         if (isStopped || isDead)
