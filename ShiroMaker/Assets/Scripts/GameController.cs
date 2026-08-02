@@ -157,6 +157,21 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        BeginInvasionRewind();
+    }
+
+    public void RetryInvasion()
+    {
+        if (CurrentPhase != GamePhase.Result)
+        {
+            return;
+        }
+
+        BeginInvasionRewind();
+    }
+
+    private void BeginInvasionRewind()
+    {
         if (rewindSequence != null && rewindSequence.IsActive())
         {
             return;

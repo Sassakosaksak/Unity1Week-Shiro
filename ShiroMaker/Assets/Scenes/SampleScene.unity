@@ -56218,7 +56218,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1611096173}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
-        m_MethodName: StartInvasion
+        m_MethodName: RetryInvasion
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
