@@ -56146,7 +56146,7 @@ GameObject:
   - component: {fileID: 422021347}
   - component: {fileID: 422021346}
   m_Layer: 5
-  m_Name: NextButton
+  m_Name: RetryButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
