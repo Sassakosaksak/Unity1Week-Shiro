@@ -10,7 +10,8 @@ public class StageController : MonoBehaviour
     [SerializeField] private BoxCollider2D stageCellBounds;
     [SerializeField] private Transform heroParent;
     [SerializeField] private Transform trapParent;
-    [SerializeField] private TMP_Text stageTitleText;
+    [SerializeField] private TMP_Text preparationStageNameText;
+    [SerializeField] private TMP_Text invasionStageNameText;
     [SerializeField, Min(0.01f)] private float gridSize = 1f;
 
     private readonly Dictionary<TrapType, int> remainingTrapSupplies = new Dictionary<TrapType, int>();
@@ -118,10 +119,7 @@ public class StageController : MonoBehaviour
         GameController.Instance.ClearCurrentStageUndoHistory();
         GameController.Instance.BeginPreparation();
 
-        if (stageTitleText != null)
-        {
-            stageTitleText.text = nextStage.StageTitle;
-        }
+        UpdateStageName(nextStage.StageTitle);
     }
 
     private void SpawnLargeStageInitialTraps()
@@ -183,6 +181,19 @@ public class StageController : MonoBehaviour
         float rightEdge = Mathf.Ceil(bounds.max.x / gridSize) * gridSize;
         float x = rightEdge - (column + 0.5f) * gridSize;
         return new Vector3(x, heroSpawnArea.transform.position.y, 0f);
+    }
+
+    private void UpdateStageName(string stageTitle)
+    {
+        if (preparationStageNameText != null)
+        {
+            preparationStageNameText.text = stageTitle;
+        }
+
+        if (invasionStageNameText != null)
+        {
+            invasionStageNameText.text = stageTitle;
+        }
     }
 
     private Vector3 GetStageCellCenter(Vector2Int cell)

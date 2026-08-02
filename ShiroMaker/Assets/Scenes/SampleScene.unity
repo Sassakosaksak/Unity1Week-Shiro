@@ -38014,7 +38014,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &58785855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87439,7 +87439,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &453300991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88172,7 +88172,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "2-2\u3000\u9032\u3081\u3070\u4E00\u3064\u3001\u585E\u3052\u30702\u3064"
+  m_text: "\u3059\u3066\u30FC\u3058\u3081\u3044\u3060\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3ec834b11997da4419648337cb61833e, type: 2}
   m_sharedMaterial: {fileID: -7859405058782242110, guid: 3ec834b11997da4419648337cb61833e, type: 2}
@@ -88764,8 +88764,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4290772910
+  m_fontColor: {r: 0.6839622, g: 1, b: 0.7478364, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -95354,7 +95354,8 @@ MonoBehaviour:
   stageCellBounds: {fileID: 1634257237}
   heroParent: {fileID: 472553015}
   trapParent: {fileID: 1706911676}
-  stageTitleText: {fileID: 0}
+  preparationStageNameText: {fileID: 587733018}
+  invasionStageNameText: {fileID: 1123659222}
   gridSize: 1
 --- !u!114 &2112345679
 MonoBehaviour:
