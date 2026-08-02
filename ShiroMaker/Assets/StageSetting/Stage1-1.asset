@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: "1-1 \u732A\u7A81\u731B\u9032"
   largeStage: {fileID: 11400000, guid: a1f0010c4ba34b37a8d7d84d17b8e001, type: 2}
-  nextSmallStage: {fileID: 0}
+  nextSmallStage: {fileID: 11400000, guid: a1f0120c4ba34b37a8d7d84d17b8e012, type: 2}
   heroes:
   - heroType: 1
     maxHp: 1

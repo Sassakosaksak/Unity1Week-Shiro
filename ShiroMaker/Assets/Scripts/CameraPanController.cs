@@ -6,11 +6,19 @@ public class CameraPanController : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D CameraBounds;
     [SerializeField] private float PanSpeed = 1f;
+    [SerializeField, Min(0f)] private float forwardTiles = 6f;
+    [SerializeField, Min(0f)] private float leftPadding = 1f;
+    [SerializeField, Min(0.01f)] private float followSmoothTime = 0.3f;
+    [SerializeField, Min(0f)] private float maxFollowOrthographicSize = 6.5f;
 
     private Camera targetCamera;
     private GameController gameController;
     private bool isPanning;
     private Vector3 previousPointerWorldPosition;
+    private float initialOrthographicSize;
+    private Vector3 initialCameraPosition;
+    private float followVelocity;
+    private float zoomVelocity;
 
     /// <summary>
     /// 対象カメラの取得
@@ -18,6 +26,8 @@ public class CameraPanController : MonoBehaviour
     private void Awake()
     {
         targetCamera = GetComponent<Camera>();
+        initialCameraPosition = transform.position;
+        initialOrthographicSize = targetCamera.orthographicSize;
     }
 
     /// <summary>
@@ -100,6 +110,16 @@ public class CameraPanController : MonoBehaviour
         previousPointerWorldPosition = ScreenToWorldPosition(pointerScreenPosition);
     }
 
+    private void LateUpdate()
+    {
+        if (gameController == null || gameController.CurrentPhase != GameController.GamePhase.Invasion)
+        {
+            return;
+        }
+
+        FollowLivingHeroes();
+    }
+
     /// <summary>
     /// フェーズ変更時のパン終了
     /// </summary>
@@ -108,6 +128,12 @@ public class CameraPanController : MonoBehaviour
         if (phase != GameController.GamePhase.Preparation)
         {
             isPanning = false;
+        }
+
+        if (phase == GameController.GamePhase.Title)
+        {
+            targetCamera.orthographicSize = initialOrthographicSize;
+            transform.position = ClampCameraPosition(initialCameraPosition);
         }
     }
 
@@ -118,6 +144,55 @@ public class CameraPanController : MonoBehaviour
     {
         return gameController != null
             && gameController.CurrentPhase == GameController.GamePhase.Preparation;
+    }
+
+    private void FollowLivingHeroes()
+    {
+        HeroController[] heroes = FindObjectsByType<HeroController>(FindObjectsSortMode.None);
+        float leaderX = float.NegativeInfinity;
+        float leftMostX = float.PositiveInfinity;
+
+        foreach (HeroController hero in heroes)
+        {
+            if (hero == null || hero.IsDead)
+            {
+                continue;
+            }
+
+            float heroX = hero.transform.position.x;
+            leaderX = Mathf.Max(leaderX, heroX);
+            leftMostX = Mathf.Min(leftMostX, heroX);
+        }
+
+        if (float.IsNegativeInfinity(leaderX))
+        {
+            return;
+        }
+
+        float desiredRightEdge = leaderX + forwardTiles;
+        float requiredHalfWidth = (desiredRightEdge - (leftMostX - leftPadding)) * 0.5f;
+        float requiredSize = requiredHalfWidth / targetCamera.aspect;
+        float maxSize = Mathf.Max(initialOrthographicSize, maxFollowOrthographicSize);
+        float desiredSize = Mathf.Clamp(requiredSize, initialOrthographicSize, maxSize);
+
+        targetCamera.orthographicSize = Mathf.SmoothDamp(
+            targetCamera.orthographicSize,
+            desiredSize,
+            ref zoomVelocity,
+            followSmoothTime);
+
+        float halfWidth = targetCamera.orthographicSize * targetCamera.aspect;
+        Vector3 targetPosition = transform.position;
+        targetPosition.x = desiredRightEdge - halfWidth;
+        targetPosition = ClampCameraPosition(targetPosition);
+
+        Vector3 nextPosition = transform.position;
+        nextPosition.x = Mathf.SmoothDamp(
+            transform.position.x,
+            targetPosition.x,
+            ref followVelocity,
+            followSmoothTime);
+        transform.position = nextPosition;
     }
 
     /// <summary>

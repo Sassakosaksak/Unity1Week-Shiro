@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 11400000}
   - component: {fileID: 357138232157469103}
   - component: {fileID: 271828182845904523}
+  - component: {fileID: 163902024713614596}
   m_Layer: 0
   m_Name: Placeable_Spike
   m_TagString: Untagged
@@ -158,6 +159,7 @@ MonoBehaviour:
   damageCollider: {fileID: 0}
   gridSize: 1
   detectionRadius: 1
+  detectFromCellTop: 1
   detectCooldown: 3
 --- !u!95 &357138232157469103
 Animator:
@@ -194,3 +196,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   localPlacementPointOffset: {x: 0, y: -3.6}
+--- !u!114 &163902024713614596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4218d78ef2d54d0898b7514e121a781f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _color: {r: 1, g: 0.8852173, b: 0.36320752, a: 1}

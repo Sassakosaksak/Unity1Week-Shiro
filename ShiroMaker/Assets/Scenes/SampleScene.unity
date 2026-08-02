@@ -38457,7 +38457,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 479766257}
+  m_Father: {fileID: 369551915}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!483693784 &309135623
 TilemapRenderer:
@@ -67957,6 +67957,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 368378292}
   m_CullTransparentMesh: 1
+--- !u!1 &369551914
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 369551915}
+  - component: {fileID: 369551916}
+  m_Layer: 0
+  m_Name: BGs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &369551915
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369551914}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1815935558}
+  - {fileID: 309135622}
+  m_Father: {fileID: 479766257}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &369551916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369551914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac9d099a41e743c8bca3cc891e702f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 519420031}
+  horizontalMultiplier: 0.2
 --- !u!1 &374127249
 GameObject:
   m_ObjectHideFlags: 0
@@ -87724,7 +87772,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &453300991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88069,8 +88117,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1815935558}
-  - {fileID: 309135622}
+  - {fileID: 369551915}
   - {fileID: 4179071}
   - {fileID: 1132600588}
   - {fileID: 446900921}
@@ -88402,6 +88449,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CameraBounds: {fileID: 2070000002}
   PanSpeed: 1.5
+  forwardTiles: 6
+  leftPadding: 1
+  followSmoothTime: 0.3
+  maxFollowOrthographicSize: 6.5
 --- !u!1 &587733016
 GameObject:
   m_ObjectHideFlags: 0
@@ -88747,11 +88798,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7ce16f17b8c647f3b3412f54d13f3f35, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   spikeCountText: {fileID: 1844575969}
   rockCountText: {fileID: 1151870272}
   pitfallCountText: {fileID: 368378294}
+  emptyResourceAlpha: 0.45
 --- !u!1 &699735685
 GameObject:
   m_ObjectHideFlags: 0
@@ -94426,7 +94478,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 479766257}
+  m_Father: {fileID: 369551915}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!483693784 &1815935559
 TilemapRenderer:
