@@ -169,7 +169,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7501949803919660346}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.18, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -338,7 +338,7 @@ MonoBehaviour:
   footstepClip: {fileID: 8300000, guid: 4afa7bc5145b3e549a8d14cac8835cf5, type: 3}
   footstepVolume: 0.1
   footstepInterval: 1
-  attackClip: {fileID: 8300000, guid: 97d2caebdf3ebf241b640bd6a9c84402, type: 3}
+  attackClip: {fileID: 8300000, guid: 4411c7a8d7424d84bb66c5e253de2827, type: 3}
   attackVolume: 0.7
   hurtClip: {fileID: 8300000, guid: 2a214e22049446a42a885b49709a84e6, type: 3}
   hurtVolume: 0.7

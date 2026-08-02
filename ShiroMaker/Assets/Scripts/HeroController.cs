@@ -26,6 +26,7 @@ public class HeroController : MonoBehaviour
     private GameController gameController;
     private Collider2D bodyCollider;
     private int currentHp;
+    private bool isInvasionActive;
     private bool isStopped;
     private bool isMoving;
     private bool isFlinching;
@@ -84,6 +85,14 @@ public class HeroController : MonoBehaviour
         StopGreenFlash();
     }
 
+    private void OnDestroy()
+    {
+        if (gameController != null)
+        {
+            gameController.PhaseChanged -= OnGamePhaseChanged;
+        }
+    }
+
     private void Start()
     {
         gameController = GameController.Instance;
@@ -91,6 +100,11 @@ public class HeroController : MonoBehaviour
         if (gameController == null)
         {
             Debug.LogWarning("GameController was not found in the scene.", this);
+        }
+        else
+        {
+            gameController.PhaseChanged += OnGamePhaseChanged;
+            OnGamePhaseChanged(gameController.CurrentPhase);
         }
 
         if (jobBehavior != null)
@@ -101,8 +115,9 @@ public class HeroController : MonoBehaviour
 
     private void Update()
     {
-        if (isStopped)
+        if (isStopped || !isInvasionActive)
         {
+            SetMoving(false);
             return;
         }
 
@@ -136,7 +151,7 @@ public class HeroController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (isStopped)
+        if (isStopped || !isInvasionActive)
         {
             return;
         }
@@ -209,6 +224,16 @@ public class HeroController : MonoBehaviour
     {
         maxHp = Mathf.Clamp(maxHp, 1, 5);
         currentHp = Mathf.Clamp(currentHp, 0, maxHp);
+    }
+
+    private void OnGamePhaseChanged(GameController.GamePhase phase)
+    {
+        isInvasionActive = phase == GameController.GamePhase.Invasion;
+
+        if (!isInvasionActive)
+        {
+            SetMoving(false);
+        }
     }
 
     private void ShowDefeat()
