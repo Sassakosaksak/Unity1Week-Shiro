@@ -39,7 +39,8 @@ public class StageController : MonoBehaviour
 
         GameController.Instance.TrapPlaced += OnTrapPlaced;
         GameController.Instance.TrapReturned += OnTrapReturned;
-        if (GameController.Instance.CurrentPhase != GameController.GamePhase.Opening)
+        if (GameController.Instance.CurrentPhase != GameController.GamePhase.Opening
+            && GameController.Instance.CurrentPhase != GameController.GamePhase.Title)
         {
             StartFirstSmallStage();
         }
@@ -110,6 +111,19 @@ public class StageController : MonoBehaviour
         }
 
         StartSmallStage(firstSmallStage, true);
+    }
+
+    public void ResetForTitle()
+    {
+        DestroyHeroes();
+        DestroyGameObjects(playerPlacedTraps);
+        DestroyGameObjects(largeStageInitialTraps);
+        DestroyTemporaryGrounds();
+
+        remainingTrapSupplies.Clear();
+        currentSmallStage = null;
+        currentLargeStage = null;
+        GameController.Instance?.ClearCurrentStageUndoHistory();
     }
 
     private void StartSmallStage(SmallStageDefinition nextStage, bool isFirstStage)

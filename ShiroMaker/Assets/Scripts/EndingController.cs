@@ -36,6 +36,7 @@ public class EndingController : MonoBehaviour
         if (messageWindow.Advance())
         {
             isPlaying = false;
+            GameController.Instance?.ReturnToTitle();
         }
     }
 }

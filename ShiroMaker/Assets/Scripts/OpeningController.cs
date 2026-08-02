@@ -32,6 +32,6 @@ public class OpeningController : MonoBehaviour
             return;
         }
 
-        StageController.Instance?.StartFirstSmallStage();
+        GameController.Instance.BeginFirstStageFromOpening();
     }
 }

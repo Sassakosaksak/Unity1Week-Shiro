@@ -14,7 +14,8 @@ public class GameController : MonoBehaviour
         Result = 2,
         Rewinding = 3,
         Opening = 4,
-        Ending = 5
+        Ending = 5,
+        Title = 6
     }
 
     public enum GameResult
@@ -31,6 +32,8 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private GameObject successObject;
     [SerializeField] private GameObject failureObject;
+    [SerializeField] private GameObject maouObject;
+    [SerializeField] private GameObject titleCanvasObject;
     [SerializeField] private GameObject openingUiObject;
     [SerializeField] private TextAsset endingDialogue;
     [SerializeField] private ScreenFadeController screenFadeController;
@@ -65,7 +68,7 @@ public class GameController : MonoBehaviour
         }
 
         Instance = this;
-        CurrentPhase = GamePhase.Opening;
+        CurrentPhase = GamePhase.Title;
         CreateEndingUi();
     }
 
@@ -112,6 +115,59 @@ public class GameController : MonoBehaviour
     {
         SetResultObjectsActive(false, false);
         ChangePhase(GamePhase.Preparation);
+    }
+
+    public void BeginOpening()
+    {
+        if (CurrentPhase != GamePhase.Title)
+        {
+            return;
+        }
+
+        if (screenFadeController == null)
+        {
+            ChangePhase(GamePhase.Opening);
+            return;
+        }
+
+        screenFadeController.PlayTransition(() => ChangePhase(GamePhase.Opening));
+    }
+
+    public void ReturnToTitle()
+    {
+        if (CurrentPhase != GamePhase.Ending)
+        {
+            return;
+        }
+
+        if (screenFadeController == null)
+        {
+            StageController.Instance?.ResetForTitle();
+            ChangePhase(GamePhase.Title);
+            return;
+        }
+
+        screenFadeController.PlayTransition(() =>
+        {
+            StageController.Instance?.ResetForTitle();
+            ChangePhase(GamePhase.Title);
+        });
+    }
+
+    public void BeginFirstStageFromOpening()
+    {
+        if (CurrentPhase != GamePhase.Opening)
+        {
+            return;
+        }
+
+        if (screenFadeController == null)
+        {
+            StageController.Instance?.StartFirstSmallStage();
+            return;
+        }
+
+        screenFadeController.PlayTransition(() => StageController.Instance?.StartFirstSmallStage());
     }
 
 
@@ -275,6 +331,16 @@ public class GameController : MonoBehaviour
 
     private void ApplyPhaseUi(GamePhase phase)
     {
+        if (maouObject != null)
+        {
+            maouObject.SetActive(phase != GamePhase.Title && phase != GamePhase.Opening);
+        }
+
+        if (titleCanvasObject != null)
+        {
+            titleCanvasObject.SetActive(phase == GamePhase.Title);
+        }
+
         if (preparationUiObject != null)
         {
             preparationUiObject.SetActive(phase == GamePhase.Preparation);

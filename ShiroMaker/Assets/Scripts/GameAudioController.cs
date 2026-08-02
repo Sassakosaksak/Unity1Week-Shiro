@@ -5,6 +5,10 @@ public class GameAudioController : MonoBehaviour
 {
     [SerializeField] private GameController gameController;
     [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private AudioClip titleBgm;
+    [SerializeField, Range(0f, 1f)] private float titleBgmVolume = 0.5f;
+    [SerializeField] private AudioClip dialogueBgm;
+    [SerializeField, Range(0f, 1f)] private float dialogueBgmVolume = 0.5f;
     [SerializeField] private AudioClip preparationBgm;
     [SerializeField, Range(0f, 1f)] private float preparationBgmVolume = 0.5f;
     [SerializeField] private AudioClip invasionBgm;
@@ -15,8 +19,11 @@ public class GameAudioController : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float successJingleVolume = 0.7f;
     [SerializeField] private AudioClip victoryAmbientBgm;
     [SerializeField, Range(0f, 1f)] private float victoryAmbientBgmVolume = 0.35f;
+    [SerializeField] private AudioClip endingJingle;
+    [SerializeField, Range(0f, 1f)] private float endingJingleVolume = 0.7f;
 
     private Coroutine victoryAmbientCoroutine;
+    private Coroutine endingDialogueCoroutine;
 
     private void Awake()
     {
@@ -73,6 +80,18 @@ public class GameAudioController : MonoBehaviour
 
     private void PlayPhaseBgm(GameController.GamePhase phase)
     {
+        if (phase == GameController.GamePhase.Title)
+        {
+            PlayLoopingMusic(titleBgm, titleBgmVolume);
+            return;
+        }
+
+        if (phase == GameController.GamePhase.Opening)
+        {
+            PlayLoopingMusic(dialogueBgm, dialogueBgmVolume);
+            return;
+        }
+
         if (phase == GameController.GamePhase.Preparation)
         {
             PlayLoopingMusic(preparationBgm, preparationBgmVolume);
@@ -82,6 +101,12 @@ public class GameAudioController : MonoBehaviour
         if (phase == GameController.GamePhase.Invasion)
         {
             PlayLoopingMusic(invasionBgm, invasionBgmVolume);
+            return;
+        }
+
+        if (phase == GameController.GamePhase.Ending)
+        {
+            PlayEndingMusic();
             return;
         }
 
@@ -126,6 +151,24 @@ public class GameAudioController : MonoBehaviour
         }
     }
 
+    private void PlayEndingMusic()
+    {
+        StopMusic();
+        if (bgmSource == null)
+        {
+            return;
+        }
+
+        if (endingJingle == null)
+        {
+            PlayLoopingMusic(dialogueBgm, dialogueBgmVolume);
+            return;
+        }
+
+        bgmSource.PlayOneShot(endingJingle, endingJingleVolume);
+        endingDialogueCoroutine = StartCoroutine(PlayEndingDialogueAfterJingle(endingJingle.length));
+    }
+
     private IEnumerator PlayVictoryAmbientAfterJingle(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -134,6 +177,17 @@ public class GameAudioController : MonoBehaviour
         if (gameController != null && gameController.CurrentPhase == GameController.GamePhase.Result)
         {
             PlayLoopingMusic(victoryAmbientBgm, victoryAmbientBgmVolume);
+        }
+    }
+
+    private IEnumerator PlayEndingDialogueAfterJingle(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        endingDialogueCoroutine = null;
+
+        if (gameController != null && gameController.CurrentPhase == GameController.GamePhase.Ending)
+        {
+            PlayLoopingMusic(dialogueBgm, dialogueBgmVolume);
         }
     }
 
@@ -157,6 +211,12 @@ public class GameAudioController : MonoBehaviour
         {
             StopCoroutine(victoryAmbientCoroutine);
             victoryAmbientCoroutine = null;
+        }
+
+        if (endingDialogueCoroutine != null)
+        {
+            StopCoroutine(endingDialogueCoroutine);
+            endingDialogueCoroutine = null;
         }
 
         if (bgmSource == null)
