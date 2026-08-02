@@ -346,6 +346,7 @@ MonoBehaviour:
   temporaryGroundParent: {fileID: 0}
   temporaryGroundBottomCenterOffset: {x: 0, y: -0.5, z: 0}
   attackTriggerName: Attack1
+  attackShotTriggerName: Attack1_Shot
   sealPitTriggerName: Attack2
   goalTag: Goal
   gridSize: 1
@@ -377,3 +378,5 @@ MonoBehaviour:
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}
   deathVolume: 0.7
+  magicCastingClip: {fileID: 8300000, guid: 337e535918e489248a573ab2c0d3c5cc, type: 3}
+  magicCastingVolume: 0.7

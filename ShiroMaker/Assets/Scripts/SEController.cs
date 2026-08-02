@@ -49,6 +49,40 @@ public class SEController : MonoBehaviour
         source.PlayOneShot(clip, volume);
     }
 
+    public AudioSource PlayLoop(AudioClip clip, float volume = 1f, float pitch = 1f)
+    {
+        if (clip == null)
+        {
+            return null;
+        }
+
+        AudioSource source = FindAvailableSource();
+        if (source == null)
+        {
+            return null;
+        }
+
+        source.Stop();
+        source.clip = clip;
+        source.volume = volume;
+        source.pitch = pitch;
+        source.loop = true;
+        source.Play();
+        return source;
+    }
+
+    public void StopLoop(AudioSource source)
+    {
+        if (source == null || !source.loop)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.loop = false;
+        source.clip = null;
+    }
+
     private AudioSource FindAvailableSource()
     {
         if (audioSources == null || audioSources.Length == 0)
@@ -65,9 +99,20 @@ public class SEController : MonoBehaviour
             }
         }
 
-        AudioSource fallback = audioSources[nextSourceIndex % audioSources.Length];
-        nextSourceIndex = (nextSourceIndex + 1) % audioSources.Length;
-        fallback?.Stop();
-        return fallback;
+        for (int i = 0; i < audioSources.Length; i++)
+        {
+            int index = (nextSourceIndex + i) % audioSources.Length;
+            AudioSource fallback = audioSources[index];
+            if (fallback == null || fallback.loop)
+            {
+                continue;
+            }
+
+            nextSourceIndex = (index + 1) % audioSources.Length;
+            fallback.Stop();
+            return fallback;
+        }
+
+        return null;
     }
 }

@@ -105,6 +105,7 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     public override void OnInterrupted()
     {
+        Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
         CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
@@ -113,6 +114,7 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     public override void OnRestored()
     {
+        Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
         CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();

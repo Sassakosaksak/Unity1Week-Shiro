@@ -4,12 +4,16 @@ public class WizardAnimationEventRelay : MonoBehaviour
 {
     [SerializeField] private WizardHeroBehavior wizardBehavior;
 
+    private HeroSEController heroSeController;
+
     private void Awake()
     {
         if (wizardBehavior == null)
         {
             wizardBehavior = GetComponentInParent<WizardHeroBehavior>();
         }
+
+        heroSeController = GetComponentInParent<HeroSEController>();
     }
 
     public void StartFloorSetting()
@@ -20,5 +24,15 @@ public class WizardAnimationEventRelay : MonoBehaviour
     public void SpawnIceAttack()
     {
         wizardBehavior?.SpawnIceAttackFromAnimation();
+    }
+
+    public void StartMagicCasting()
+    {
+        heroSeController?.StartMagicCasting();
+    }
+
+    public void StopMagicCasting()
+    {
+        heroSeController?.StopMagicCasting();
     }
 }

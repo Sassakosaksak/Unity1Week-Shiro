@@ -12,14 +12,27 @@ public class HeroSEController : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float hurtVolume = 0.7f;
     [SerializeField] private AudioClip deathClip;
     [SerializeField, Range(0f, 1f)] private float deathVolume = 0.7f;
+    [SerializeField] private AudioClip magicCastingClip;
+    [SerializeField, Range(0f, 1f)] private float magicCastingVolume = 0.7f;
 
     private float footstepElapsedTime;
+    private AudioSource magicCastingSource;
+    private GameController gameController;
 
     private void Awake()
     {
         if (hero == null)
         {
             hero = GetComponent<HeroController>();
+        }
+    }
+
+    private void Start()
+    {
+        gameController = GameController.Instance;
+        if (gameController != null)
+        {
+            gameController.PhaseChanged += OnGamePhaseChanged;
         }
     }
 
@@ -41,6 +54,19 @@ public class HeroSEController : MonoBehaviour
         SEController.Instance?.Play(footstepClip, footstepVolume);
     }
 
+    private void OnDisable()
+    {
+        StopMagicCasting();
+    }
+
+    private void OnDestroy()
+    {
+        if (gameController != null)
+        {
+            gameController.PhaseChanged -= OnGamePhaseChanged;
+        }
+    }
+
     public void PlayAttack()
     {
         SEController.Instance?.Play(attackClip, attackVolume);
@@ -54,5 +80,29 @@ public class HeroSEController : MonoBehaviour
     public void PlayDeath()
     {
         SEController.Instance?.Play(deathClip, deathVolume);
+    }
+
+    public void StartMagicCasting()
+    {
+        if (magicCastingSource != null)
+        {
+            return;
+        }
+
+        magicCastingSource = SEController.Instance?.PlayLoop(magicCastingClip, magicCastingVolume);
+    }
+
+    public void StopMagicCasting()
+    {
+        SEController.Instance?.StopLoop(magicCastingSource);
+        magicCastingSource = null;
+    }
+
+    private void OnGamePhaseChanged(GameController.GamePhase phase)
+    {
+        if (phase != GameController.GamePhase.Invasion)
+        {
+            StopMagicCasting();
+        }
     }
 }
