@@ -20,6 +20,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     [SerializeField] private Transform temporaryGroundParent;
     [SerializeField] private Vector3 temporaryGroundBottomCenterOffset = new Vector3(0f, -0.5f, 0f);
     [SerializeField] private string attackTriggerName = "Attack1";
+    [SerializeField] private string attackShotTriggerName = "Attack1_Shot";
     [SerializeField] private string sealPitTriggerName = "Attack2";
     [SerializeField] private string goalTag = "Goal";
     [SerializeField] private float gridSize = 1f;
@@ -39,6 +40,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     private PitfallTrap castingPit;
     private Transform goalTarget;
     private bool floorSettingStarted;
+    private bool attackShotTriggered;
     private IceAttackEffect activeIceAttack;
 
     public override void Tick()
@@ -87,7 +89,7 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     public override bool CanMove()
     {
-        if (castKind != CastKind.None)
+        if (castKind != CastKind.None || activeIceAttack != null)
         {
             return false;
         }
@@ -134,7 +136,7 @@ public class WizardHeroBehavior : HeroJobBehavior
             temporaryGroundParent);
     }
 
-    // Called by the SpawnIceAttack Animation Event in Attack1.
+    // Called by the SpawnIceAttack Animation Event in Attack1_Shot.
     public void SpawnIceAttackFromAnimation()
     {
         if (castKind != CastKind.Attack
@@ -154,6 +156,7 @@ public class WizardHeroBehavior : HeroJobBehavior
 
         activeIceAttack = iceAttack;
         activeIceAttack.Initialize(this);
+        CancelCasting(false);
     }
 
     public void OnIceAttackHit(IceAttackEffect iceAttack)
@@ -174,6 +177,7 @@ public class WizardHeroBehavior : HeroJobBehavior
         castRemainingTime = GetCastDuration(nextCastKind);
         castingPit = pit;
         floorSettingStarted = false;
+        attackShotTriggered = false;
         Hero.PlayJobTrigger(GetTriggerName(nextCastKind));
     }
 
@@ -239,7 +243,24 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     private void CompleteCasting()
     {
+        if (castKind == CastKind.Attack)
+        {
+            TriggerAttackShot();
+            return;
+        }
+
         CancelCasting(false);
+    }
+
+    private void TriggerAttackShot()
+    {
+        if (attackShotTriggered)
+        {
+            return;
+        }
+
+        attackShotTriggered = true;
+        Hero.PlayJobTrigger(attackShotTriggerName);
     }
 
     private void CancelPendingAttack()
@@ -265,6 +286,7 @@ public class WizardHeroBehavior : HeroJobBehavior
         castRemainingTime = 0f;
         castingPit = null;
         floorSettingStarted = false;
+        attackShotTriggered = false;
     }
 
     private void CancelActiveIceAttack()
