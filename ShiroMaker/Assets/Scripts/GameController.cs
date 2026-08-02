@@ -40,10 +40,12 @@ public class GameController : MonoBehaviour
     public GamePhase CurrentPhase { get; private set; }
     public event Action<GamePhase> PhaseChanged;
     public event Action<GameResult> ResultShown;
+    public event Action<GameObject> TrapPlaced;
+    public event Action<GameObject, GameObject> TrapReturned;
 
     private readonly List<HeroSnapshot> heroSnapshots = new List<HeroSnapshot>();
     private readonly List<TrapSnapshot> trapSnapshots = new List<TrapSnapshot>();
-    private readonly List<GameObject> placedTrapHistory = new List<GameObject>();
+    private readonly List<PlacedTrapRecord> placedTrapHistory = new List<PlacedTrapRecord>();
     private Sequence rewindSequence;
 
     private void Awake()
@@ -77,6 +79,22 @@ public class GameController : MonoBehaviour
     {
         CaptureInvasionSnapshot();
         ChangePhase(GamePhase.Invasion);
+    }
+
+    public void AdvanceStage()
+    {
+        if (StageController.Instance != null && StageController.Instance.AdvanceSmallStage())
+        {
+            return;
+        }
+
+        StartInvasion();
+    }
+
+    public void BeginPreparation()
+    {
+        SetResultObjectsActive(false, false);
+        ChangePhase(GamePhase.Preparation);
     }
 
 
@@ -123,14 +141,21 @@ public class GameController : MonoBehaviour
         return true;
     }
     
-    public void RegisterPlacedTrap(GameObject placedTrap)
+    public void RegisterPlacedTrap(GameObject placedTrap, GameObject trapPrefab)
     {
         if (placedTrap == null || CurrentPhase != GamePhase.Preparation)
         {
             return;
         }
 
-        placedTrapHistory.Add(placedTrap);
+        placedTrapHistory.Add(new PlacedTrapRecord(placedTrap, trapPrefab));
+        TrapPlaced?.Invoke(placedTrap);
+        UpdateReturnButtonState();
+    }
+
+    public void ClearCurrentStageUndoHistory()
+    {
+        placedTrapHistory.Clear();
         UpdateReturnButtonState();
     }
 
@@ -254,12 +279,13 @@ public class GameController : MonoBehaviour
         }
 
         int lastIndex = placedTrapHistory.Count - 1;
-        GameObject placedTrap = placedTrapHistory[lastIndex];
+        PlacedTrapRecord placedTrap = placedTrapHistory[lastIndex];
         placedTrapHistory.RemoveAt(lastIndex);
 
-        if (placedTrap != null)
+        if (placedTrap.Instance != null)
         {
-            Destroy(placedTrap);
+            TrapReturned?.Invoke(placedTrap.Instance, placedTrap.Prefab);
+            Destroy(placedTrap.Instance);
         }
 
         UpdateReturnButtonState();
@@ -269,9 +295,11 @@ public class GameController : MonoBehaviour
     {
         for (int i = placedTrapHistory.Count - 1; i >= 0; i--)
         {
-            if (placedTrapHistory[i] != null)
+            PlacedTrapRecord placedTrap = placedTrapHistory[i];
+            if (placedTrap.Instance != null)
             {
-                Destroy(placedTrapHistory[i]);
+                TrapReturned?.Invoke(placedTrap.Instance, placedTrap.Prefab);
+                Destroy(placedTrap.Instance);
             }
         }
 
@@ -301,6 +329,18 @@ public class GameController : MonoBehaviour
     //         }
     //     }
     // }
+
+    private readonly struct PlacedTrapRecord
+    {
+        public GameObject Instance { get; }
+        public GameObject Prefab { get; }
+
+        public PlacedTrapRecord(GameObject instance, GameObject prefab)
+        {
+            Instance = instance;
+            Prefab = prefab;
+        }
+    }
 
     private void CaptureInvasionSnapshot()
     {

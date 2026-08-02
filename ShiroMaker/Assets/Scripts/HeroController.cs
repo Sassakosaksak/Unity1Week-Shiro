@@ -203,6 +203,13 @@ public class HeroController : MonoBehaviour
         StartFlinch();
     }
 
+    public void SetMaxHp(int value, bool restoreHealth)
+    {
+        maxHp = Mathf.Clamp(value, 1, 5);
+        currentHp = restoreHealth ? maxHp : Mathf.Min(currentHp, maxHp);
+        HealthChanged?.Invoke(currentHp, maxHp);
+    }
+
     public void RestoreForRewind(int hp)
     {
         StopAllCoroutines();

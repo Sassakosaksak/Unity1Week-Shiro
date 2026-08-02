@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1168f0cf1f84c6197be8e3250e95061, type: 3}
+  m_Name: Stage3-3
+  m_EditorClassIdentifier: 
+  stageTitle: "3-3 \u304A\u9858\u3044\u6B7B\u306A\u306A\u3044\u3067"
+  largeStage: {fileID: 11400000, guid: a1f0030c4ba34b37a8d7d84d17b8e003, type: 2}
+  nextSmallStage: {fileID: 0}
+  heroes:
+  - heroType: 1
+    maxHp: 2
+    spawnColumn: 2
+  - heroType: 2
+    maxHp: 1
+    spawnColumn: 4
+  - heroType: 3
+    maxHp: 1
+    spawnColumn: 5
+  trapSupplies:
+  - trapType: 1
+    count: 1

@@ -104,6 +104,11 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         bool canPlace = UpdatePreviewPosition(eventData);
 
+        if (canPlace && StageController.Instance != null)
+        {
+            canPlace = StageController.Instance.TryConsumeTrap(placeablePrefab);
+        }
+
         if (canPlace)
         {
             if (previewPitfallTrap != null)
@@ -117,7 +122,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
                 placedObject.name = placeablePrefab.name;
                 placedObject.SetActive(true);
                 RegisterPlacementOccupancy(placedObject);
-                GameController.Instance?.RegisterPlacedTrap(placedObject);
+                GameController.Instance?.RegisterPlacedTrap(placedObject, placeablePrefab);
             }
         }
 
@@ -152,6 +157,11 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
 
         if (GameController.Instance == null || GameController.Instance.CurrentPhase != GameController.GamePhase.Preparation)
+        {
+            return false;
+        }
+
+        if (StageController.Instance != null && !StageController.Instance.CanPlaceTrap(placeablePrefab))
         {
             return false;
         }
@@ -270,7 +280,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewObject.transform.SetParent(placedParent, true);
         previewObject.SetActive(true);
         RegisterPlacementOccupancy(previewObject);
-        GameController.Instance?.RegisterPlacedTrap(previewObject);
+        GameController.Instance?.RegisterPlacedTrap(previewObject, placeablePrefab);
 
         previewObject = null;
         previewAnchor = null;
