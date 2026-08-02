@@ -151,9 +151,9 @@ ScriptedImporter:
   spriteSheetImportData:
   - name: Button_0
     originalName: 
-    pivot: {x: 0, y: 0}
+    pivot: {x: 0.5, y: 0.5}
     alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 3, y: 3, z: 3, w: 3}
     customData: 
     rect:
       serializedVersion: 2
@@ -174,7 +174,7 @@ ScriptedImporter:
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 3, y: 3, z: 3, w: 3}
     customData: 
     rect:
       serializedVersion: 2
@@ -195,7 +195,7 @@ ScriptedImporter:
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 3, y: 3, z: 3, w: 3}
     customData: 
     rect:
       serializedVersion: 2
@@ -216,7 +216,7 @@ ScriptedImporter:
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 3, y: 3, z: 3, w: 3}
     customData: 
     rect:
       serializedVersion: 2
@@ -237,7 +237,7 @@ ScriptedImporter:
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 3, y: 3, z: 3, w: 3}
     customData: 
     rect:
       serializedVersion: 2
