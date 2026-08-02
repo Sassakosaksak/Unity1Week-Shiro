@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
 {
     public enum GamePhase
     {
+        Opening,
         Preparation,
         Invasion,
         Result,
@@ -29,6 +30,7 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private GameObject successObject;
     [SerializeField] private GameObject failureObject;
+    [SerializeField] private GameObject openingUiObject;
     [SerializeField] private GameObject preparationUiObject;
     [SerializeField] private GameObject invasionUiObject;
     [SerializeField] private Button returnButton;
@@ -57,7 +59,7 @@ public class GameController : MonoBehaviour
         }
 
         Instance = this;
-        CurrentPhase = GamePhase.Preparation;
+        CurrentPhase = GamePhase.Opening;
     }
 
     private void OnDestroy()
@@ -265,6 +267,11 @@ public class GameController : MonoBehaviour
         if (invasionUiObject != null)
         {
             invasionUiObject.SetActive(phase == GamePhase.Invasion);
+        }
+
+        if (openingUiObject != null)
+        {
+            openingUiObject.SetActive(phase == GamePhase.Opening);
         }
     }
 

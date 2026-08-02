@@ -38,7 +38,10 @@ public class StageController : MonoBehaviour
 
         GameController.Instance.TrapPlaced += OnTrapPlaced;
         GameController.Instance.TrapReturned += OnTrapReturned;
-        StartSmallStage(firstSmallStage, true);
+        if (GameController.Instance.CurrentPhase != GameController.GamePhase.Opening)
+        {
+            StartFirstSmallStage();
+        }
     }
 
     private void OnDestroy()
@@ -96,6 +99,16 @@ public class StageController : MonoBehaviour
 
         StartSmallStage(currentSmallStage.NextSmallStage, false);
         return true;
+    }
+
+    public void StartFirstSmallStage()
+    {
+        if (firstSmallStage == null || currentSmallStage != null)
+        {
+            return;
+        }
+
+        StartSmallStage(firstSmallStage, true);
     }
 
     private void StartSmallStage(SmallStageDefinition nextStage, bool isFirstStage)
