@@ -42,6 +42,26 @@ public class WizardHeroBehavior : HeroJobBehavior
     private bool floorSettingStarted;
     private bool attackShotTriggered;
     private IceAttackEffect activeIceAttack;
+    private GameController gameController;
+
+    public override void Initialize(HeroController hero)
+    {
+        base.Initialize(hero);
+        gameController = GameController.Instance;
+
+        if (gameController != null)
+        {
+            gameController.PhaseChanged += OnGamePhaseChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (gameController != null)
+        {
+            gameController.PhaseChanged -= OnGamePhaseChanged;
+        }
+    }
 
     public override void Tick()
     {
@@ -109,7 +129,6 @@ public class WizardHeroBehavior : HeroJobBehavior
         CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
-        CancelActiveIceAttack();
     }
 
     public override void OnRestored()
@@ -118,6 +137,18 @@ public class WizardHeroBehavior : HeroJobBehavior
         CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
+        CancelActiveIceAttack();
+    }
+
+    private void OnGamePhaseChanged(GameController.GamePhase phase)
+    {
+        if (phase != GameController.GamePhase.Rewinding
+            && phase != GameController.GamePhase.Result)
+        {
+            return;
+        }
+
+        Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
         CancelActiveIceAttack();
     }
 

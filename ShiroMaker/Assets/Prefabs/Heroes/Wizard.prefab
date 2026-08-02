@@ -380,3 +380,5 @@ MonoBehaviour:
   deathVolume: 0.7
   magicCastingClip: {fileID: 8300000, guid: 337e535918e489248a573ab2c0d3c5cc, type: 3}
   magicCastingVolume: 0.7
+  magicShotClip: {fileID: 8300000, guid: efb6de61eadf26b47bb7c97651724f6a, type: 3}
+  magicShotVolume: 0.7

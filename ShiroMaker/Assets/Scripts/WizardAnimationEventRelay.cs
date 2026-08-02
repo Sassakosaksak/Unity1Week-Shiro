@@ -35,4 +35,9 @@ public class WizardAnimationEventRelay : MonoBehaviour
     {
         heroSeController?.StopMagicCasting();
     }
+
+    public void PlayMagicShot()
+    {
+        heroSeController?.PlayMagicShot();
+    }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SEController : MonoBehaviour
@@ -7,6 +8,7 @@ public class SEController : MonoBehaviour
     public static SEController Instance { get; private set; }
 
     private int nextSourceIndex;
+    private readonly HashSet<AudioSource> reservedSources = new HashSet<AudioSource>();
 
     private void Awake()
     {
@@ -83,12 +85,48 @@ public class SEController : MonoBehaviour
         source.clip = null;
     }
 
+    public AudioSource PlayReserved(AudioClip clip, float volume = 1f, float pitch = 1f)
+    {
+        if (clip == null)
+        {
+            return null;
+        }
+
+        AudioSource source = FindAvailableSource();
+        if (source == null)
+        {
+            return null;
+        }
+
+        source.Stop();
+        source.clip = clip;
+        source.volume = volume;
+        source.pitch = pitch;
+        source.loop = false;
+        source.Play();
+        reservedSources.Add(source);
+        return source;
+    }
+
+    public void StopReserved(AudioSource source)
+    {
+        if (source == null || !reservedSources.Remove(source))
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = null;
+    }
+
     private AudioSource FindAvailableSource()
     {
         if (audioSources == null || audioSources.Length == 0)
         {
             return null;
         }
+
+        ReleaseFinishedReservedSources();
 
         for (int i = 0; i < audioSources.Length; i++)
         {
@@ -103,7 +141,7 @@ public class SEController : MonoBehaviour
         {
             int index = (nextSourceIndex + i) % audioSources.Length;
             AudioSource fallback = audioSources[index];
-            if (fallback == null || fallback.loop)
+            if (fallback == null || fallback.loop || reservedSources.Contains(fallback))
             {
                 continue;
             }
@@ -114,5 +152,10 @@ public class SEController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void ReleaseFinishedReservedSources()
+    {
+        reservedSources.RemoveWhere(source => source == null || !source.isPlaying);
     }
 }

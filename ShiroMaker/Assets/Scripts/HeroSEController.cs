@@ -14,9 +14,12 @@ public class HeroSEController : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float deathVolume = 0.7f;
     [SerializeField] private AudioClip magicCastingClip;
     [SerializeField, Range(0f, 1f)] private float magicCastingVolume = 0.7f;
+    [SerializeField] private AudioClip magicShotClip;
+    [SerializeField, Range(0f, 1f)] private float magicShotVolume = 0.7f;
 
     private float footstepElapsedTime;
     private AudioSource magicCastingSource;
+    private AudioSource magicShotSource;
     private GameController gameController;
 
     private void Awake()
@@ -57,6 +60,7 @@ public class HeroSEController : MonoBehaviour
     private void OnDisable()
     {
         StopMagicCasting();
+        StopMagicShot();
     }
 
     private void OnDestroy()
@@ -98,11 +102,24 @@ public class HeroSEController : MonoBehaviour
         magicCastingSource = null;
     }
 
+    public void PlayMagicShot()
+    {
+        StopMagicShot();
+        magicShotSource = SEController.Instance?.PlayReserved(magicShotClip, magicShotVolume);
+    }
+
     private void OnGamePhaseChanged(GameController.GamePhase phase)
     {
         if (phase != GameController.GamePhase.Invasion)
         {
             StopMagicCasting();
+            StopMagicShot();
         }
+    }
+
+    private void StopMagicShot()
+    {
+        SEController.Instance?.StopReserved(magicShotSource);
+        magicShotSource = null;
     }
 }
