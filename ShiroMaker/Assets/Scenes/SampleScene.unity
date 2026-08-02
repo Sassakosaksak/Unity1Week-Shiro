@@ -74580,7 +74580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7969113453391430753, guid: 388998310fe47854c822a05a3d769b9d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.523
+      value: 9.5
       objectReference: {fileID: 0}
     - target: {fileID: 7969113453391430753, guid: 388998310fe47854c822a05a3d769b9d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -75240,7 +75240,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5525474372020461766, guid: 49fd36455e4dac944add1233bd4cd86d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.52
+      value: 15.35
       objectReference: {fileID: 0}
     - target: {fileID: 5525474372020461766, guid: 49fd36455e4dac944add1233bd4cd86d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -75695,6 +75695,10 @@ PrefabInstance:
     - target: {fileID: 8012925799873910158, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
       propertyPath: m_Name
       value: Priest
+      objectReference: {fileID: 0}
+    - target: {fileID: 8012925799873910158, guid: f7a9d5c849bea5841a86955763ba9484, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

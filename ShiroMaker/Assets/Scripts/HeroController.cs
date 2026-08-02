@@ -25,6 +25,7 @@ public class HeroController : MonoBehaviour
 
     private GameController gameController;
     private Collider2D bodyCollider;
+    private Rigidbody2D bodyRigidbody;
     private int currentHp;
     private bool isInvasionActive;
     private bool isStopped;
@@ -77,6 +78,7 @@ public class HeroController : MonoBehaviour
         }
 
         bodyCollider = GetComponent<Collider2D>();
+        bodyRigidbody = GetComponent<Rigidbody2D>();
     }
 
     private void OnDisable()
@@ -212,6 +214,7 @@ public class HeroController : MonoBehaviour
         isStopped = false;
         isFlinching = false;
         isDead = false;
+        SetBodyPhysicsEnabled(true);
         flinchRemainingTime = 0f;
         invincibilityRemainingTime = 0f;
         knockbackRemainingTime = 0f;
@@ -298,6 +301,7 @@ public class HeroController : MonoBehaviour
         isStopped = false;
         isFlinching = false;
         isDead = false;
+        SetBodyPhysicsEnabled(true);
         flinchRemainingTime = 0f;
         invincibilityRemainingTime = 0f;
         knockbackRemainingTime = 0f;
@@ -448,6 +452,7 @@ public class HeroController : MonoBehaviour
     private void Die()
     {
         isDead = true;
+        SetBodyPhysicsEnabled(false);
         jobBehavior?.OnInterrupted();
         Stop();
         StopInvincibilityBlink();
@@ -493,13 +498,13 @@ public class HeroController : MonoBehaviour
 
         foreach (HeroController otherHero in FindObjectsByType<HeroController>(FindObjectsSortMode.None))
         {
-            if (otherHero == null || otherHero == this)
+            if (otherHero == null || otherHero == this || otherHero.IsDead)
             {
                 continue;
             }
 
             Collider2D otherCollider = otherHero.GetComponent<Collider2D>();
-            if (otherCollider == null || !IsVerticallyOverlapping(ownBounds, otherCollider.bounds))
+            if (otherCollider == null || !otherCollider.enabled || !IsVerticallyOverlapping(ownBounds, otherCollider.bounds))
             {
                 continue;
             }
@@ -527,6 +532,14 @@ public class HeroController : MonoBehaviour
     private float GetHeroSeparation()
     {
         return DefaultHeroSeparation;
+    }
+
+    private void SetBodyPhysicsEnabled(bool enabled)
+    {
+        if (bodyRigidbody != null)
+        {
+            bodyRigidbody.simulated = enabled;
+        }
     }
 
     private void SetMoving(bool isMoving)
