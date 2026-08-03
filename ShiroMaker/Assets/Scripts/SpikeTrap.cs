@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SpikeTrap : TrapBase
 {
+    [SerializeField] private Sprite previewImage;
     [SerializeField] private LayerMask heroLayer;
     [SerializeField] private Collider2D damageCollider;
     [SerializeField] private float gridSize = 1f;
@@ -15,6 +16,7 @@ public class SpikeTrap : TrapBase
     private PlaceableAnchor placeableAnchor;
     private float nextDetectTime;
 
+    public Sprite PreviewImage => previewImage;
     public bool IsSafeToEnter => damageCollider == null || !damageCollider.enabled;
 
     protected override void Awake()

@@ -19,10 +19,13 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     private PlaceableAnchor previewAnchor;
     private SpriteRenderer[] previewRenderers;
     private Color[] previewBaseColors;
+    private Sprite[] previewBaseSprites;
     private Collider2D[] previewColliders;
     private bool[] previewColliderEnabledStates;
     private MonoBehaviour[] previewBehaviours;
     private bool[] previewBehaviourEnabledStates;
+    private Animator[] previewAnimators;
+    private bool[] previewAnimatorEnabledStates;
     private PitfallTrap previewPitfallTrap;
     private Vector3 previewCellCenter;
 
@@ -57,18 +60,38 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             previewBehaviours[i].enabled = false;
         }
 
+        previewAnimators = previewObject.GetComponentsInChildren<Animator>();
+        previewAnimatorEnabledStates = new bool[previewAnimators.Length];
+        for (int i = 0; i < previewAnimators.Length; i++)
+        {
+            previewAnimatorEnabledStates[i] = previewAnimators[i].enabled;
+            previewAnimators[i].enabled = false;
+        }
+
         previewPitfallTrap = previewObject.GetComponentInChildren<PitfallTrap>(true);
 
         previewRenderers = previewObject.GetComponentsInChildren<SpriteRenderer>();
         previewBaseColors = new Color[previewRenderers.Length];
+        previewBaseSprites = new Sprite[previewRenderers.Length];
         for (int i = 0; i < previewRenderers.Length; i++)
         {
             SpriteRenderer spriteRenderer = previewRenderers[i];
             previewBaseColors[i] = spriteRenderer.color;
+            previewBaseSprites[i] = spriteRenderer.sprite;
 
             Color color = spriteRenderer.color;
             color.a = previewAlpha;
             spriteRenderer.color = color;
+        }
+
+        SpikeTrap previewSpikeTrap = previewObject.GetComponentInChildren<SpikeTrap>(true);
+        if (previewSpikeTrap != null && previewSpikeTrap.PreviewImage != null)
+        {
+            SpriteRenderer spikeRenderer = previewSpikeTrap.GetComponent<SpriteRenderer>();
+            if (spikeRenderer != null)
+            {
+                spikeRenderer.sprite = previewSpikeTrap.PreviewImage;
+            }
         }
 
         if (placementGridOverlay != null)
@@ -137,10 +160,13 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewAnchor = null;
         previewRenderers = null;
         previewBaseColors = null;
+        previewBaseSprites = null;
         previewColliders = null;
         previewColliderEnabledStates = null;
         previewBehaviours = null;
         previewBehaviourEnabledStates = null;
+        previewAnimators = null;
+        previewAnimatorEnabledStates = null;
         previewPitfallTrap = null;
         placementGridOverlay?.HidePlacementCells();
     }
@@ -274,6 +300,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     {
         RestorePreviewComponentStates();
         RestorePreviewRendererColors();
+        RestorePreviewRendererSprites();
 
         previewPitfallTrap.CommitPlacementPreview();
         previewObject.name = placeablePrefab.name;
@@ -286,10 +313,13 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewAnchor = null;
         previewRenderers = null;
         previewBaseColors = null;
+        previewBaseSprites = null;
         previewColliders = null;
         previewColliderEnabledStates = null;
         previewBehaviours = null;
         previewBehaviourEnabledStates = null;
+        previewAnimators = null;
+        previewAnimatorEnabledStates = null;
         previewPitfallTrap = null;
         placementGridOverlay?.HidePlacementCells();
     }
@@ -331,6 +361,14 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
                 previewBehaviours[i].enabled = previewBehaviourEnabledStates[i];
             }
         }
+
+        for (int i = 0; i < previewAnimators.Length; i++)
+        {
+            if (previewAnimators[i] != null)
+            {
+                previewAnimators[i].enabled = previewAnimatorEnabledStates[i];
+            }
+        }
     }
 
     private void RestorePreviewRendererColors()
@@ -340,6 +378,17 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             if (previewRenderers[i] != null)
             {
                 previewRenderers[i].color = previewBaseColors[i];
+            }
+        }
+    }
+
+    private void RestorePreviewRendererSprites()
+    {
+        for (int i = 0; i < previewRenderers.Length; i++)
+        {
+            if (previewRenderers[i] != null)
+            {
+                previewRenderers[i].sprite = previewBaseSprites[i];
             }
         }
     }
