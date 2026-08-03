@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -22,13 +23,17 @@ using UnityEngine;
 public class DialogueController : MonoBehaviour
 {
     [SerializeField] private TMP_Text messageText;
+    [SerializeField] private CanvasGroup advanceIndicator;
     [SerializeField] private TextAsset openingDialogue;
     [SerializeField] private TextAsset endingDialogue;
+    [SerializeField, Range(1f, 120f)] private float charactersPerSecond = 30f;
 
     private string[] messages = Array.Empty<string>();
     private int messageIndex;
     private Action onCompleted;
+    private Coroutine revealCoroutine;
     private bool isPlaying;
+    private bool isTyping;
 
     public void PlayOpening(Action completed)
     {
@@ -72,12 +77,21 @@ public class DialogueController : MonoBehaviour
         messageIndex = 0;
         onCompleted = null;
         isPlaying = false;
+        isTyping = false;
+
+        if (revealCoroutine != null)
+        {
+            StopCoroutine(revealCoroutine);
+            revealCoroutine = null;
+        }
 
         if (messageText != null)
         {
             messageText.text = string.Empty;
+            messageText.maxVisibleCharacters = int.MaxValue;
         }
 
+        SetAdvanceIndicatorVisible(false);
         gameObject.SetActive(false);
     }
 
@@ -85,6 +99,12 @@ public class DialogueController : MonoBehaviour
     {
         if (!isPlaying)
         {
+            return;
+        }
+
+        if (isTyping)
+        {
+            CompleteCurrentMessage();
             return;
         }
 
@@ -102,9 +122,59 @@ public class DialogueController : MonoBehaviour
 
     private void ShowCurrentMessage()
     {
-        if (messageText != null && messageIndex < messages.Length)
+        if (messageText == null || messageIndex >= messages.Length)
         {
-            messageText.text = messages[messageIndex];
+            return;
         }
+
+        messageText.text = messages[messageIndex];
+        messageText.maxVisibleCharacters = 0;
+        messageText.ForceMeshUpdate();
+        isTyping = true;
+        SetAdvanceIndicatorVisible(false);
+        revealCoroutine = StartCoroutine(RevealCurrentMessage());
+    }
+
+    private IEnumerator RevealCurrentMessage()
+    {
+        int totalCharacterCount = messageText.textInfo.characterCount;
+        float visibleCharacterCount = 0f;
+
+        while (visibleCharacterCount < totalCharacterCount)
+        {
+            visibleCharacterCount += charactersPerSecond * Time.unscaledDeltaTime;
+            messageText.maxVisibleCharacters = Mathf.Min(
+                totalCharacterCount,
+                Mathf.FloorToInt(visibleCharacterCount));
+            yield return null;
+        }
+
+        revealCoroutine = null;
+        isTyping = false;
+        messageText.maxVisibleCharacters = int.MaxValue;
+        SetAdvanceIndicatorVisible(true);
+    }
+
+    private void CompleteCurrentMessage()
+    {
+        if (revealCoroutine != null)
+        {
+            StopCoroutine(revealCoroutine);
+            revealCoroutine = null;
+        }
+
+        isTyping = false;
+        messageText.maxVisibleCharacters = int.MaxValue;
+        SetAdvanceIndicatorVisible(true);
+    }
+
+    private void SetAdvanceIndicatorVisible(bool visible)
+    {
+        if (advanceIndicator == null)
+        {
+            return;
+        }
+
+        advanceIndicator.gameObject.SetActive(visible);
     }
 }

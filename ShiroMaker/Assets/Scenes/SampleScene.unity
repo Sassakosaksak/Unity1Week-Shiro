@@ -93657,8 +93657,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   messageText: {fileID: 1979510639}
+  advanceIndicator: {fileID: 2027965309}
   openingDialogue: {fileID: 4900000, guid: 6ef1638f8a6d4b6ba02bc2b7e9d31a26, type: 3}
   endingDialogue: {fileID: 4900000, guid: 2a7dc993d1194533b82e507f455a7dbf, type: 3}
+  charactersPerSecond: 20
 --- !u!1 &1587135591
 GameObject:
   m_ObjectHideFlags: 0
