@@ -24,8 +24,6 @@ public class DialogueController : MonoBehaviour
 {
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private CanvasGroup advanceIndicator;
-    [SerializeField] private TextAsset openingDialogue;
-    [SerializeField] private TextAsset endingDialogue;
     [SerializeField, Range(1f, 120f)] private float charactersPerSecond = 30f;
 
     private string[] messages = Array.Empty<string>();
@@ -34,16 +32,6 @@ public class DialogueController : MonoBehaviour
     private Coroutine revealCoroutine;
     private bool isPlaying;
     private bool isTyping;
-
-    public void PlayOpening(Action completed)
-    {
-        Play(openingDialogue, completed);
-    }
-
-    public void PlayEnding(Action completed)
-    {
-        Play(endingDialogue, completed);
-    }
 
     public void Play(TextAsset dialogue, Action completed)
     {

@@ -16,7 +16,6 @@ MonoBehaviour:
   initialTraps:
   - trapType: 2
     cell: {x: 5, y: 1}
-  nextSmallStage: {fileID: 0}
   heroes:
   - heroType: 1
     maxHp: 5

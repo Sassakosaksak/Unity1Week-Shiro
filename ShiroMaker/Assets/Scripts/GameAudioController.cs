@@ -86,7 +86,7 @@ public class GameAudioController : MonoBehaviour
             return;
         }
 
-        if (phase == GameController.GamePhase.Opening)
+        if (phase == GameController.GamePhase.Dialogue)
         {
             PlayLoopingMusic(dialogueBgm, dialogueBgmVolume);
             return;
@@ -101,12 +101,6 @@ public class GameAudioController : MonoBehaviour
         if (phase == GameController.GamePhase.Invasion)
         {
             PlayLoopingMusic(invasionBgm, invasionBgmVolume);
-            return;
-        }
-
-        if (phase == GameController.GamePhase.Ending)
-        {
-            PlayEndingMusic();
             return;
         }
 
@@ -151,7 +145,7 @@ public class GameAudioController : MonoBehaviour
         }
     }
 
-    private void PlayEndingMusic()
+    public void PlayEndingMusic()
     {
         StopMusic();
         if (bgmSource == null)
@@ -185,7 +179,7 @@ public class GameAudioController : MonoBehaviour
         yield return new WaitForSeconds(delay);
         endingDialogueCoroutine = null;
 
-        if (gameController != null && gameController.CurrentPhase == GameController.GamePhase.Ending)
+        if (gameController != null && gameController.CurrentPhase == GameController.GamePhase.Dialogue)
         {
             PlayLoopingMusic(dialogueBgm, dialogueBgmVolume);
         }

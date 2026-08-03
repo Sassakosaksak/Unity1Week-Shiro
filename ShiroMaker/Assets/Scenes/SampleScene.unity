@@ -37915,8 +37915,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
   m_BlockingMask:
@@ -93753,6 +93753,7 @@ GameObject:
   - component: {fileID: 2112345678}
   - component: {fileID: 2112345679}
   - component: {fileID: 2112345681}
+  - component: {fileID: 2112345682}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -93777,6 +93778,7 @@ MonoBehaviour:
   maouObject: {fileID: 203301975}
   titleCanvasObject: {fileID: 730175306}
   dialogueController: {fileID: 1571280741}
+  gameFlowController: {fileID: 2112345682}
   screenFadeController: {fileID: 2112345681}
   preparationUiObject: {fileID: 453300990}
   invasionUiObject: {fileID: 58785854}
@@ -93784,6 +93786,19 @@ MonoBehaviour:
   returnMode: 0
   rewindDuration: 0.45
   rewindEase: 9
+--- !u!114 &2112345682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611096172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b8e3f4cf0b842b4a1a387c0d6000005, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  gameFlow: {fileID: 11400000, guid: 4b8e3f4cf0b842b4a1a387c0d6000010, type: 2}
 --- !u!4 &1611096174
 Transform:
   m_ObjectHideFlags: 0
@@ -97281,7 +97296,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1138f0cf1f84c6197be8e3250e95061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstSmallStage: {fileID: 11400000, guid: a1f0110c4ba34b37a8d7d84d17b8e011, type: 2}
   prefabLibrary: {fileID: 2112345679}
   heroSpawnArea: {fileID: 472553016}
   stageCellBounds: {fileID: 1634257237}

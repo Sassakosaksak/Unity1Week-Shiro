@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: "\u3066\u3059\u3068\u3060\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042"
   initialTraps: []
-  nextSmallStage: {fileID: 0}
   heroes:
   - heroType: 1
     maxHp: 0

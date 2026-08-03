@@ -16,7 +16,6 @@ MonoBehaviour:
   initialTraps:
   - trapType: 2
     cell: {x: 2, y: 1}
-  nextSmallStage: {fileID: 11400000, guid: a1f0310c4ba34b37a8d7d84d17b8e031, type: 2}
   heroes:
   - heroType: 2
     maxHp: 1

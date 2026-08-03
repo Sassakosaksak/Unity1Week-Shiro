@@ -13,9 +13,8 @@ public class GameController : MonoBehaviour
         Invasion = 1,
         Result = 2,
         Rewinding = 3,
-        Opening = 4,
-        Ending = 5,
-        Title = 6
+        Dialogue = 4,
+        Title = 5
     }
 
     public enum GameResult
@@ -35,6 +34,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject maouObject;
     [SerializeField] private GameObject titleCanvasObject;
     [SerializeField] private DialogueController dialogueController;
+    [SerializeField] private GameFlowController gameFlowController;
     [SerializeField] private ScreenFadeController screenFadeController;
     [SerializeField] private GameObject preparationUiObject;
     [SerializeField] private GameObject invasionUiObject;
@@ -92,20 +92,10 @@ public class GameController : MonoBehaviour
 
     public void AdvanceStage()
     {
-        if (StageController.Instance != null && StageController.Instance.AdvanceSmallStage())
+        if (CurrentPhase == GamePhase.Result && currentResult == GameResult.Success)
         {
-            return;
+            gameFlowController?.Advance();
         }
-
-        if (StageController.Instance != null
-            && StageController.Instance.IsFinalSmallStage
-            && currentResult == GameResult.Success)
-        {
-            BeginEnding();
-            return;
-        }
-
-        StartInvasion();
     }
 
     public void BeginPreparation()
@@ -123,20 +113,21 @@ public class GameController : MonoBehaviour
 
         if (screenFadeController == null)
         {
-            StartOpeningDialogue();
+            StartGameFlow();
             return;
         }
 
-        screenFadeController.PlayTransition(StartOpeningDialogue);
+        screenFadeController.PlayTransition(StartGameFlow);
     }
 
-    public void ReturnToTitle()
+    public void PlayDialogue(TextAsset dialogue, Action completed)
     {
-        if (CurrentPhase != GamePhase.Ending)
-        {
-            return;
-        }
+        ChangePhase(GamePhase.Dialogue);
+        dialogueController?.Play(dialogue, completed);
+    }
 
+    public void CompleteGameFlow()
+    {
         if (screenFadeController == null)
         {
             ResetForTitle();
@@ -144,22 +135,6 @@ public class GameController : MonoBehaviour
         }
 
         screenFadeController.PlayTransition(ResetForTitle);
-    }
-
-    public void BeginFirstStageFromOpening()
-    {
-        if (CurrentPhase != GamePhase.Opening)
-        {
-            return;
-        }
-
-        if (screenFadeController == null)
-        {
-            StageController.Instance?.StartFirstSmallStage();
-            return;
-        }
-
-        screenFadeController.PlayTransition(() => StageController.Instance?.StartFirstSmallStage());
     }
 
 
@@ -325,7 +300,7 @@ public class GameController : MonoBehaviour
     {
         if (maouObject != null)
         {
-            maouObject.SetActive(phase != GamePhase.Title && phase != GamePhase.Opening);
+            maouObject.SetActive(phase != GamePhase.Title && phase != GamePhase.Dialogue);
         }
 
         if (titleCanvasObject != null)
@@ -344,34 +319,10 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void BeginEnding()
+    private void StartGameFlow()
     {
-        if (CurrentPhase == GamePhase.Ending)
-        {
-            return;
-        }
-
-        SetResultObjectsActive(false, false);
-        ChangePhase(GamePhase.Ending);
-
-        if (screenFadeController == null)
-        {
-            StartEndingDialogue();
-            return;
-        }
-
-        screenFadeController.PlayTransition(StartEndingDialogue);
-    }
-
-    private void StartOpeningDialogue()
-    {
-        ChangePhase(GamePhase.Opening);
-        dialogueController?.PlayOpening(BeginFirstStageFromOpening);
-    }
-
-    private void StartEndingDialogue()
-    {
-        dialogueController?.PlayEnding(ReturnToTitle);
+        StageController.Instance?.ResetForTitle();
+        gameFlowController?.StartFlow();
     }
 
     private void ResetForTitle()

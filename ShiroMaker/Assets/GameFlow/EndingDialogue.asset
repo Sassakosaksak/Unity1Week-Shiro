@@ -1,0 +1,11 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b8e3f4cf0b842b4a1a387c0d6000002, type: 3}
+  m_Name: EndingDialogue
+  m_EditorClassIdentifier: 
+  nextNode: {fileID: 0}
+  dialogue: {fileID: 4900000, guid: 2a7dc993d1194533b82e507f455a7dbf, type: 3}
+  useEndingMusic: 1

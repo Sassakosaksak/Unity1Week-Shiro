@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class StageController : MonoBehaviour
 {
-    [SerializeField] private SmallStageDefinition firstSmallStage;
     [SerializeField] private StagePrefabLibrary prefabLibrary;
     [SerializeField] private BoxCollider2D heroSpawnArea;
     [SerializeField] private BoxCollider2D stageCellBounds;
@@ -24,7 +23,6 @@ public class StageController : MonoBehaviour
     private PlacementGridOverlay placementGridOverlay;
 
     public static StageController Instance { get; private set; }
-    public bool IsFinalSmallStage => currentSmallStage != null && currentSmallStage.NextSmallStage == null;
     public event Action TrapSuppliesChanged;
 
     private void Awake()
@@ -34,18 +32,8 @@ public class StageController : MonoBehaviour
 
     private void Start()
     {
-        if (firstSmallStage == null)
-        {
-            return;
-        }
-
         GameController.Instance.TrapPlaced += OnTrapPlaced;
         GameController.Instance.TrapReturned += OnTrapReturned;
-        if (GameController.Instance.CurrentPhase != GameController.GamePhase.Opening
-            && GameController.Instance.CurrentPhase != GameController.GamePhase.Title)
-        {
-            StartFirstSmallStage();
-        }
     }
 
     private void OnDestroy()
@@ -64,11 +52,6 @@ public class StageController : MonoBehaviour
 
     public bool CanPlaceTrap(GameObject trapPrefab)
     {
-        if (firstSmallStage == null)
-        {
-            return true;
-        }
-
         return prefabLibrary != null
             && prefabLibrary.TryGetTrapType(trapPrefab, out TrapType trapType)
             && remainingTrapSupplies.TryGetValue(trapType, out int remaining)
@@ -82,11 +65,6 @@ public class StageController : MonoBehaviour
 
     public bool TryConsumeTrap(GameObject trapPrefab)
     {
-        if (firstSmallStage == null)
-        {
-            return true;
-        }
-
         if (prefabLibrary == null
             || !prefabLibrary.TryGetTrapType(trapPrefab, out TrapType trapType)
             || !remainingTrapSupplies.TryGetValue(trapType, out int remaining)
@@ -100,25 +78,15 @@ public class StageController : MonoBehaviour
         return true;
     }
 
-    public bool AdvanceSmallStage()
+    public void StartStage(SmallStageDefinition stage)
     {
-        if (currentSmallStage == null || currentSmallStage.NextSmallStage == null)
+        if (stage == null)
         {
-            return false;
-        }
-
-        StartSmallStage(currentSmallStage.NextSmallStage);
-        return true;
-    }
-
-    public void StartFirstSmallStage()
-    {
-        if (firstSmallStage == null || currentSmallStage != null)
-        {
+            Debug.LogError("Stage flow node does not have a stage assigned.", this);
             return;
         }
 
-        StartSmallStage(firstSmallStage);
+        StartSmallStage(stage);
     }
 
     public void ResetForTitle()

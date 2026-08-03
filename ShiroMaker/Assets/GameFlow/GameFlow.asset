@@ -9,15 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1168f0cf1f84c6197be8e3250e95061, type: 3}
-  m_Name: Stage2-2
+  m_Script: {fileID: 11500000, guid: 4b8e3f4cf0b842b4a1a387c0d6000004, type: 3}
+  m_Name: GameFlow
   m_EditorClassIdentifier: 
-  stageTitle: "2-2 \u4ECA\u96C6\u4E2D\u3057\u3066\u308B\u306E\u3067\u2026"
-  initialTraps: []
-  heroes:
-  - heroType: 2
-    maxHp: 2
-    spawnColumn: 2
-  trapSupplies:
-  - trapType: 3
-    count: 1
+  startNode: {fileID: 11400000, guid: 4b8e3f4cf0b842b4a1a387c0d6000011, type: 2}
