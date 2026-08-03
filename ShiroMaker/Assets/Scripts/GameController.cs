@@ -34,8 +34,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject failureObject;
     [SerializeField] private GameObject maouObject;
     [SerializeField] private GameObject titleCanvasObject;
-    [SerializeField] private GameObject openingUiObject;
-    [SerializeField] private TextAsset endingDialogue;
+    [SerializeField] private DialogueController dialogueController;
     [SerializeField] private ScreenFadeController screenFadeController;
     [SerializeField] private GameObject preparationUiObject;
     [SerializeField] private GameObject invasionUiObject;
@@ -56,8 +55,6 @@ public class GameController : MonoBehaviour
     private readonly List<PlacedTrapRecord> placedTrapHistory = new List<PlacedTrapRecord>();
     private Sequence rewindSequence;
     private GameResult? currentResult;
-    private GameObject endingUiObject;
-    private EndingController endingController;
 
     private void Awake()
     {
@@ -69,7 +66,6 @@ public class GameController : MonoBehaviour
 
         Instance = this;
         CurrentPhase = GamePhase.Title;
-        CreateEndingUi();
     }
 
     private void OnDestroy()
@@ -83,6 +79,7 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         SetResultObjectsActive(false, false);
+        dialogueController?.ResetState();
         ApplyPhaseUi(CurrentPhase);
         UpdateReturnButtonState();
     }
@@ -126,11 +123,11 @@ public class GameController : MonoBehaviour
 
         if (screenFadeController == null)
         {
-            ChangePhase(GamePhase.Opening);
+            StartOpeningDialogue();
             return;
         }
 
-        screenFadeController.PlayTransition(() => ChangePhase(GamePhase.Opening));
+        screenFadeController.PlayTransition(StartOpeningDialogue);
     }
 
     public void ReturnToTitle()
@@ -142,16 +139,11 @@ public class GameController : MonoBehaviour
 
         if (screenFadeController == null)
         {
-            StageController.Instance?.ResetForTitle();
-            ChangePhase(GamePhase.Title);
+            ResetForTitle();
             return;
         }
 
-        screenFadeController.PlayTransition(() =>
-        {
-            StageController.Instance?.ResetForTitle();
-            ChangePhase(GamePhase.Title);
-        });
+        screenFadeController.PlayTransition(ResetForTitle);
     }
 
     public void BeginFirstStageFromOpening()
@@ -350,11 +342,6 @@ public class GameController : MonoBehaviour
         {
             invasionUiObject.SetActive(phase == GamePhase.Invasion);
         }
-
-        if (openingUiObject != null)
-        {
-            openingUiObject.SetActive(phase == GamePhase.Opening);
-        }
     }
 
     private void BeginEnding()
@@ -369,52 +356,29 @@ public class GameController : MonoBehaviour
 
         if (screenFadeController == null)
         {
-            ActivateEndingUi();
+            StartEndingDialogue();
             return;
         }
 
-        screenFadeController.PlayTransition(ActivateEndingUi);
+        screenFadeController.PlayTransition(StartEndingDialogue);
     }
 
-    private void ActivateEndingUi()
+    private void StartOpeningDialogue()
     {
-        if (endingUiObject == null || endingController == null)
-        {
-            return;
-        }
-
-        endingUiObject.SetActive(true);
-        endingController.Begin();
+        ChangePhase(GamePhase.Opening);
+        dialogueController?.PlayOpening(BeginFirstStageFromOpening);
     }
 
-    private void CreateEndingUi()
+    private void StartEndingDialogue()
     {
-        if (openingUiObject == null)
-        {
-            return;
-        }
+        dialogueController?.PlayEnding(ReturnToTitle);
+    }
 
-        endingUiObject = Instantiate(openingUiObject);
-        endingUiObject.name = "EndingUI";
-
-        OpeningController openingController = endingUiObject.GetComponent<OpeningController>();
-        if (openingController != null)
-        {
-            openingController.enabled = false;
-        }
-
-        Canvas endingCanvas = endingUiObject.GetComponent<Canvas>();
-        if (endingCanvas != null)
-        {
-            endingCanvas.overrideSorting = true;
-            endingCanvas.sortingOrder = 1;
-        }
-
-        endingController = endingUiObject.AddComponent<EndingController>();
-        endingController.Configure(
-            endingUiObject.GetComponent<MessageWindowController>(),
-            endingDialogue);
-        endingUiObject.SetActive(false);
+    private void ResetForTitle()
+    {
+        dialogueController?.ResetState();
+        StageController.Instance?.ResetForTitle();
+        ChangePhase(GamePhase.Title);
     }
 
     private void ReturnLastPlacedTrap()
@@ -467,7 +431,7 @@ public class GameController : MonoBehaviour
         returnButton.interactable = CurrentPhase == GamePhase.Preparation && placedTrapHistory.Count > 0;
     }
 
-    // •ÊŒû‚Åƒgƒ‰ƒbƒv‚ªÁ‚¦‚½ê‡‚Ìˆ—BŒ»ó•s—v‚È‚Ì‚ÅƒRƒƒ“ƒgƒAƒEƒg
+    // åˆ¥å£ã§ãƒˆãƒ©ãƒƒãƒ—ãŒæ¶ˆãˆãŸå ´åˆã®å‡¦ç†ã€‚ç¾çŠ¶ä¸è¦ãªã®ã§ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
     // private void RemoveMissingPlacedTraps()
     // {
     //     for (int i = placedTrapHistory.Count - 1; i >= 0; i--)

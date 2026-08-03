@@ -93549,9 +93549,8 @@ GameObject:
   - component: {fileID: 1571280738}
   - component: {fileID: 1571280737}
   - component: {fileID: 1571280741}
-  - component: {fileID: 1571280742}
   m_Layer: 5
-  m_Name: OPUI
+  m_Name: DialogueUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -93655,21 +93654,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e1c5d3a82f44f4e93eaf3a12a5aa681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  messageWindow: {fileID: 1571280742}
-  dialogue: {fileID: 4900000, guid: 6ef1638f8a6d4b6ba02bc2b7e9d31a26, type: 3}
---- !u!114 &1571280742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1571280736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bce7ad0c3eaa4f8ea8dce0ce4e9cdfd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   messageText: {fileID: 1979510639}
+  openingDialogue: {fileID: 4900000, guid: 6ef1638f8a6d4b6ba02bc2b7e9d31a26, type: 3}
+  endingDialogue: {fileID: 4900000, guid: 2a7dc993d1194533b82e507f455a7dbf, type: 3}
 --- !u!1 &1587135591
 GameObject:
   m_ObjectHideFlags: 0
@@ -93785,8 +93772,7 @@ MonoBehaviour:
   failureObject: {fileID: 790078588}
   maouObject: {fileID: 203301975}
   titleCanvasObject: {fileID: 730175306}
-  openingUiObject: {fileID: 1571280736}
-  endingDialogue: {fileID: 4900000, guid: 2a7dc993d1194533b82e507f455a7dbf, type: 3}
+  dialogueController: {fileID: 1571280741}
   screenFadeController: {fileID: 2112345681}
   preparationUiObject: {fileID: 453300990}
   invasionUiObject: {fileID: 58785854}
