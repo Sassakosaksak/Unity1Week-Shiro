@@ -16,13 +16,15 @@ MonoBehaviour:
   initialTraps:
   - trapType: 1
     cell: {x: 6, y: 1}
+  - trapType: 3
+    cell: {x: 8, y: 2}
   nextSmallStage: {fileID: 11400000, guid: a1f0330c4ba34b37a8d7d84d17b8e033, type: 2}
   heroes:
   - heroType: 1
     maxHp: 2
-    spawnColumn: 2
+    spawnColumn: 1
   - heroType: 3
-    maxHp: 4
+    maxHp: 3
     spawnColumn: 4
   trapSupplies:
   - trapType: 1

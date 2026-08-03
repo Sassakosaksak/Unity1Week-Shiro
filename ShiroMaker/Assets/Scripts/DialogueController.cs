@@ -2,7 +2,6 @@ using System;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// 空行で区切られたテキストを、1メッセージずつ表示する。
@@ -82,11 +81,9 @@ public class DialogueController : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void Update()
+    public void Advance()
     {
-        if (!isPlaying
-            || Mouse.current == null
-            || !Mouse.current.leftButton.wasPressedThisFrame)
+        if (!isPlaying)
         {
             return;
         }

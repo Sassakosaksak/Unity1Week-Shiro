@@ -22,7 +22,5 @@ MonoBehaviour:
     maxHp: 3
     spawnColumn: 2
   trapSupplies:
-  - trapType: 1
-    count: 1
   - trapType: 3
     count: 1
