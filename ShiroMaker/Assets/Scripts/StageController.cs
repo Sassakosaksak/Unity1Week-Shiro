@@ -295,6 +295,11 @@ public class StageController : MonoBehaviour
         {
             if (instance != null)
             {
+                foreach (PitfallTrap pitfall in instance.GetComponentsInChildren<PitfallTrap>(true))
+                {
+                    pitfall.RestoreGroundForRemoval();
+                }
+
                 Destroy(instance);
             }
         }

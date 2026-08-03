@@ -145,6 +145,12 @@ public class PitfallTrap : TrapBase
         RemoveGroundTiles();
     }
 
+    public void RestoreGroundForRemoval()
+    {
+        DestroyTemporaryGround();
+        RestoreGroundTiles();
+    }
+
     public override void OnHeroHit(HeroController hero)
     {
         // Unsealed pitfalls are real holes; falling is resolved by DeathZone.
