@@ -348,6 +348,7 @@ MonoBehaviour:
   attackTriggerName: Attack1
   attackShotTriggerName: Attack1_Shot
   sealPitTriggerName: Attack2
+  sealPitShotTriggerName: Attack2_Shot
   goalTag: Goal
   gridSize: 1
   trapProbeSize: {x: 0.8, y: 0.8}
@@ -382,3 +383,4 @@ MonoBehaviour:
   magicCastingVolume: 0.7
   magicShotClip: {fileID: 8300000, guid: efb6de61eadf26b47bb7c97651724f6a, type: 3}
   magicShotVolume: 0.7
+  gravityMagicShotClip: {fileID: 8300000, guid: 59f1e0a3743bd9043a44ece0d7109bf7, type: 3}

@@ -24,6 +24,7 @@ public class TemporaryGround : MonoBehaviour
     private Tween blinkTween;
     private bool isExpiring;
     private bool isSetting;
+    private bool waitForManualCompletion;
 
     public bool IsSetting => isSetting;
 
@@ -72,6 +73,11 @@ public class TemporaryGround : MonoBehaviour
 
         if (isSetting)
         {
+            if (waitForManualCompletion)
+            {
+                return;
+            }
+
             settingRemainingTime -= Time.deltaTime;
             if (settingRemainingTime <= 0f)
             {
@@ -105,15 +111,16 @@ public class TemporaryGround : MonoBehaviour
         expiredCallback = null;
     }
 
-    public void Initialize(Action onExpired)
+    public void Initialize(Action onExpired, bool completeManually = false)
     {
         rideDuration = Mathf.Max(0.01f, rideDuration);
         settingDuration = Mathf.Max(0f, settingDuration);
         settingRemainingTime = settingDuration;
         expiredCallback = onExpired;
         isSetting = true;
+        waitForManualCompletion = completeManually;
 
-        if (settingRemainingTime <= 0f)
+        if (!waitForManualCompletion && settingRemainingTime <= 0f)
         {
             CompleteSetting();
         }
@@ -124,7 +131,7 @@ public class TemporaryGround : MonoBehaviour
         expiredCallback = null;
     }
 
-    private void CompleteSetting()
+    public void CompleteSetting()
     {
         if (!isSetting)
         {
@@ -132,6 +139,7 @@ public class TemporaryGround : MonoBehaviour
         }
 
         isSetting = false;
+        waitForManualCompletion = false;
 
         if (floorCollider != null)
         {

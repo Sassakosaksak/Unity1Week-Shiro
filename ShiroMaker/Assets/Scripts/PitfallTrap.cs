@@ -110,7 +110,7 @@ public class PitfallTrap : TrapBase
             temporaryGround = temporaryGroundObject.AddComponent<TemporaryGround>();
         }
 
-        temporaryGround.Initialize(OnTemporaryGroundExpired);
+        temporaryGround.Initialize(OnTemporaryGroundExpired, true);
         return true;
     }
 
@@ -123,6 +123,11 @@ public class PitfallTrap : TrapBase
 
         DestroyTemporaryGround();
         SetSealed(false);
+    }
+
+    public void CompleteTemporaryGroundSetting()
+    {
+        temporaryGround?.CompleteSetting();
     }
 
     public void UpdatePlacementPreview(bool canPlace)

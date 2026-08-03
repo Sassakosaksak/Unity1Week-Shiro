@@ -16,6 +16,7 @@ public class HeroSEController : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float magicCastingVolume = 0.7f;
     [SerializeField] private AudioClip magicShotClip;
     [SerializeField, Range(0f, 1f)] private float magicShotVolume = 0.7f;
+    [SerializeField] private AudioClip gravityMagicShotClip;
 
     private float footstepElapsedTime;
     private AudioSource magicCastingSource;
@@ -106,6 +107,13 @@ public class HeroSEController : MonoBehaviour
     {
         StopMagicShot();
         magicShotSource = SEController.Instance?.PlayReserved(magicShotClip, magicShotVolume);
+    }
+
+    public void PlayGravityMagicShot()
+    {
+        StopMagicCasting();
+        StopMagicShot();
+        magicShotSource = SEController.Instance?.PlayReserved(gravityMagicShotClip, magicShotVolume);
     }
 
     private void OnGamePhaseChanged(GameController.GamePhase phase)

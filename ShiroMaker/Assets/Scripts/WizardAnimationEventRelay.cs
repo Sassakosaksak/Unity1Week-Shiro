@@ -40,4 +40,14 @@ public class WizardAnimationEventRelay : MonoBehaviour
     {
         heroSeController?.PlayMagicShot();
     }
+
+    public void PlayGravityMagicShot()
+    {
+        heroSeController?.PlayGravityMagicShot();
+    }
+
+    public void FinishSealPitShot()
+    {
+        wizardBehavior?.FinishSealPitShotFromAnimation();
+    }
 }

@@ -22,6 +22,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     [SerializeField] private string attackTriggerName = "Attack1";
     [SerializeField] private string attackShotTriggerName = "Attack1_Shot";
     [SerializeField] private string sealPitTriggerName = "Attack2";
+    [SerializeField] private string sealPitShotTriggerName = "Attack2_Shot";
     [SerializeField] private string goalTag = "Goal";
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private Vector2 trapProbeSize = new Vector2(0.8f, 0.8f);
@@ -41,6 +42,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     private Transform goalTarget;
     private bool floorSettingStarted;
     private bool attackShotTriggered;
+    private bool isSealPitShotPlaying;
     private IceAttackEffect activeIceAttack;
     private GameController gameController;
 
@@ -71,6 +73,11 @@ public class WizardHeroBehavior : HeroJobBehavior
         }
 
         if (activeIceAttack != null)
+        {
+            return;
+        }
+
+        if (isSealPitShotPlaying)
         {
             return;
         }
@@ -109,7 +116,7 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     public override bool CanMove()
     {
-        if (castKind != CastKind.None || activeIceAttack != null)
+        if (castKind != CastKind.None || activeIceAttack != null || isSealPitShotPlaying)
         {
             return false;
         }
@@ -126,6 +133,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     public override void OnInterrupted()
     {
         Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
+        isSealPitShotPlaying = false;
         CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
@@ -134,6 +142,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     public override void OnRestored()
     {
         Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
+        isSealPitShotPlaying = false;
         CancelPendingAttack();
         CancelPendingSealPit();
         CancelCasting();
@@ -149,10 +158,13 @@ public class WizardHeroBehavior : HeroJobBehavior
         }
 
         Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
+        isSealPitShotPlaying = false;
         CancelActiveIceAttack();
     }
 
-    // Called by the StartFloorSetting Animation Event in Attack2.
+    /// <summary>
+    /// WizのAttack2から呼ばれて、一時床を設置する
+    /// </summary>
     public void StartFloorSettingFromAnimation()
     {
         if (castKind != CastKind.SealPit
@@ -167,9 +179,17 @@ public class WizardHeroBehavior : HeroJobBehavior
             temporaryGroundPrefab,
             temporaryGroundBottomCenterOffset,
             temporaryGroundParent);
+
     }
 
-    // Called by the SpawnIceAttack Animation Event in Attack1_Shot.
+    public void FinishSealPitShotFromAnimation()
+    {
+        isSealPitShotPlaying = false;
+    }
+
+    /// <summary>
+    /// WizのAttack1から呼ばれて、氷結させる
+    /// </summary>
     public void SpawnIceAttackFromAnimation()
     {
         if (castKind != CastKind.Attack
@@ -211,6 +231,7 @@ public class WizardHeroBehavior : HeroJobBehavior
         castingPit = pit;
         floorSettingStarted = false;
         attackShotTriggered = false;
+        isSealPitShotPlaying = false;
         Hero.PlayJobTrigger(GetTriggerName(nextCastKind));
     }
 
@@ -282,6 +303,9 @@ public class WizardHeroBehavior : HeroJobBehavior
             return;
         }
 
+        castingPit?.CompleteTemporaryGroundSetting();
+        Hero.PlayJobTrigger(sealPitShotTriggerName);
+        isSealPitShotPlaying = true;
         CancelCasting(false);
     }
 
