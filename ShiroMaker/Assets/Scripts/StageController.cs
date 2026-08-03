@@ -17,11 +17,11 @@ public class StageController : MonoBehaviour
 
     private readonly Dictionary<TrapType, int> remainingTrapSupplies = new Dictionary<TrapType, int>();
     private readonly List<GameObject> playerPlacedTraps = new List<GameObject>();
-    private readonly List<GameObject> largeStageInitialTraps = new List<GameObject>();
+    private readonly List<GameObject> initialTraps = new List<GameObject>();
     private readonly List<HeroController> spawnedHeroes = new List<HeroController>();
 
     private SmallStageDefinition currentSmallStage;
-    private LargeStageDefinition currentLargeStage;
+    private PlacementGridOverlay placementGridOverlay;
 
     public static StageController Instance { get; private set; }
     public bool IsFinalSmallStage => currentSmallStage != null && currentSmallStage.NextSmallStage == null;
@@ -107,7 +107,7 @@ public class StageController : MonoBehaviour
             return false;
         }
 
-        StartSmallStage(currentSmallStage.NextSmallStage, false);
+        StartSmallStage(currentSmallStage.NextSmallStage);
         return true;
     }
 
@@ -118,39 +118,34 @@ public class StageController : MonoBehaviour
             return;
         }
 
-        StartSmallStage(firstSmallStage, true);
+        StartSmallStage(firstSmallStage);
     }
 
     public void ResetForTitle()
     {
         DestroyHeroes();
         DestroyGameObjects(playerPlacedTraps);
-        DestroyGameObjects(largeStageInitialTraps);
+        DestroyGameObjects(initialTraps);
+        PlacementOccupancy.Instance?.Clear();
         DestroyTemporaryGrounds();
 
         remainingTrapSupplies.Clear();
         TrapSuppliesChanged?.Invoke();
         currentSmallStage = null;
-        currentLargeStage = null;
         GameController.Instance?.ClearCurrentStageUndoHistory();
     }
 
-    private void StartSmallStage(SmallStageDefinition nextStage, bool isFirstStage)
+    private void StartSmallStage(SmallStageDefinition nextStage)
     {
-        bool isNewLargeStage = isFirstStage || nextStage.LargeStage != currentLargeStage;
-        if (isNewLargeStage)
-        {
-            DestroyGameObjects(playerPlacedTraps);
-            DestroyGameObjects(largeStageInitialTraps);
-            currentLargeStage = nextStage.LargeStage;
-            SpawnLargeStageInitialTraps();
-        }
-
         DestroyHeroes();
+        DestroyGameObjects(playerPlacedTraps);
+        DestroyGameObjects(initialTraps);
+        PlacementOccupancy.Instance?.Clear();
         DestroyTemporaryGrounds();
         ResetTrapRuntimeStates();
 
         currentSmallStage = nextStage;
+        SpawnInitialTraps(nextStage);
         ResetTrapSupplies(nextStage);
         SpawnHeroes(nextStage);
         GameController.Instance.ClearCurrentStageUndoHistory();
@@ -159,14 +154,9 @@ public class StageController : MonoBehaviour
         UpdateStageName(nextStage.StageTitle);
     }
 
-    private void SpawnLargeStageInitialTraps()
+    private void SpawnInitialTraps(SmallStageDefinition stage)
     {
-        if (currentLargeStage == null)
-        {
-            return;
-        }
-
-        foreach (InitialTrapSetup setup in currentLargeStage.InitialTraps)
+        foreach (InitialTrapSetup setup in stage.InitialTraps)
         {
             GameObject trapPrefab = setup != null && prefabLibrary != null
                 ? prefabLibrary.GetTrapPrefab(setup.TrapType)
@@ -186,7 +176,21 @@ public class StageController : MonoBehaviour
                 rock.CaptureInitialPosition();
             }
 
-            largeStageInitialTraps.Add(trap);
+            RegisterInitialTrap(trap, cellCenter);
+            initialTraps.Add(trap);
+        }
+    }
+
+    private void RegisterInitialTrap(GameObject trap, Vector3 cellCenter)
+    {
+        if (placementGridOverlay == null)
+        {
+            placementGridOverlay = FindFirstObjectByType<PlacementGridOverlay>();
+        }
+
+        if (placementGridOverlay != null)
+        {
+            placementGridOverlay.RegisterPlacedTrap(trap, cellCenter);
         }
     }
 

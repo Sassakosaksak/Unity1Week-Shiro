@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Stage1-2
   m_EditorClassIdentifier: 
   stageTitle: "1-2 \u7121\u6575\u6642\u9593"
-  largeStage: {fileID: 11400000, guid: a1f0010c4ba34b37a8d7d84d17b8e001, type: 2}
+  initialTraps: []
   nextSmallStage: {fileID: 11400000, guid: a1f0130c4ba34b37a8d7d84d17b8e013, type: 2}
   heroes:
   - heroType: 1
@@ -21,4 +21,4 @@ MonoBehaviour:
     spawnColumn: 2
   trapSupplies:
   - trapType: 1
-    count: 1
+    count: 2

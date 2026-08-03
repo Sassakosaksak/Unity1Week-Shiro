@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SmallStage
   m_EditorClassIdentifier: Assembly-CSharp::SmallStageDefinition
   stageTitle: "\u732A\u7A81\u731B\u9032"
-  largeStage: {fileID: 11400000, guid: 5287aacdda9079e4b8112177f4bd2bd9, type: 2}
+  initialTraps: []
   nextSmallStage: {fileID: 0}
   heroes:
   - heroType: 0

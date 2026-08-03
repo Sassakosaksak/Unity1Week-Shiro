@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Stage2-3
   m_EditorClassIdentifier: 
   stageTitle: "2-3 \u30DE\u30B7\u30E5\u30DE\u30ED\u304B\u3068\u601D\u3063\u305F\u305C"
-  largeStage: {fileID: 11400000, guid: a1f0020c4ba34b37a8d7d84d17b8e002, type: 2}
+  initialTraps:
+  - trapType: 2
+    cell: {x: 2, y: 1}
   nextSmallStage: {fileID: 11400000, guid: a1f0310c4ba34b37a8d7d84d17b8e031, type: 2}
   heroes:
   - heroType: 2

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TestStage
   m_EditorClassIdentifier: 
   stageTitle: "\u3066\u3059\u3068\u3060\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042"
-  largeStage: {fileID: 11400000, guid: b1d310617302d2e459a0b8b44f64e42e, type: 2}
+  initialTraps: []
   nextSmallStage: {fileID: 0}
   heroes:
   - heroType: 1

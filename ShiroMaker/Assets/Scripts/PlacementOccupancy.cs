@@ -89,6 +89,11 @@ public class PlacementOccupancy : MonoBehaviour
         occupants[cell] = occupant;
     }
 
+    public void Clear()
+    {
+        occupants.Clear();
+    }
+
     public void Unregister(PlacementOccupant occupant, Vector3Int cell)
     {
         if (occupants.TryGetValue(cell, out PlacementOccupant currentOccupant) && currentOccupant == occupant)
