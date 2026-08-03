@@ -324,6 +324,7 @@ MonoBehaviour:
   raiseRange: 5.5
   spellStartDelay: 0.5
   spellCooldownDuration: 2.5
+  attackDuration: 2
   raiseDuration: 3
   raiseFlashColor: {r: 0.5613208, g: 0.95477766, b: 1, a: 0.6117647}
   raiseFlashInterval: 0.1
@@ -347,6 +348,7 @@ MonoBehaviour:
   attackTriggerName: Attack
   raiseTriggerName: Raise
   healTriggerName: Heal
+  finishSpellTriggerName: FinishSpell
   raiseEffectTriggerName: Raise
   healEffectTriggerName: Heal
   raiseRangeGizmoColor: {r: 0.9, g: 0.6, b: 1, a: 0.45}
@@ -373,7 +375,7 @@ MonoBehaviour:
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}
   deathVolume: 0.7
-  magicCastingClip: {fileID: 0}
+  magicCastingClip: {fileID: 8300000, guid: 337e535918e489248a573ab2c0d3c5cc, type: 3}
   magicCastingVolume: 0.7
   magicShotClip: {fileID: 0}
   magicShotVolume: 0.7

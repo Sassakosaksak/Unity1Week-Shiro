@@ -13,6 +13,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     [SerializeField, Min(0f)] private float raiseRange = 2.5f;
     [SerializeField, Min(0f)] private float spellStartDelay = 0.5f;
     [SerializeField, Min(0f)] private float spellCooldownDuration = 3f;
+    [SerializeField, Min(0.01f)] private float attackDuration = 2f;
     [SerializeField, Min(0.01f)] private float raiseDuration = 5f;
     [SerializeField] private Color raiseFlashColor = Color.green;
     [SerializeField, Min(0.01f)] private float raiseFlashInterval = 0.1f;
@@ -36,6 +37,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     [SerializeField] private string attackTriggerName = "Attack";
     [SerializeField] private string raiseTriggerName = "Raise";
     [SerializeField] private string healTriggerName = "Heal";
+    [SerializeField] private string finishSpellTriggerName = "FinishSpell";
     [SerializeField] private string raiseEffectTriggerName = "Raise";
     [SerializeField] private string healEffectTriggerName = "Heal";
     [SerializeField] private Color raiseRangeGizmoColor = new Color(0.9f, 0.6f, 1f, 0.45f);
@@ -51,6 +53,8 @@ public class PriestHeroBehavior : HeroJobBehavior
     private float spellCooldownRemaining;
     private GameObject activeMagicEffect;
     private Transform attackTarget;
+    private bool isWaitingForMagicEffect;
+    private bool attackEffectSpawned;
 
     public override void Tick()
     {
@@ -106,7 +110,7 @@ public class PriestHeroBehavior : HeroJobBehavior
 
     public override bool CanMove()
     {
-        return spellKind == SpellKind.None;
+        return spellKind == SpellKind.None && !isWaitingForMagicEffect;
     }
 
     public override void OnInterrupted()
@@ -131,6 +135,7 @@ public class PriestHeroBehavior : HeroJobBehavior
     private void StartSpell(SpellKind nextSpellKind, HeroController target)
     {
         spellKind = nextSpellKind;
+        isWaitingForMagicEffect = true;
         spellTarget = target;
         spellRemainingTime = nextSpellKind == SpellKind.Raise ? raiseDuration : healDuration;
 
@@ -151,8 +156,9 @@ public class PriestHeroBehavior : HeroJobBehavior
 
         spellKind = SpellKind.Attack;
         attackTarget = target;
+        spellRemainingTime = attackDuration;
+        attackEffectSpawned = false;
         Hero.PlayJobTrigger(attackTriggerName);
-        SpawnAttackMagicEffect(target);
     }
 
     private void BeginSpellAfterDelay(SpellKind nextSpellKind, HeroController target)
@@ -209,10 +215,18 @@ public class PriestHeroBehavior : HeroJobBehavior
     {
         if (spellKind == SpellKind.Attack)
         {
-            return;
-        }
+            if (attackEffectSpawned)
+            {
+                return;
+            }
 
-        if (spellTarget == null)
+            if (attackTarget == null)
+            {
+                CancelSpell();
+                return;
+            }
+        }
+        else if (spellTarget == null)
         {
             CancelSpell();
             return;
@@ -224,18 +238,36 @@ public class PriestHeroBehavior : HeroJobBehavior
             return;
         }
 
+        if (spellKind == SpellKind.Attack)
+        {
+            if (priestMagicPrefab == null)
+            {
+                CancelSpell();
+                return;
+            }
+
+            attackEffectSpawned = true;
+            Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
+            Hero.PlayJobTrigger(finishSpellTriggerName);
+            SpawnAttackMagicEffect(attackTarget);
+            return;
+        }
+
         SpellKind completedSpellKind = spellKind;
         HeroController completedTarget = spellTarget;
-        CancelSpell();
+        CancelSpell(false);
 
         if (completedSpellKind == SpellKind.Raise)
         {
             SpawnMagicEffect(
                 completedTarget,
+                completedSpellKind,
                 raiseEffectTriggerName,
                 raiseMagicOffset,
                 raiseMagicLifetime,
                 raiseMagicPlaybackSpeed);
+            isWaitingForMagicEffect = false;
+            Hero.PlayJobTrigger(finishSpellTriggerName);
             if (completedTarget.ReviveAtFullHealth())
             {
                 completedTarget.GrantInvincibility(reviveInvincibilityDuration);
@@ -249,17 +281,32 @@ public class PriestHeroBehavior : HeroJobBehavior
         {
             SpawnMagicEffect(
                 completedTarget,
+                completedSpellKind,
                 healEffectTriggerName,
                 healMagicOffset,
                 healMagicLifetime,
                 healMagicPlaybackSpeed);
+            isWaitingForMagicEffect = false;
+            Hero.PlayJobTrigger(finishSpellTriggerName);
             completedTarget.PlayColorPulse(healFlashColor, healColorFadeDuration, healColorHoldDuration);
             StartSpellCooldown();
         }
+        else
+        {
+            isWaitingForMagicEffect = false;
+            Hero.PlayJobTrigger(finishSpellTriggerName);
+        }
     }
 
-    private void CancelSpell()
+    private void CancelSpell(bool clearMagicEffectWait = true)
     {
+        Hero?.GetComponent<HeroSEController>()?.StopMagicCasting();
+
+        if (clearMagicEffectWait)
+        {
+            isWaitingForMagicEffect = false;
+        }
+
         if (spellKind == SpellKind.Raise && spellTarget != null)
         {
             spellTarget.StopGreenFlash();
@@ -269,6 +316,7 @@ public class PriestHeroBehavior : HeroJobBehavior
         spellTarget = null;
         attackTarget = null;
         spellRemainingTime = 0f;
+        attackEffectSpawned = false;
     }
 
     private void CancelPendingSpell()
@@ -286,6 +334,7 @@ public class PriestHeroBehavior : HeroJobBehavior
 
     private void SpawnMagicEffect(
         HeroController target,
+        SpellKind completedSpellKind,
         string triggerName,
         Vector3 positionOffset,
         float lifetime,
@@ -303,6 +352,16 @@ public class PriestHeroBehavior : HeroJobBehavior
             target.transform.position + positionOffset,
             Quaternion.identity,
             priestMagicParent);
+
+        PriestMagicEffectRelay effectRelay = activeMagicEffect.GetComponent<PriestMagicEffectRelay>();
+        if (completedSpellKind == SpellKind.Raise)
+        {
+            effectRelay?.PlayRaiseSound();
+        }
+        else if (completedSpellKind == SpellKind.Heal)
+        {
+            effectRelay?.PlayHealSound();
+        }
 
         Animator effectAnimator = activeMagicEffect.GetComponent<Animator>();
         if (effectAnimator != null)
@@ -336,6 +395,7 @@ public class PriestHeroBehavior : HeroJobBehavior
         if (effectRelay != null)
         {
             effectRelay.Initialize(this);
+            effectRelay.PlayAttackSound();
         }
 
         Animator effectAnimator = activeMagicEffect.GetComponent<Animator>();

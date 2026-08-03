@@ -45,4 +45,9 @@ public class HeroAnimationEventRelay : MonoBehaviour
     {
         heroSeController?.PlayDeath();
     }
+
+    public void StartMagicCasting()
+    {
+        heroSeController?.StartMagicCasting();
+    }
 }

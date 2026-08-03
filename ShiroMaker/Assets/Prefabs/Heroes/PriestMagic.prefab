@@ -123,3 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a378aa04ea4d464eb091d8bce0f83a3c, type: 3}
   m_Name:
   m_EditorClassIdentifier:
+  attackClip: {fileID: 8300000, guid: cf312c779b06ccd4f8ce569669f7e2c2, type: 3}
+  healClip: {fileID: 8300000, guid: 570dd5699c42fc84ba27f27e78fd94db, type: 3}
+  raiseClip: {fileID: 8300000, guid: ac6491537e3aae1459672d41acd99a15, type: 3}
+  volume: 0.7
