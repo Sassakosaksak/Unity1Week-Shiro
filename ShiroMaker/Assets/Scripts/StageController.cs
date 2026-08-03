@@ -112,13 +112,13 @@ public class StageController : MonoBehaviour
         PlacementOccupancy.Instance?.Clear();
         DestroyTemporaryGrounds();
         ResetTrapRuntimeStates();
+        GameController.Instance.BeginPreparation();
 
         currentSmallStage = nextStage;
         SpawnInitialTraps(nextStage);
         ResetTrapSupplies(nextStage);
         SpawnHeroes(nextStage);
         GameController.Instance.ClearCurrentStageUndoHistory();
-        GameController.Instance.BeginPreparation();
 
         UpdateStageName(nextStage.StageTitle);
     }
