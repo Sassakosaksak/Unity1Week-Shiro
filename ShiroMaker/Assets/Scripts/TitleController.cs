@@ -1,14 +1,11 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class TitleController : MonoBehaviour
 {
-    private void Update()
+    public void StartGame()
     {
         if (GameController.Instance == null
-            || GameController.Instance.CurrentPhase != GameController.GamePhase.Title
-            || Pointer.current == null
-            || !Pointer.current.press.wasPressedThisFrame)
+            || GameController.Instance.CurrentPhase != GameController.GamePhase.Title)
         {
             return;
         }
