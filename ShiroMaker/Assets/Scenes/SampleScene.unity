@@ -93777,7 +93777,6 @@ MonoBehaviour:
   titleCanvasObject: {fileID: 730175306}
   dialogueController: {fileID: 1571280741}
   gameFlowController: {fileID: 2112345682}
-  screenFadeController: {fileID: 2112345681}
   preparationUiObject: {fileID: 453300990}
   invasionUiObject: {fileID: 58785854}
   returnButton: {fileID: 1908524380}
@@ -97345,9 +97344,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b8e3f4cf0b842b4a1a387c0d6000005, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   gameFlow: {fileID: 11400000, guid: 4b8e3f4cf0b842b4a1a387c0d6000010, type: 2}
+  screenFadeController: {fileID: 2112345681}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

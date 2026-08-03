@@ -3,8 +3,10 @@ using UnityEngine;
 public class GameFlowController : MonoBehaviour
 {
     [SerializeField] private GameFlowDefinition gameFlow;
+    [SerializeField] private ScreenFadeController screenFadeController;
 
     private FlowNode currentNode;
+    private bool isTransitioning;
 
     public void StartFlow()
     {
@@ -15,18 +17,34 @@ public class GameFlowController : MonoBehaviour
         }
 
         currentNode = gameFlow.StartNode;
-        PlayCurrentNode();
+        TransitionToCurrentNode();
     }
 
     public void Advance()
     {
-        if (currentNode == null)
+        if (currentNode == null || isTransitioning)
         {
             return;
         }
 
         currentNode = currentNode.NextNode;
-        PlayCurrentNode();
+        TransitionToCurrentNode();
+    }
+
+    private void TransitionToCurrentNode()
+    {
+        if (screenFadeController == null)
+        {
+            PlayCurrentNode();
+            return;
+        }
+
+        isTransitioning = true;
+        screenFadeController.PlayTransition(() =>
+        {
+            isTransitioning = false;
+            PlayCurrentNode();
+        });
     }
 
     private void PlayCurrentNode()

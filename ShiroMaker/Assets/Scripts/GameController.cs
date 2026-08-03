@@ -35,7 +35,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject titleCanvasObject;
     [SerializeField] private DialogueController dialogueController;
     [SerializeField] private GameFlowController gameFlowController;
-    [SerializeField] private ScreenFadeController screenFadeController;
     [SerializeField] private GameObject preparationUiObject;
     [SerializeField] private GameObject invasionUiObject;
     [SerializeField] private Button returnButton;
@@ -111,13 +110,7 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        if (screenFadeController == null)
-        {
-            StartGameFlow();
-            return;
-        }
-
-        screenFadeController.PlayTransition(StartGameFlow);
+        StartGameFlow();
     }
 
     public void PlayDialogue(TextAsset dialogue, Action completed)
@@ -129,13 +122,7 @@ public class GameController : MonoBehaviour
 
     public void CompleteGameFlow()
     {
-        if (screenFadeController == null)
-        {
-            ResetForTitle();
-            return;
-        }
-
-        screenFadeController.PlayTransition(ResetForTitle);
+        ResetForTitle();
     }
 
 

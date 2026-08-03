@@ -3,6 +3,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
+// MEMO: 今後暗転以外のフェードも管理する可能性あり
 public class ScreenFadeController : MonoBehaviour
 {
     [SerializeField, Min(0.01f)] private float fadeDuration = 0.4f;
