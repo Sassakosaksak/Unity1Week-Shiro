@@ -137,6 +137,15 @@ public class CameraPanController : MonoBehaviour
         }
     }
 
+    public void ResetToInitialPosition()
+    {
+        isPanning = false;
+        followVelocity = 0f;
+        zoomVelocity = 0f;
+        targetCamera.orthographicSize = initialOrthographicSize;
+        transform.position = ClampCameraPosition(initialCameraPosition);
+    }
+
     /// <summary>
     /// パン可能フェーズか判定
     /// </summary>

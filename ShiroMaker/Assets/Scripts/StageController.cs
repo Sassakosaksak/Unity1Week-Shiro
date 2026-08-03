@@ -105,6 +105,7 @@ public class StageController : MonoBehaviour
 
     private void StartSmallStage(SmallStageDefinition nextStage)
     {
+        FindFirstObjectByType<CameraPanController>()?.ResetToInitialPosition();
         DestroyHeroes();
         DestroyGameObjects(playerPlacedTraps);
         DestroyGameObjects(initialTraps);

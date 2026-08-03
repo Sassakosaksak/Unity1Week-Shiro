@@ -13,7 +13,23 @@ MonoBehaviour:
   m_Name: Stage1-3
   m_EditorClassIdentifier: 
   stageTitle: "1-3 \u6226\u58EB\u30DB\u30A4\u30DB\u30A4"
-  initialTraps: []
+  initialTraps:
+  - trapType: 1
+    cell: {x: 1, y: 1}
+  - trapType: 1
+    cell: {x: 2, y: 1}
+  - trapType: 1
+    cell: {x: 3, y: 1}
+  - trapType: 1
+    cell: {x: 4, y: 1}
+  - trapType: 1
+    cell: {x: 5, y: 1}
+  - trapType: 1
+    cell: {x: 6, y: 1}
+  - trapType: 1
+    cell: {x: 7, y: 1}
+  - trapType: 1
+    cell: {x: 8, y: 1}
   heroes:
   - heroType: 1
     maxHp: 5
@@ -21,5 +37,3 @@ MonoBehaviour:
   trapSupplies:
   - trapType: 2
     count: 1
-  - trapType: 1
-    count: 2
