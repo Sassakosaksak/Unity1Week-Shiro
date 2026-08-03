@@ -14,7 +14,7 @@ public class GameController : MonoBehaviour
         Result = 2,
         Rewinding = 3,
         Dialogue = 4,
-        Title = 5
+        Title = 6
     }
 
     public enum GameResult
@@ -122,6 +122,7 @@ public class GameController : MonoBehaviour
 
     public void PlayDialogue(TextAsset dialogue, Action completed)
     {
+        SetResultObjectsActive(false, false);
         ChangePhase(GamePhase.Dialogue);
         dialogueController?.Play(dialogue, completed);
     }
