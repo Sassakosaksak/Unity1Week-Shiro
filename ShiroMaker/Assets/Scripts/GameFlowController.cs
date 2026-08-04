@@ -69,6 +69,11 @@ public class GameFlowController : MonoBehaviour
         if (currentNode is StageFlowNode stageNode)
         {
             StageController.Instance?.StartStage(stageNode.Stage);
+            if (stageNode.Tutorial != null)
+            {
+                TutorialController.Instance?.ShowTutorial(stageNode.Tutorial);
+            }
+
             return;
         }
 

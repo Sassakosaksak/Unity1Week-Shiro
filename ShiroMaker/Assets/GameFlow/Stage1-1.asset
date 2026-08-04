@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextNode: {fileID: 11400000, guid: 4b8e3f4cf0b842b4a1a387c0d6000013, type: 2}
   stage: {fileID: 11400000, guid: a1f0110c4ba34b37a8d7d84d17b8e011, type: 2}
+  tutorial: {fileID: 11400000, guid: a5e9b60f2808af34cae848d7b33ceba7, type: 2}

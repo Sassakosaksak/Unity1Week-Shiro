@@ -16,15 +16,10 @@ MonoBehaviour:
   initialTraps:
   - trapType: 1
     cell: {x: 6, y: 1}
-  - trapType: 3
-    cell: {x: 8, y: 2}
   heroes:
-  - heroType: 1
-    maxHp: 2
-    spawnColumn: 1
   - heroType: 3
     maxHp: 3
-    spawnColumn: 4
+    spawnColumn: 3
   trapSupplies:
   - trapType: 1
     count: 2

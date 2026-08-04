@@ -4,6 +4,8 @@ using UnityEngine;
 public class StageFlowNode : FlowNode
 {
     [SerializeField] private SmallStageDefinition stage;
+    [SerializeField] private TutorialDefinition tutorial;
 
     public SmallStageDefinition Stage => stage;
+    public TutorialDefinition Tutorial => tutorial;
 }
