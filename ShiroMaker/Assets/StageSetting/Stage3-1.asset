@@ -13,13 +13,11 @@ MonoBehaviour:
   m_Name: Stage3-1
   m_EditorClassIdentifier: 
   stageTitle: "3-1 \u79C1\u3001\u6B7B\u306A\u306A\u3044\u306E\u3067"
-  initialTraps:
-  - trapType: 1
-    cell: {x: 6, y: 1}
+  initialTraps: []
   heroes:
   - heroType: 3
     maxHp: 3
     spawnColumn: 2
   trapSupplies:
-  - trapType: 3
-    count: 1
+  - trapType: 1
+    count: 5

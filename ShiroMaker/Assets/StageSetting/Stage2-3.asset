@@ -15,7 +15,9 @@ MonoBehaviour:
   stageTitle: "2-3 \u30DE\u30B7\u30E5\u30DE\u30ED\u304B\u3068\u601D\u3063\u305F\u305C"
   initialTraps:
   - trapType: 2
-    cell: {x: 2, y: 1}
+    cell: {x: 6, y: 1}
+  - trapType: 3
+    cell: {x: 10, y: 2}
   heroes:
   - heroType: 2
     maxHp: 1

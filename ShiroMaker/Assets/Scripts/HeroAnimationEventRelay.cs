@@ -5,6 +5,7 @@ public class HeroAnimationEventRelay : MonoBehaviour
     [SerializeField] private HeroController hero;
 
     private HeroSEController heroSeController;
+    private WarriorHeroBehavior warriorBehavior;
 
     private void Awake()
     {
@@ -14,6 +15,7 @@ public class HeroAnimationEventRelay : MonoBehaviour
         }
 
         heroSeController = GetComponentInParent<HeroSEController>();
+        warriorBehavior = GetComponentInParent<WarriorHeroBehavior>();
     }
 
     // Called by the Defeat Animation Event on the Warrior Attack01 clip.
@@ -26,6 +28,12 @@ public class HeroAnimationEventRelay : MonoBehaviour
     public void BreakRock()
     {
         hero?.OnRockBreakAnimationEvent();
+    }
+
+    // Called by the final Animation Event on the Warrior Attack02 clip.
+    public void FinishRockAttack()
+    {
+        warriorBehavior?.OnRockAttackAnimationFinished();
     }
 
     // Called by the Attack01 Animation Event on the Warrior Visual.

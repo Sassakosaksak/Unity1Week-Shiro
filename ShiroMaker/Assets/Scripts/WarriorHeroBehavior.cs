@@ -4,7 +4,8 @@ public class WarriorHeroBehavior : HeroJobBehavior
 {
     [SerializeField] private string attackTriggerName = "Attack01";
     [SerializeField] private string rockAttackTriggerName = "Attack2";
-    [SerializeField, Min(0.01f)] private float rockAttackDuration = 0.9f;
+    [SerializeField, Min(0f), Tooltip("Time to remain still after the rock-breaking animation finishes.")]
+    private float rockBreakPostAnimationWaitSeconds = 0.5f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private Vector2 trapProbeSize = new Vector2(0.8f, 0.8f);
     [SerializeField, Min(0f)] private float rockProbeForwardExtension = 0.5f;
@@ -15,7 +16,7 @@ public class WarriorHeroBehavior : HeroJobBehavior
     private MaouController targetMaou;
     private RollingRockTrap targetRock;
     private bool isRockAttacking;
-    private float rockAttackRemainingTime;
+    private float rockBreakPostAnimationWaitRemaining;
 
     public override bool CanMove()
     {
@@ -31,10 +32,15 @@ public class WarriorHeroBehavior : HeroJobBehavior
 
         if (isRockAttacking)
         {
-            rockAttackRemainingTime -= Time.deltaTime;
-            if (rockAttackRemainingTime <= 0f)
+            return;
+        }
+
+        if (rockBreakPostAnimationWaitRemaining > 0f)
+        {
+            rockBreakPostAnimationWaitRemaining -= Time.deltaTime;
+            if (rockBreakPostAnimationWaitRemaining <= 0f)
             {
-                isRockAttacking = false;
+                rockBreakPostAnimationWaitRemaining = 0f;
                 isAttacking = false;
             }
 
@@ -59,7 +65,7 @@ public class WarriorHeroBehavior : HeroJobBehavior
         targetMaou = null;
         targetRock = null;
         isRockAttacking = false;
-        rockAttackRemainingTime = 0f;
+        rockBreakPostAnimationWaitRemaining = 0f;
     }
 
     public override void OnRestored()
@@ -68,7 +74,7 @@ public class WarriorHeroBehavior : HeroJobBehavior
         targetMaou = null;
         targetRock = null;
         isRockAttacking = false;
-        rockAttackRemainingTime = 0f;
+        rockBreakPostAnimationWaitRemaining = 0f;
     }
 
     public override bool TryHandleGoalContact(Collider2D goal)
@@ -108,7 +114,6 @@ public class WarriorHeroBehavior : HeroJobBehavior
 
         isAttacking = true;
         isRockAttacking = true;
-        rockAttackRemainingTime = rockAttackDuration;
         targetRock = rock;
         Hero.PlayJobTrigger(rockAttackTriggerName);
     }
@@ -122,6 +127,22 @@ public class WarriorHeroBehavior : HeroJobBehavior
 
         targetRock.BreakFromWarrior();
         targetRock = null;
+    }
+
+    // Called by the final Animation Event on the Warrior Attack02 clip.
+    public void OnRockAttackAnimationFinished()
+    {
+        if (!isRockAttacking)
+        {
+            return;
+        }
+
+        isRockAttacking = false;
+        rockBreakPostAnimationWaitRemaining = rockBreakPostAnimationWaitSeconds;
+        if (rockBreakPostAnimationWaitRemaining <= 0f)
+        {
+            isAttacking = false;
+        }
     }
 
     private RollingRockTrap FindRollingRockAt(Vector3 heroPosition, Vector3 moveDirection)

@@ -271,7 +271,7 @@ MonoBehaviour:
   invincibilityDuration: 2.5
   invincibilityBlinkAlpha: 0.1
   invincibilityBlinkInterval: 0.2
-  knockbackDistance: 0.7
+  knockbackDistance: 0.45
   knockbackDuration: 0.18
   deathResultDelay: 0.8
 --- !u!114 &2727781621057415240
@@ -379,3 +379,4 @@ MonoBehaviour:
   magicCastingVolume: 0.7
   magicShotClip: {fileID: 0}
   magicShotVolume: 0.7
+  gravityMagicShotClip: {fileID: 0}

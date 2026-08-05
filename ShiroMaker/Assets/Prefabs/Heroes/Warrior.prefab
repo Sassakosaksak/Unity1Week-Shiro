@@ -323,7 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackTriggerName: Attack01
   rockAttackTriggerName: Attack2
-  rockAttackDuration: 0.9
+  rockBreakPostAnimationWaitSeconds: 1
   gridSize: 1
   trapProbeSize: {x: 0.8, y: 0.8}
   rockProbeForwardExtension: 0.5
@@ -356,3 +356,4 @@ MonoBehaviour:
   magicCastingVolume: 0.7
   magicShotClip: {fileID: 0}
   magicShotVolume: 0.7
+  gravityMagicShotClip: {fileID: 0}
