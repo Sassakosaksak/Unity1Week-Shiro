@@ -247,6 +247,7 @@ public class GameController : MonoBehaviour
         {
             rewindSequence.Kill();
             rewindSequence = null;
+            CompleteHeroesRewindRestore();
             ChangePhase(GamePhase.Preparation);
             return;
         }
@@ -254,6 +255,7 @@ public class GameController : MonoBehaviour
         rewindSequence.OnComplete(() =>
         {
             rewindSequence = null;
+            CompleteHeroesRewindRestore();
             ChangePhase(GamePhase.Preparation);
         });
     }
@@ -435,6 +437,17 @@ public class GameController : MonoBehaviour
 
             snapshot.Trap.RestoreForRewind();
             AppendTransformRewind(snapshot.Trap.transform, snapshot.Position, snapshot.Rotation, snapshot.Scale);
+        }
+    }
+
+    private void CompleteHeroesRewindRestore()
+    {
+        foreach (HeroSnapshot snapshot in heroSnapshots)
+        {
+            if (snapshot.Hero != null)
+            {
+                snapshot.Hero.CompleteRewindRestore();
+            }
         }
     }
 

@@ -12,14 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1168f0cf1f84c6197be8e3250e95061, type: 3}
   m_Name: Stage3-2
   m_EditorClassIdentifier: 
-  stageTitle: "3-2 \u3042\u306A\u305F\u306F\u6B7B\u306A\u306A\u3044\u308F"
+  stageTitle: "3-2 \u7ACB\u3061\u6B62\u307E\u308B\u4EBA\u7ACB\u3061\u6B62\u307E\u3089\u306A\u3044\u4EBA"
   initialTraps:
   - trapType: 1
-    cell: {x: 6, y: 1}
+    cell: {x: 13, y: 1}
   heroes:
   - heroType: 3
     maxHp: 3
     spawnColumn: 3
+  - heroType: 1
+    maxHp: 1
+    spawnColumn: 1
   trapSupplies:
+  - trapType: 3
+    count: 1
   - trapType: 1
-    count: 2
+    count: 1

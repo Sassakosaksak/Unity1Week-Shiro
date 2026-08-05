@@ -208,19 +208,29 @@ public class HeroController : MonoBehaviour
         StopAllCoroutines();
         StopInvincibilityBlink();
 
-        currentHp = Mathf.Clamp(hp, 0, maxHp);
+        // Keep the body out of a DeathZone until its rewind transform has completed.
+        // Re-enabling physics at the fallen position can immediately kill the hero again.
+        currentHp = Mathf.Clamp(hp, 1, maxHp);
         HealthChanged?.Invoke(currentHp, maxHp);
 
         isStopped = false;
         isFlinching = false;
         isDead = false;
-        SetBodyPhysicsEnabled(true);
+        SetBodyPhysicsEnabled(false);
         flinchRemainingTime = 0f;
         invincibilityRemainingTime = 0f;
         knockbackRemainingTime = 0f;
         ResetAnimatorForRewind();
         SetMoving(false);
         jobBehavior?.OnRestored();
+    }
+
+    public void CompleteRewindRestore()
+    {
+        if (!isDead)
+        {
+            SetBodyPhysicsEnabled(true);
+        }
     }
 
     private void OnValidate()

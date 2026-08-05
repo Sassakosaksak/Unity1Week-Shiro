@@ -336,7 +336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   magicRange: 5.5
-  attackCastStartDelay: 0.5
+  attackCastStartDelay: 0.4
   sealPitCastStartDelay: 0.5
   attackCastDuration: 2
   sealPitCastDuration: 2
