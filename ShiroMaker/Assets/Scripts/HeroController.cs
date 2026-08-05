@@ -56,6 +56,38 @@ public class HeroController : MonoBehaviour
     public Collider2D BodyCollider => bodyCollider;
     public static IReadOnlyList<HeroController> ActiveHeroes => activeHeroes;
 
+    /// <summary>
+    /// 現在の Transform 座標を基準に、身体の当たり判定が指定範囲へ入っているかを返す。
+    /// Physics2D のクエリを使わないため、Update 中に transform を動かした直後でも判定が遅れない。
+    /// </summary>
+    public bool IsBodyOverlappingBounds(Bounds detectionBounds)
+    {
+        if (bodyCollider == null || !bodyCollider.enabled)
+        {
+            return false;
+        }
+
+        if (bodyCollider is BoxCollider2D boxCollider)
+        {
+            return GetBoxColliderBounds(boxCollider).Intersects(detectionBounds);
+        }
+
+        return bodyCollider.bounds.Intersects(detectionBounds);
+    }
+
+    private static Bounds GetBoxColliderBounds(BoxCollider2D boxCollider)
+    {
+        Transform colliderTransform = boxCollider.transform;
+        Vector2 halfSize = boxCollider.size * 0.5f;
+        Vector3 right = colliderTransform.TransformVector(Vector3.right);
+        Vector3 up = colliderTransform.TransformVector(Vector3.up);
+        Vector2 extents = new Vector2(
+            Mathf.Abs(right.x) * halfSize.x + Mathf.Abs(up.x) * halfSize.y,
+            Mathf.Abs(right.y) * halfSize.x + Mathf.Abs(up.y) * halfSize.y);
+        Vector3 center = colliderTransform.TransformPoint(boxCollider.offset);
+        return new Bounds(center, extents * 2f);
+    }
+
     public event Action<int, int> HealthChanged;
 
     private void Awake()
