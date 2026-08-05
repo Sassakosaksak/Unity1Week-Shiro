@@ -71,6 +71,10 @@ public class TutorialView : MonoBehaviour
         image.raycastTarget = true;
 
         inputBlocker = blockerObject.GetComponent<Button>();
+        if (blockerObject.GetComponent<UIButtonSE>() == null)
+        {
+            blockerObject.AddComponent<UIButtonSE>();
+        }
         inputBlocker.targetGraphic = image;
         inputBlocker.onClick.RemoveListener(ShowNextPage);
         inputBlocker.onClick.AddListener(ShowNextPage);
