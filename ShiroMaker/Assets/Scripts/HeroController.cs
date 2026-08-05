@@ -15,7 +15,6 @@ public class HeroController : MonoBehaviour
     [SerializeField] private SpriteRenderer blinkRenderer;
     [SerializeField, Min(0f)] private float flinchDuration = 1f;
     [SerializeField, Min(0f)] private float invincibilityDuration = 5f;
-    [SerializeField, Range(0f, 1f)] private float invincibilityBlinkAlpha = 0.1f;
     [SerializeField, Min(0.01f)] private float invincibilityBlinkInterval = 0.2f;
     [SerializeField, Min(0f)] private float knockbackDistance = 0.45f;
     [SerializeField, Min(0.01f)] private float knockbackDuration = 0.18f;
@@ -43,6 +42,7 @@ public class HeroController : MonoBehaviour
     private Tween greenFlashTween;
     private Tween greenFlashStopTween;
     private float blinkRendererDefaultAlpha = 1f;
+    private bool blinkRendererDefaultEnabled = true;
     private Color greenFlashDefaultColor = Color.white;
     private bool isGreenFlashing;
 
@@ -112,6 +112,7 @@ public class HeroController : MonoBehaviour
         if (blinkRenderer != null)
         {
             blinkRendererDefaultAlpha = blinkRenderer.color.a;
+            blinkRendererDefaultEnabled = blinkRenderer.enabled;
         }
 
         bodyCollider = GetComponent<Collider2D>();
@@ -665,9 +666,13 @@ public class HeroController : MonoBehaviour
 
         invincibilityBlinkTween?.Kill();
         blinkRendererDefaultAlpha = blinkRenderer.color.a;
-        invincibilityBlinkTween = blinkRenderer
-            .DOFade(invincibilityBlinkAlpha, invincibilityBlinkInterval)
-            .SetLoops(-1, LoopType.Yoyo);
+        blinkRendererDefaultEnabled = blinkRenderer.enabled;
+        invincibilityBlinkTween = DOTween.Sequence()
+            .AppendInterval(invincibilityBlinkInterval)
+            .AppendCallback(() => blinkRenderer.enabled = false)
+            .AppendInterval(invincibilityBlinkInterval)
+            .AppendCallback(() => blinkRenderer.enabled = blinkRendererDefaultEnabled)
+            .SetLoops(-1);
     }
 
     private void StopInvincibilityBlink()
@@ -683,6 +688,7 @@ public class HeroController : MonoBehaviour
         Color color = blinkRenderer.color;
         color.a = blinkRendererDefaultAlpha;
         blinkRenderer.color = color;
+        blinkRenderer.enabled = blinkRendererDefaultEnabled;
     }
 
     private void Stop()
