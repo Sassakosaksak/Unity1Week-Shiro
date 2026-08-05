@@ -30,6 +30,6 @@ MonoBehaviour:
     spawnColumn: 10
   trapSupplies:
   - trapType: 1
-    count: 1
+    count: 2
   - trapType: 3
     count: 1

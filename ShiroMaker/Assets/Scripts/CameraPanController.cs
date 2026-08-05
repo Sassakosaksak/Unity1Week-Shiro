@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -157,12 +158,13 @@ public class CameraPanController : MonoBehaviour
 
     private void FollowLivingHeroes()
     {
-        HeroController[] heroes = FindObjectsByType<HeroController>(FindObjectsSortMode.None);
         float leaderX = float.NegativeInfinity;
         float leftMostX = float.PositiveInfinity;
 
-        foreach (HeroController hero in heroes)
+        IReadOnlyList<HeroController> heroes = HeroController.ActiveHeroes;
+        for (int i = 0; i < heroes.Count; i++)
         {
+            HeroController hero = heroes[i];
             if (hero == null || hero.IsDead)
             {
                 continue;

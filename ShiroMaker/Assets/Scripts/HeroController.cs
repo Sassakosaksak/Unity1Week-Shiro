@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
 public class HeroController : MonoBehaviour
 {
+    private static readonly List<HeroController> activeHeroes = new List<HeroController>();
+
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField, Range(1, 5)] private int maxHp = 3;
     [SerializeField] private HeroJobBehavior jobBehavior;
@@ -50,6 +53,8 @@ public class HeroController : MonoBehaviour
     public bool IsFlinching => isFlinching;
     public bool IsMoving => isMoving;
     public Vector3 MoveDirection => Vector3.right;
+    public Collider2D BodyCollider => bodyCollider;
+    public static IReadOnlyList<HeroController> ActiveHeroes => activeHeroes;
 
     public event Action<int, int> HealthChanged;
 
@@ -81,8 +86,17 @@ public class HeroController : MonoBehaviour
         bodyRigidbody = GetComponent<Rigidbody2D>();
     }
 
+    private void OnEnable()
+    {
+        if (!activeHeroes.Contains(this))
+        {
+            activeHeroes.Add(this);
+        }
+    }
+
     private void OnDisable()
     {
+        activeHeroes.Remove(this);
         StopInvincibilityBlink();
         StopGreenFlash();
     }
@@ -511,14 +525,16 @@ public class HeroController : MonoBehaviour
         Bounds ownBounds = bodyCollider.bounds;
         float safeMovementX = requestedMovement.x;
 
-        foreach (HeroController otherHero in FindObjectsByType<HeroController>(FindObjectsSortMode.None))
+        IReadOnlyList<HeroController> heroes = ActiveHeroes;
+        for (int i = 0; i < heroes.Count; i++)
         {
+            HeroController otherHero = heroes[i];
             if (otherHero == null || otherHero == this || otherHero.IsDead)
             {
                 continue;
             }
 
-            Collider2D otherCollider = otherHero.GetComponent<Collider2D>();
+            Collider2D otherCollider = otherHero.BodyCollider;
             if (otherCollider == null || !otherCollider.enabled || !IsVerticallyOverlapping(ownBounds, otherCollider.bounds))
             {
                 continue;

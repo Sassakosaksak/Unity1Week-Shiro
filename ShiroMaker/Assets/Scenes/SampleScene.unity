@@ -92648,10 +92648,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 890653204}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4218d78ef2d54d0898b7514e121a781f, type: 3}
+  m_Script: {fileID: 11500000, guid: 97d4d33ab90a490cb638747aa91c3595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _color: {r: 0.08699717, g: 0.57253194, b: 0.8018868, a: 1}
+  useSourceColor: 1
+  outlineColor: {r: 0.08699717, g: 0.57253194, b: 0.8018868, a: 1}
+  thickness: 0.035
 --- !u!1 &929014636
 GameObject:
   m_ObjectHideFlags: 0

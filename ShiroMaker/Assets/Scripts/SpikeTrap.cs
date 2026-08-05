@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpikeTrap : TrapBase
 {
+    private static readonly List<SpikeTrap> activeSpikes = new List<SpikeTrap>();
+
     [SerializeField] private Sprite previewImage;
     [SerializeField] private LayerMask heroLayer;
     [SerializeField] private Collider2D damageCollider;
@@ -18,6 +21,7 @@ public class SpikeTrap : TrapBase
 
     public Sprite PreviewImage => previewImage;
     public bool IsSafeToEnter => damageCollider == null || !damageCollider.enabled;
+    public static IReadOnlyList<SpikeTrap> ActiveSpikes => activeSpikes;
 
     protected override void Awake()
     {
@@ -29,6 +33,26 @@ public class SpikeTrap : TrapBase
         {
             damageCollider = GetComponent<Collider2D>();
         }
+    }
+
+    private void OnEnable()
+    {
+        if (!activeSpikes.Contains(this))
+        {
+            activeSpikes.Add(this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        activeSpikes.Remove(this);
+    }
+
+    public bool IsBlockingProbe(Bounds probeBounds)
+    {
+        return !IsSafeToEnter
+            && damageCollider != null
+            && damageCollider.bounds.Intersects(probeBounds);
     }
 
     private void Update()
