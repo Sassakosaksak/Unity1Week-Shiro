@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1168f0cf1f84c6197be8e3250e95061, type: 3}
-  m_Name: Stage4-1
+  m_Name: Stage3-3
   m_EditorClassIdentifier: 
-  stageTitle: "4-1 \u5F37\u30AD\u30E3\u30E9\u306B\u306F\u30CF\u30E1\u6280"
+  stageTitle: "3-3 \u5F37\u30AD\u30E3\u30E9\u306B\u306F\u30CF\u30E1\u6280"
   initialTraps:
   - trapType: 2
     cell: {x: 5, y: 1}

@@ -95,7 +95,14 @@ public class RollingRockTrap : TrapBase
     protected override void OnDestroy()
     {
         breakTween?.Kill();
+        TrapSEController.Instance?.StopRockRollingLoop();
         base.OnDestroy();
+    }
+
+    protected override void StopTrap()
+    {
+        TrapSEController.Instance?.StopRockRollingLoop();
+        base.StopTrap();
     }
 
     public bool Activate()
@@ -127,6 +134,7 @@ public class RollingRockTrap : TrapBase
 
         state = RockState.Waiting;
         appearRemainingTime = 0f;
+        TrapSEController.Instance?.StopRockRollingLoop();
         SetDamageColliderActive(false);
 
         if (rockRenderer != null)
@@ -160,6 +168,7 @@ public class RollingRockTrap : TrapBase
     {
         state = RockState.Rolling;
         SetDamageColliderActive(true);
+        TrapSEController.Instance?.StartRockRollingLoop();
         TrapAnimator?.SetTrigger(RollingHash);
     }
 
@@ -206,6 +215,8 @@ public class RollingRockTrap : TrapBase
 
         state = RockState.Breaking;
         SetDamageColliderActive(false);
+        TrapSEController.Instance?.StopRockRollingLoop();
+        TrapSEController.Instance?.PlayRockBreak();
         TrapAnimator?.SetTrigger(BreakHash);
         TrapAnimator?.Play(BreakHash, 0, 0f);
 

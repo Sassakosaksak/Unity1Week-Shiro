@@ -21,6 +21,7 @@ public class RockSwitchTrap : TrapBase
         if (targetRock != null && targetRock.Activate())
         {
             hasActivated = true;
+            TrapSEController.Instance?.PlayRockSwitch();
         }
     }
 

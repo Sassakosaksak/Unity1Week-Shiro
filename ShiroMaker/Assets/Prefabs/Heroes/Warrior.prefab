@@ -348,6 +348,8 @@ MonoBehaviour:
   footstepInterval: 1
   attackClip: {fileID: 8300000, guid: 4411c7a8d7424d84bb66c5e253de2827, type: 3}
   attackVolume: 0.7
+  rockBreakAttackClip: {fileID: 8300000, guid: cde8e7d8146b45548bad02f892eb9297, type: 3}
+  rockBreakAttackVolume: 0.951
   hurtClip: {fileID: 8300000, guid: 2a214e22049446a42a885b49709a84e6, type: 3}
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}

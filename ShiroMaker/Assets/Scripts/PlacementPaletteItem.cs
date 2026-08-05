@@ -146,6 +146,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
                 placedObject.SetActive(true);
                 RegisterPlacementOccupancy(placedObject);
                 GameController.Instance?.RegisterPlacedTrap(placedObject, placeablePrefab);
+                TrapSEController.Instance?.PlayPlacement();
             }
         }
 
@@ -308,6 +309,7 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         previewObject.SetActive(true);
         RegisterPlacementOccupancy(previewObject);
         GameController.Instance?.RegisterPlacedTrap(previewObject, placeablePrefab);
+        TrapSEController.Instance?.PlayPlacement();
 
         previewObject = null;
         previewAnchor = null;

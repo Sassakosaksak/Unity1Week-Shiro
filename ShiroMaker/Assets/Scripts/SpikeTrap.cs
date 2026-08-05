@@ -44,6 +44,7 @@ public class SpikeTrap : TrapBase
         }
 
         nextDetectTime = Time.time + detectCooldown;
+        TrapSEController.Instance?.PlaySpikeActivation();
 
         if (TrapAnimator != null)
         {
