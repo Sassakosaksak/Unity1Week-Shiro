@@ -5,6 +5,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Selectable))]
 public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    // Kept here to preserve every existing palette item's serialized configuration.
     [SerializeField] private GameObject placeablePrefab;
     [SerializeField] private Camera worldCamera;
     [SerializeField] private Transform placedParent;
@@ -15,23 +16,19 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     [SerializeField, Range(0f, 1f)] private float previewAlpha = 0.55f;
     [SerializeField] private PlacementGridOverlay placementGridOverlay;
 
-    private GameObject previewObject;
-    private PlaceableAnchor previewAnchor;
-    private SpriteRenderer[] previewRenderers;
-    private Color[] previewBaseColors;
-    private Sprite[] previewBaseSprites;
-    private Collider2D[] previewColliders;
-    private bool[] previewColliderEnabledStates;
-    private MonoBehaviour[] previewBehaviours;
-    private bool[] previewBehaviourEnabledStates;
-    private Animator[] previewAnimators;
-    private bool[] previewAnimatorEnabledStates;
-    private PitfallTrap previewPitfallTrap;
-    private Vector3 previewCellCenter;
+    private PlacementPreview preview;
 
-    /// <summary>
-    /// 配置開始時のプレビュー生成
-    /// </summary>
+    private void Awake()
+    {
+        preview = GetComponent<PlacementPreview>();
+        if (preview == null)
+        {
+            preview = gameObject.AddComponent<PlacementPreview>();
+        }
+
+        preview.Initialize(previewAlpha);
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!CanStartPlacement())
@@ -39,94 +36,27 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             return;
         }
 
-        previewObject = Instantiate(placeablePrefab);
-        previewObject.name = $"{placeablePrefab.name} Preview";
-        previewObject.SetActive(true);
-        previewAnchor = previewObject.GetComponent<PlaceableAnchor>();
-
-        previewColliders = previewObject.GetComponentsInChildren<Collider2D>();
-        previewColliderEnabledStates = new bool[previewColliders.Length];
-        for (int i = 0; i < previewColliders.Length; i++)
-        {
-            previewColliderEnabledStates[i] = previewColliders[i].enabled;
-            previewColliders[i].enabled = false;
-        }
-
-        previewBehaviours = previewObject.GetComponentsInChildren<MonoBehaviour>();
-        previewBehaviourEnabledStates = new bool[previewBehaviours.Length];
-        for (int i = 0; i < previewBehaviours.Length; i++)
-        {
-            previewBehaviourEnabledStates[i] = previewBehaviours[i].enabled;
-            previewBehaviours[i].enabled = false;
-        }
-
-        previewAnimators = previewObject.GetComponentsInChildren<Animator>();
-        previewAnimatorEnabledStates = new bool[previewAnimators.Length];
-        for (int i = 0; i < previewAnimators.Length; i++)
-        {
-            previewAnimatorEnabledStates[i] = previewAnimators[i].enabled;
-            previewAnimators[i].enabled = false;
-        }
-
-        previewPitfallTrap = previewObject.GetComponentInChildren<PitfallTrap>(true);
-
-        previewRenderers = previewObject.GetComponentsInChildren<SpriteRenderer>();
-        previewBaseColors = new Color[previewRenderers.Length];
-        previewBaseSprites = new Sprite[previewRenderers.Length];
-        for (int i = 0; i < previewRenderers.Length; i++)
-        {
-            SpriteRenderer spriteRenderer = previewRenderers[i];
-            previewBaseColors[i] = spriteRenderer.color;
-            previewBaseSprites[i] = spriteRenderer.sprite;
-
-            Color color = spriteRenderer.color;
-            color.a = previewAlpha;
-            spriteRenderer.color = color;
-        }
-
-        SpikeTrap previewSpikeTrap = previewObject.GetComponentInChildren<SpikeTrap>(true);
-        if (previewSpikeTrap != null && previewSpikeTrap.PreviewImage != null)
-        {
-            SpriteRenderer spikeRenderer = previewSpikeTrap.GetComponent<SpriteRenderer>();
-            if (spikeRenderer != null)
-            {
-                spikeRenderer.sprite = previewSpikeTrap.PreviewImage;
-            }
-        }
-
-        if (placementGridOverlay != null)
-        {
-            placementGridOverlay.ShowPlacementCells(placeablePrefab);
-        }
-
+        preview.Begin(placeablePrefab);
+        placementGridOverlay?.ShowPlacementCells(placeablePrefab);
         UpdatePreviewPosition(eventData);
     }
 
-    /// <summary>
-    /// ドラッグ中のプレビュー移動
-    /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
-        if (previewObject == null)
+        if (preview.IsActive)
         {
-            return;
+            UpdatePreviewPosition(eventData);
         }
-
-        UpdatePreviewPosition(eventData);
     }
 
-    /// <summary>
-    /// ドラッグ終了時の配置確定とプレビュー破棄
-    /// </summary>
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (previewObject == null)
+        if (!preview.IsActive)
         {
             return;
         }
 
         bool canPlace = UpdatePreviewPosition(eventData);
-
         if (canPlace && StageController.Instance != null)
         {
             canPlace = StageController.Instance.TryConsumeTrap(placeablePrefab);
@@ -134,47 +64,17 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         if (canPlace)
         {
-            if (previewPitfallTrap != null)
-            {
-                PlacePreviewObject();
-                return;
-            }
-            else
-            {
-                GameObject placedObject = Instantiate(placeablePrefab, previewObject.transform.position, previewObject.transform.rotation, placedParent);
-                placedObject.name = placeablePrefab.name;
-                placedObject.SetActive(true);
-                RegisterPlacementOccupancy(placedObject);
-                GameController.Instance?.RegisterPlacedTrap(placedObject, placeablePrefab);
-                TrapSEController.Instance?.PlayPlacement();
-            }
+            Vector3 placementCellCenter = preview.CellCenter;
+            GameObject placedObject = preview.Commit(placeablePrefab, placedParent);
+            RegisterPlacedObject(placedObject, placementCellCenter);
+            placementGridOverlay?.HidePlacementCells();
+            return;
         }
 
-        if (previewPitfallTrap != null)
-        {
-            previewPitfallTrap.CancelPlacementPreview();
-        }
-
-        // Destroy はフレーム終端まで遅延するため、手元のプレビュー状態は先に消す
-        Destroy(previewObject);
-        previewObject = null;
-        previewAnchor = null;
-        previewRenderers = null;
-        previewBaseColors = null;
-        previewBaseSprites = null;
-        previewColliders = null;
-        previewColliderEnabledStates = null;
-        previewBehaviours = null;
-        previewBehaviourEnabledStates = null;
-        previewAnimators = null;
-        previewAnimatorEnabledStates = null;
-        previewPitfallTrap = null;
+        preview.Cancel();
         placementGridOverlay?.HidePlacementCells();
     }
 
-    /// <summary>
-    /// 配置操作を開始できるか判定
-    /// </summary>
     private bool CanStartPlacement()
     {
         if (placeablePrefab == null)
@@ -206,15 +106,23 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
         return worldCamera != null;
     }
 
-    /// <summary>
-    /// ポインター座標からプレビュー位置と配置可否を更新
-    /// </summary>
     private bool UpdatePreviewPosition(PointerEventData eventData)
     {
-        Vector3 screenPosition = eventData.position;
-        screenPosition.z = Mathf.Abs(worldCamera.transform.position.z - placementZ);
+        Vector3 cellCenter = GetCellCenter(eventData.position);
+        bool canPlace = IsInsideCameraView(eventData.position)
+            && !UiPointerUtility.IsOverUi(eventData)
+            && CanPlaceAt(cellCenter);
 
-        Vector3 worldPosition = worldCamera.ScreenToWorldPoint(screenPosition);
+        preview.UpdatePosition(cellCenter, canPlace);
+        placementGridOverlay?.ShowCurrentPlacementCell(cellCenter, canPlace);
+        return canPlace;
+    }
+
+    private Vector3 GetCellCenter(Vector2 screenPosition)
+    {
+        Vector3 worldPosition = screenPosition;
+        worldPosition.z = Mathf.Abs(worldCamera.transform.position.z - placementZ);
+        worldPosition = worldCamera.ScreenToWorldPoint(worldPosition);
         worldPosition.z = placementZ;
         worldPosition += (Vector3)placementOffset;
 
@@ -224,56 +132,15 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             worldPosition.y = SnapToCellCenter(worldPosition.y);
         }
 
-        previewCellCenter = worldPosition;
-        previewObject.transform.position = GetRootPositionForCellCenter(previewCellCenter);
-
-        if (previewPitfallTrap != null)
-        {
-            previewPitfallTrap.CancelPlacementPreview();
-        }
-
-        bool canPlace = IsInsideCameraView(eventData.position)
-            && !UiPointerUtility.IsOverUi(eventData)
-            && CanPlaceAtPreviewCell();
-        ApplyPreviewAlpha();
-        placementGridOverlay?.ShowCurrentPlacementCell(previewCellCenter, canPlace);
-
-        if (previewPitfallTrap != null)
-        {
-            previewPitfallTrap.UpdatePlacementPreview(canPlace);
-        }
-
-        return canPlace;
+        return worldPosition;
     }
 
-    /// <summary>
-    /// グリッド線で囲まれたマスの中心座標へ吸着
-    /// </summary>
     private float SnapToCellCenter(float position)
     {
-        float cellIndex = Mathf.Floor(position / gridSize);
-        float cellStart = cellIndex * gridSize;
-        float halfCellSize = gridSize * 0.5f;
-
-        return cellStart + halfCellSize;
+        float cellStart = Mathf.Floor(position / gridSize) * gridSize;
+        return cellStart + gridSize * 0.5f;
     }
 
-    /// <summary>
-    /// セル中心へ合わせる配置ルート位置
-    /// </summary>
-    private Vector3 GetRootPositionForCellCenter(Vector3 cellCenter)
-    {
-        if (previewAnchor == null)
-        {
-            return cellCenter;
-        }
-
-        return previewAnchor.GetRootPositionForCellCenter(cellCenter);
-    }
-
-    /// <summary>
-    /// ポインターが配置用カメラの表示範囲内か判定
-    /// </summary>
     private bool IsInsideCameraView(Vector2 screenPosition)
     {
         Vector3 viewportPosition = worldCamera.ScreenToViewportPoint(screenPosition);
@@ -283,126 +150,20 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
             && viewportPosition.y <= 1f;
     }
 
-    /// <summary>
-    /// 配置可否に応じたプレビュー色変更
-    /// </summary>
-    private void ApplyPreviewAlpha()
+    private bool CanPlaceAt(Vector3 cellCenter)
     {
-        if (previewRenderers == null || previewBaseColors == null)
+        return placementGridOverlay == null || placementGridOverlay.CanPlace(placeablePrefab, cellCenter);
+    }
+
+    private void RegisterPlacedObject(GameObject placedObject, Vector3 placementCellCenter)
+    {
+        if (placedObject == null)
         {
             return;
         }
 
-        for (int i = 0; i < previewRenderers.Length; i++)
-        {
-            SpriteRenderer spriteRenderer = previewRenderers[i];
-            if (spriteRenderer == null)
-            {
-                continue;
-            }
-
-            Color color = previewBaseColors[i];
-            color.a = previewAlpha;
-            spriteRenderer.color = color;
-        }
-    }
-
-    private void PlacePreviewObject()
-    {
-        RestorePreviewComponentStates();
-        RestorePreviewRendererColors();
-        RestorePreviewRendererSprites();
-
-        previewPitfallTrap.CommitPlacementPreview();
-        previewObject.name = placeablePrefab.name;
-        previewObject.transform.SetParent(placedParent, true);
-        previewObject.SetActive(true);
-        RegisterPlacementOccupancy(previewObject);
-        GameController.Instance?.RegisterPlacedTrap(previewObject, placeablePrefab);
+        placementGridOverlay?.RegisterPlacedTrap(placedObject, placementCellCenter);
+        GameController.Instance?.RegisterPlacedTrap(placedObject, placeablePrefab);
         TrapSEController.Instance?.PlayPlacement();
-
-        previewObject = null;
-        previewAnchor = null;
-        previewRenderers = null;
-        previewBaseColors = null;
-        previewBaseSprites = null;
-        previewColliders = null;
-        previewColliderEnabledStates = null;
-        previewBehaviours = null;
-        previewBehaviourEnabledStates = null;
-        previewAnimators = null;
-        previewAnimatorEnabledStates = null;
-        previewPitfallTrap = null;
-        placementGridOverlay?.HidePlacementCells();
     }
-
-    private bool CanPlaceAtPreviewCell()
-    {
-        if (placementGridOverlay == null)
-        {
-            return true;
-        }
-
-        return placementGridOverlay.CanPlace(placeablePrefab, previewCellCenter);
-    }
-
-    private void RegisterPlacementOccupancy(GameObject placedObject)
-    {
-        if (placementGridOverlay == null)
-        {
-            return;
-        }
-
-        placementGridOverlay.RegisterPlacedTrap(placedObject, previewCellCenter);
-    }
-
-    private void RestorePreviewComponentStates()
-    {
-        for (int i = 0; i < previewColliders.Length; i++)
-        {
-            if (previewColliders[i] != null)
-            {
-                previewColliders[i].enabled = previewColliderEnabledStates[i];
-            }
-        }
-
-        for (int i = 0; i < previewBehaviours.Length; i++)
-        {
-            if (previewBehaviours[i] != null)
-            {
-                previewBehaviours[i].enabled = previewBehaviourEnabledStates[i];
-            }
-        }
-
-        for (int i = 0; i < previewAnimators.Length; i++)
-        {
-            if (previewAnimators[i] != null)
-            {
-                previewAnimators[i].enabled = previewAnimatorEnabledStates[i];
-            }
-        }
-    }
-
-    private void RestorePreviewRendererColors()
-    {
-        for (int i = 0; i < previewRenderers.Length; i++)
-        {
-            if (previewRenderers[i] != null)
-            {
-                previewRenderers[i].color = previewBaseColors[i];
-            }
-        }
-    }
-
-    private void RestorePreviewRendererSprites()
-    {
-        for (int i = 0; i < previewRenderers.Length; i++)
-        {
-            if (previewRenderers[i] != null)
-            {
-                previewRenderers[i].sprite = previewBaseSprites[i];
-            }
-        }
-    }
-
 }
