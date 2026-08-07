@@ -14,7 +14,7 @@ public class PriestMagicEffectRelay : MonoBehaviour
         source = priest;
     }
 
-    // Called by the Attack Effect's final Animation Event.
+    // 攻撃エフェクトの最後のアニメーションイベントから呼び出される
     public void Defeat()
     {
         source?.OnAttackEffectCompleted(this);

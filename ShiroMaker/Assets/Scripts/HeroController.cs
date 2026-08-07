@@ -1,9 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
+/// <summary>
+/// 勇者を構成する実行時コンポーネントを統括
+/// 既存の勇者Prefabに設定済みの値と参照を維持するため、
+/// ゲームプレイと表示に関するシリアライズ設定はこのクラスに残している状態
+/// </summary>
 public class HeroController : MonoBehaviour
 {
     private static readonly List<HeroController> activeHeroes = new List<HeroController>();
@@ -15,108 +20,53 @@ public class HeroController : MonoBehaviour
     [SerializeField] private SpriteRenderer blinkRenderer;
     [SerializeField, Min(0f)] private float flinchDuration = 1f;
     [SerializeField, Min(0f)] private float invincibilityDuration = 5f;
+    // 既存Prefabとの互換性のために残している。点滅処理はRendererの有効/無効実行。
+    [SerializeField, HideInInspector, FormerlySerializedAs("invincibilityBlinkAlpha")]
+    private float legacyInvincibilityBlinkAlpha = 0.1f;
     [SerializeField, Min(0.01f)] private float invincibilityBlinkInterval = 0.2f;
     [SerializeField, Min(0f)] private float knockbackDistance = 0.45f;
     [SerializeField, Min(0.01f)] private float knockbackDuration = 0.18f;
     [SerializeField, Min(0f)] private float deathResultDelay = 0.8f;
 
-    private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
     private static readonly int HurtHash = Animator.StringToHash("Hurt");
     private static readonly int DeathHash = Animator.StringToHash("Death");
-    private const float DefaultHeroSeparation = 0.3f;
 
     private GameController gameController;
-    private Collider2D bodyCollider;
-    private Rigidbody2D bodyRigidbody;
-    private int currentHp;
+    private HeroMovement movement;
+    private HeroVitality vitality;
+    private HeroVisualFeedback visuals;
     private bool isInvasionActive;
     private bool isStopped;
-    private bool isMoving;
-    private bool isFlinching;
-    private bool isDead;
-    private float flinchRemainingTime;
-    private float invincibilityRemainingTime;
-    private float knockbackRemainingTime;
-    private Vector3 knockbackVelocity;
-    private Tween invincibilityBlinkTween;
-    private Tween greenFlashTween;
-    private Tween greenFlashStopTween;
-    private float blinkRendererDefaultAlpha = 1f;
-    private bool blinkRendererDefaultEnabled = true;
-    private Color greenFlashDefaultColor = Color.white;
-    private bool isGreenFlashing;
 
-    public int MaxHp => maxHp;
-    public int CurrentHp => currentHp;
-    public bool IsInvincible => invincibilityRemainingTime > 0f;
-    public bool IsDead => isDead;
-    public bool IsFlinching => isFlinching;
-    public bool IsMoving => isMoving;
+    public int MaxHp => vitality != null ? vitality.MaxHp : maxHp;
+    public int CurrentHp => vitality != null ? vitality.CurrentHp : maxHp;
+    public bool IsInvincible => vitality != null && vitality.IsInvincible;
+    public bool IsDead => vitality != null && vitality.IsDead;
+    public bool IsFlinching => vitality != null && vitality.IsFlinching;
+    public bool IsMoving => movement != null && movement.IsMoving;
     public Vector3 MoveDirection => Vector3.right;
-    public Collider2D BodyCollider => bodyCollider;
+    public Collider2D BodyCollider => movement != null ? movement.BodyCollider : GetComponent<Collider2D>();
     public static IReadOnlyList<HeroController> ActiveHeroes => activeHeroes;
-
-    /// <summary>
-    /// 現在の Transform 座標を基準に、身体の当たり判定が指定範囲へ入っているかを返す。
-    /// Physics2D のクエリを使わないため、Update 中に transform を動かした直後でも判定が遅れない。
-    /// </summary>
-    public bool IsBodyOverlappingBounds(Bounds detectionBounds)
-    {
-        if (bodyCollider == null || !bodyCollider.enabled)
-        {
-            return false;
-        }
-
-        if (bodyCollider is BoxCollider2D boxCollider)
-        {
-            return GetBoxColliderBounds(boxCollider).Intersects(detectionBounds);
-        }
-
-        return bodyCollider.bounds.Intersects(detectionBounds);
-    }
-
-    private static Bounds GetBoxColliderBounds(BoxCollider2D boxCollider)
-    {
-        Transform colliderTransform = boxCollider.transform;
-        Vector2 halfSize = boxCollider.size * 0.5f;
-        Vector3 right = colliderTransform.TransformVector(Vector3.right);
-        Vector3 up = colliderTransform.TransformVector(Vector3.up);
-        Vector2 extents = new Vector2(
-            Mathf.Abs(right.x) * halfSize.x + Mathf.Abs(up.x) * halfSize.y,
-            Mathf.Abs(right.y) * halfSize.x + Mathf.Abs(up.y) * halfSize.y);
-        Vector3 center = colliderTransform.TransformPoint(boxCollider.offset);
-        return new Bounds(center, extents * 2f);
-    }
 
     public event Action<int, int> HealthChanged;
 
+    public bool IsBodyOverlappingBounds(Bounds detectionBounds)
+    {
+        return movement != null && movement.IsBodyOverlappingBounds(detectionBounds);
+    }
+
     private void Awake()
     {
-        currentHp = maxHp;
+        ResolveReferences();
 
-        if (animator == null)
-        {
-            animator = GetComponentInChildren<Animator>();
-        }
+        movement = GetOrAddComponent<HeroMovement>();
+        vitality = GetOrAddComponent<HeroVitality>();
+        visuals = GetOrAddComponent<HeroVisualFeedback>();
 
-        if (jobBehavior == null)
-        {
-            jobBehavior = GetComponent<HeroJobBehavior>();
-        }
-
-        if (blinkRenderer == null)
-        {
-            blinkRenderer = GetComponentInChildren<SpriteRenderer>();
-        }
-
-        if (blinkRenderer != null)
-        {
-            blinkRendererDefaultAlpha = blinkRenderer.color.a;
-            blinkRendererDefaultEnabled = blinkRenderer.enabled;
-        }
-
-        bodyCollider = GetComponent<Collider2D>();
-        bodyRigidbody = GetComponent<Rigidbody2D>();
+        movement.Initialize(GetComponent<Collider2D>(), GetComponent<Rigidbody2D>());
+        vitality.Initialize(maxHp, flinchDuration, invincibilityDuration, knockbackDistance, knockbackDuration);
+        vitality.HealthChanged += OnHealthChanged;
+        visuals.Initialize(animator, blinkRenderer, invincibilityBlinkInterval);
     }
 
     private void OnEnable()
@@ -130,8 +80,7 @@ public class HeroController : MonoBehaviour
     private void OnDisable()
     {
         activeHeroes.Remove(this);
-        StopInvincibilityBlink();
-        StopGreenFlash();
+        visuals?.StopAllEffects();
     }
 
     private void OnDestroy()
@@ -139,6 +88,11 @@ public class HeroController : MonoBehaviour
         if (gameController != null)
         {
             gameController.PhaseChanged -= OnGamePhaseChanged;
+        }
+
+        if (vitality != null)
+        {
+            vitality.HealthChanged -= OnHealthChanged;
         }
     }
 
@@ -156,10 +110,7 @@ public class HeroController : MonoBehaviour
             OnGamePhaseChanged(gameController.CurrentPhase);
         }
 
-        if (jobBehavior != null)
-        {
-            jobBehavior.Initialize(this);
-        }
+        jobBehavior?.Initialize(this);
     }
 
     private void Update()
@@ -170,31 +121,34 @@ public class HeroController : MonoBehaviour
             return;
         }
 
-        UpdateInvincibility();
-
-        if (isFlinching)
+        if (vitality.UpdateInvincibility(Time.deltaTime))
         {
-            UpdateFlinch();
+            visuals.StopInvincibilityBlink();
+        }
+
+        if (vitality.TickFlinch(Time.deltaTime, out Vector3 knockbackMovement))
+        {
+            if (knockbackMovement != Vector3.zero)
+            {
+                movement.Move(knockbackMovement, this, ActiveHeroes);
+            }
+
             return;
         }
 
-        if (jobBehavior != null)
+        jobBehavior?.Tick();
+        if (isStopped)
         {
-            jobBehavior.Tick();
-
-            if (isStopped)
-            {
-                return;
-            }
+            return;
         }
 
         bool canMove = (jobBehavior == null || jobBehavior.CanMove())
-            && CanMoveInDirection(MoveDirection);
+            && movement.CanMoveInDirection(MoveDirection, this, ActiveHeroes);
         SetMoving(canMove);
 
         if (canMove)
         {
-            Move(MoveDirection * moveSpeed);
+            movement.Move(MoveDirection * moveSpeed * Time.deltaTime, this, ActiveHeroes);
         }
     }
 
@@ -217,96 +171,72 @@ public class HeroController : MonoBehaviour
         }
 
         TrapBase trap = other.GetComponentInParent<TrapBase>();
-        if (trap != null)
-        {
-            trap.OnHeroHit(this);
-        }
+        trap?.OnHeroHit(this);
     }
 
     public void TakeDamage(int damage)
-    {
-        if (isStopped || isDead || invincibilityRemainingTime > 0f || damage <= 0)
-        {
-            return;
-        }
-
-        currentHp = Mathf.Max(0, currentHp - damage);
-        HealthChanged?.Invoke(currentHp, maxHp);
-
-        if (currentHp <= 0)
-        {
-            Die();
-            return;
-        }
-
-        jobBehavior?.OnInterrupted();
-        StartFlinch();
-    }
-
-    public void SetMaxHp(int value, bool restoreHealth)
-    {
-        maxHp = Mathf.Clamp(value, 1, 5);
-        currentHp = restoreHealth ? maxHp : Mathf.Min(currentHp, maxHp);
-        HealthChanged?.Invoke(currentHp, maxHp);
-    }
-
-    public void RestoreForRewind(int hp)
-    {
-        StopAllCoroutines();
-        StopInvincibilityBlink();
-
-        // Keep the body out of a DeathZone until its rewind transform has completed.
-        // Re-enabling physics at the fallen position can immediately kill the hero again.
-        currentHp = Mathf.Clamp(hp, 1, maxHp);
-        HealthChanged?.Invoke(currentHp, maxHp);
-
-        isStopped = false;
-        isFlinching = false;
-        isDead = false;
-        SetBodyPhysicsEnabled(false);
-        flinchRemainingTime = 0f;
-        invincibilityRemainingTime = 0f;
-        knockbackRemainingTime = 0f;
-        ResetAnimatorForRewind();
-        SetMoving(false);
-        jobBehavior?.OnRestored();
-    }
-
-    public void CompleteRewindRestore()
-    {
-        if (!isDead)
-        {
-            SetBodyPhysicsEnabled(true);
-        }
-    }
-
-    private void OnValidate()
-    {
-        maxHp = Mathf.Clamp(maxHp, 1, 5);
-        currentHp = Mathf.Clamp(currentHp, 0, maxHp);
-    }
-
-    private void OnGamePhaseChanged(GameController.GamePhase phase)
-    {
-        isInvasionActive = phase == GameController.GamePhase.Invasion;
-
-        if (!isInvasionActive)
-        {
-            SetMoving(false);
-        }
-    }
-
-    private void ShowDefeat()
     {
         if (isStopped)
         {
             return;
         }
 
-        Stop();
-        if (gameController != null)
+        HeroVitality.DamageResult result = vitality.TakeDamage(damage);
+        if (result == HeroVitality.DamageResult.Ignored)
         {
-            gameController.ResolveResult(GameController.GameResult.Failure);
+            return;
+        }
+
+        if (result == HeroVitality.DamageResult.Died)
+        {
+            Die();
+            return;
+        }
+
+        jobBehavior?.OnInterrupted();
+        SetMoving(false);
+        visuals.SetTrigger(HurtHash);
+        visuals.StartInvincibilityBlink();
+    }
+
+    public void SetMaxHp(int value, bool restoreHealth)
+    {
+        maxHp = Mathf.Clamp(value, 1, 5);
+        vitality.SetMaxHp(maxHp, restoreHealth);
+    }
+
+    public void RestoreForRewind(int hp)
+    {
+        StopAllCoroutines();
+        visuals.StopInvincibilityBlink();
+
+        vitality.RestoreForRewind(hp);
+        isStopped = false;
+        movement.SetBodyPhysicsEnabled(false);
+        visuals.ResetAnimator();
+        SetMoving(false);
+        jobBehavior?.OnRestored();
+    }
+
+    public void CompleteRewindRestore()
+    {
+        if (!IsDead)
+        {
+            movement.SetBodyPhysicsEnabled(true);
+        }
+    }
+
+    private void OnValidate()
+    {
+        maxHp = Mathf.Clamp(maxHp, 1, 5);
+    }
+
+    private void OnGamePhaseChanged(GameController.GamePhase phase)
+    {
+        isInvasionActive = phase == GameController.GamePhase.Invasion;
+        if (!isInvasionActive)
+        {
+            SetMoving(false);
         }
     }
 
@@ -327,198 +257,116 @@ public class HeroController : MonoBehaviour
 
     public void Kill()
     {
-        if (isStopped || isDead)
+        if (isStopped || !vitality.Kill())
         {
             return;
         }
 
-        currentHp = 0;
-        HealthChanged?.Invoke(currentHp, maxHp);
         Die();
     }
 
     public bool Heal(int amount)
     {
-        if (isDead || amount <= 0 || currentHp >= maxHp)
-        {
-            return false;
-        }
-
-        currentHp = Mathf.Min(maxHp, currentHp + amount);
-        HealthChanged?.Invoke(currentHp, maxHp);
-        return true;
+        return vitality.Heal(amount);
     }
 
     public bool ReviveAtFullHealth()
     {
-        if (!isDead)
+        if (!vitality.ReviveAtFullHealth())
         {
             return false;
         }
 
         StopAllCoroutines();
-        StopInvincibilityBlink();
-
-        currentHp = maxHp;
+        visuals.StopInvincibilityBlink();
         isStopped = false;
-        isFlinching = false;
-        isDead = false;
-        SetBodyPhysicsEnabled(true);
-        flinchRemainingTime = 0f;
-        invincibilityRemainingTime = 0f;
-        knockbackRemainingTime = 0f;
-        ResetAnimatorForRewind();
+        movement.SetBodyPhysicsEnabled(true);
+        visuals.ResetAnimator();
         SetMoving(false);
         jobBehavior?.OnRestored();
-        HealthChanged?.Invoke(currentHp, maxHp);
         return true;
     }
 
     public void GrantInvincibility(float duration)
     {
-        if (duration <= 0f)
+        if (vitality.GrantInvincibility(duration))
         {
-            return;
+            visuals.StartInvincibilityBlink();
         }
-
-        invincibilityRemainingTime = Mathf.Max(invincibilityRemainingTime, duration);
-        StartInvincibilityBlink();
     }
 
     public void StartGreenFlash(Color flashColor, float interval)
     {
-        if (blinkRenderer == null)
-        {
-            return;
-        }
-
-        StopGreenFlash();
-        greenFlashDefaultColor = blinkRenderer.color;
-        isGreenFlashing = true;
-        flashColor.a = greenFlashDefaultColor.a;
-        greenFlashTween = blinkRenderer
-            .DOColor(flashColor, Mathf.Max(0.01f, interval))
-            .SetLoops(-1, LoopType.Yoyo);
+        visuals.StartGreenFlash(flashColor, interval);
     }
 
     public void PlayColorPulse(Color pulseColor, float fadeDuration, float holdDuration)
     {
-        if (blinkRenderer == null)
-        {
-            return;
-        }
-
-        StopGreenFlash();
-        greenFlashDefaultColor = blinkRenderer.color;
-        isGreenFlashing = true;
-        pulseColor.a = greenFlashDefaultColor.a;
-
-        Sequence pulseSequence = DOTween.Sequence();
-        pulseSequence.Append(blinkRenderer.DOColor(pulseColor, Mathf.Max(0.01f, fadeDuration)));
-        pulseSequence.AppendInterval(Mathf.Max(0f, holdDuration));
-        pulseSequence.Append(blinkRenderer.DOColor(greenFlashDefaultColor, Mathf.Max(0.01f, fadeDuration)));
-        pulseSequence.OnComplete(StopGreenFlash);
-        greenFlashTween = pulseSequence.SetTarget(this);
+        visuals.PlayColorPulse(pulseColor, fadeDuration, holdDuration);
     }
 
     public void StopGreenFlash()
     {
-        greenFlashTween?.Kill();
-        greenFlashTween = null;
-        greenFlashStopTween?.Kill();
-        greenFlashStopTween = null;
-
-        if (blinkRenderer == null || !isGreenFlashing)
-        {
-            isGreenFlashing = false;
-            return;
-        }
-
-        isGreenFlashing = false;
-        Color restoredColor = greenFlashDefaultColor;
-        restoredColor.a = blinkRenderer.color.a;
-        blinkRenderer.color = restoredColor;
+        visuals.StopGreenFlash();
     }
 
     public void PlayJobTrigger(string triggerName)
     {
-        if (string.IsNullOrEmpty(triggerName))
+        visuals.PlayJobTrigger(triggerName);
+    }
+
+    private void ResolveReferences()
+    {
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+
+        if (jobBehavior == null)
+        {
+            jobBehavior = GetComponent<HeroJobBehavior>();
+        }
+
+        if (blinkRenderer == null)
+        {
+            blinkRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+    }
+
+    private T GetOrAddComponent<T>() where T : Component
+    {
+        T component = GetComponent<T>();
+        return component != null ? component : gameObject.AddComponent<T>();
+    }
+
+    private void OnHealthChanged(int currentHp, int changedMaxHp)
+    {
+        HealthChanged?.Invoke(currentHp, changedMaxHp);
+    }
+
+    private void ShowDefeat()
+    {
+        if (isStopped)
         {
             return;
         }
 
-        int triggerHash = Animator.StringToHash(triggerName);
-        if (!HasAnimatorParameter(triggerHash, AnimatorControllerParameterType.Trigger))
-        {
-            return;
-        }
-
-        SetTrigger(triggerHash);
+        Stop();
+        gameController?.ResolveResult(GameController.GameResult.Failure);
     }
 
     private void ShowSuccess()
     {
-        if (gameController != null)
-        {
-            gameController.ResolveResult(GameController.GameResult.Success);
-        }
-    }
-
-    private void StartFlinch()
-    {
-        isFlinching = true;
-        flinchRemainingTime = flinchDuration;
-        invincibilityRemainingTime = invincibilityDuration;
-        knockbackRemainingTime = knockbackDuration;
-        knockbackVelocity = Vector3.left * (knockbackDistance / Mathf.Max(knockbackDuration, 0.01f));
-        SetMoving(false);
-        SetTrigger(HurtHash);
-        StartInvincibilityBlink();
-    }
-
-    private void UpdateInvincibility()
-    {
-        if (invincibilityRemainingTime <= 0f)
-        {
-            return;
-        }
-
-        invincibilityRemainingTime = Mathf.Max(0f, invincibilityRemainingTime - Time.deltaTime);
-
-        if (invincibilityRemainingTime <= 0f)
-        {
-            StopInvincibilityBlink();
-        }
-    }
-
-    private void UpdateFlinch()
-    {
-        float deltaTime = Time.deltaTime;
-
-        if (knockbackRemainingTime > 0f)
-        {
-            float knockbackStepTime = Mathf.Min(deltaTime, knockbackRemainingTime);
-            transform.position += GetHeroSafeMovement(knockbackVelocity * knockbackStepTime);
-            knockbackRemainingTime -= deltaTime;
-        }
-
-        flinchRemainingTime -= deltaTime;
-        if (flinchRemainingTime > 0f)
-        {
-            return;
-        }
-
-        isFlinching = false;
+        gameController?.ResolveResult(GameController.GameResult.Success);
     }
 
     private void Die()
     {
-        isDead = true;
-        SetBodyPhysicsEnabled(false);
+        movement.SetBodyPhysicsEnabled(false);
         jobBehavior?.OnInterrupted();
         Stop();
-        StopInvincibilityBlink();
-        SetTrigger(DeathHash);
+        visuals.StopInvincibilityBlink();
+        visuals.SetTrigger(DeathHash);
         StartCoroutine(ShowSuccessIfAllHeroesAreDeadAfterDelay());
     }
 
@@ -532,163 +380,10 @@ public class HeroController : MonoBehaviour
         }
     }
 
-    private void Move(Vector3 velocity)
+    private void SetMoving(bool value)
     {
-        Vector3 requestedMovement = velocity * Time.deltaTime;
-        transform.position += GetHeroSafeMovement(requestedMovement);
-    }
-
-    private bool CanMoveInDirection(Vector3 direction)
-    {
-        if (direction.x == 0f)
-        {
-            return true;
-        }
-
-        return Mathf.Abs(GetHeroSafeMovement(new Vector3(Mathf.Sign(direction.x) * 0.01f, 0f, 0f)).x) > 0f;
-    }
-
-    private Vector3 GetHeroSafeMovement(Vector3 requestedMovement)
-    {
-        if (bodyCollider == null || requestedMovement.x == 0f)
-        {
-            return requestedMovement;
-        }
-
-        Bounds ownBounds = bodyCollider.bounds;
-        float safeMovementX = requestedMovement.x;
-
-        IReadOnlyList<HeroController> heroes = ActiveHeroes;
-        for (int i = 0; i < heroes.Count; i++)
-        {
-            HeroController otherHero = heroes[i];
-            if (otherHero == null || otherHero == this || otherHero.IsDead)
-            {
-                continue;
-            }
-
-            Collider2D otherCollider = otherHero.BodyCollider;
-            if (otherCollider == null || !otherCollider.enabled || !IsVerticallyOverlapping(ownBounds, otherCollider.bounds))
-            {
-                continue;
-            }
-
-            if (requestedMovement.x > 0f && otherCollider.bounds.min.x >= ownBounds.max.x)
-            {
-                float maximumMovement = otherCollider.bounds.min.x - GetHeroSeparation() - ownBounds.max.x;
-                safeMovementX = Mathf.Min(safeMovementX, Mathf.Max(0f, maximumMovement));
-            }
-            else if (requestedMovement.x < 0f && otherCollider.bounds.max.x <= ownBounds.min.x)
-            {
-                float maximumMovement = otherCollider.bounds.max.x + GetHeroSeparation() - ownBounds.min.x;
-                safeMovementX = Mathf.Max(safeMovementX, Mathf.Min(0f, maximumMovement));
-            }
-        }
-
-        return new Vector3(safeMovementX, requestedMovement.y, requestedMovement.z);
-    }
-
-    private static bool IsVerticallyOverlapping(Bounds first, Bounds second)
-    {
-        return first.min.y < second.max.y && first.max.y > second.min.y;
-    }
-
-    private float GetHeroSeparation()
-    {
-        return DefaultHeroSeparation;
-    }
-
-    private void SetBodyPhysicsEnabled(bool enabled)
-    {
-        if (bodyRigidbody != null)
-        {
-            bodyRigidbody.simulated = enabled;
-        }
-    }
-
-    private void SetMoving(bool isMoving)
-    {
-        this.isMoving = isMoving;
-
-        if (animator == null)
-        {
-            return;
-        }
-
-        animator.SetBool(IsMovingHash, isMoving);
-    }
-
-    private void ResetAnimatorForRewind()
-    {
-        if (animator == null)
-        {
-            return;
-        }
-
-        animator.Rebind();
-        animator.Update(0f);
-    }
-
-    private void SetTrigger(int triggerHash)
-    {
-        if (animator == null)
-        {
-            return;
-        }
-
-        animator.SetTrigger(triggerHash);
-    }
-
-    private bool HasAnimatorParameter(int parameterHash, AnimatorControllerParameterType parameterType)
-    {
-        if (animator == null)
-        {
-            return false;
-        }
-
-        foreach (AnimatorControllerParameter parameter in animator.parameters)
-        {
-            if (parameter.nameHash == parameterHash && parameter.type == parameterType)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void StartInvincibilityBlink()
-    {
-        if (blinkRenderer == null || invincibilityRemainingTime <= 0f)
-        {
-            return;
-        }
-
-        invincibilityBlinkTween?.Kill();
-        blinkRendererDefaultAlpha = blinkRenderer.color.a;
-        blinkRendererDefaultEnabled = blinkRenderer.enabled;
-        invincibilityBlinkTween = DOTween.Sequence()
-            .AppendInterval(invincibilityBlinkInterval)
-            .AppendCallback(() => blinkRenderer.enabled = false)
-            .AppendInterval(invincibilityBlinkInterval)
-            .AppendCallback(() => blinkRenderer.enabled = blinkRendererDefaultEnabled)
-            .SetLoops(-1);
-    }
-
-    private void StopInvincibilityBlink()
-    {
-        invincibilityBlinkTween?.Kill();
-        invincibilityBlinkTween = null;
-
-        if (blinkRenderer == null)
-        {
-            return;
-        }
-
-        Color color = blinkRenderer.color;
-        color.a = blinkRendererDefaultAlpha;
-        blinkRenderer.color = color;
-        blinkRenderer.enabled = blinkRendererDefaultEnabled;
+        movement.SetMoving(value);
+        visuals.SetMoving(value);
     }
 
     private void Stop()

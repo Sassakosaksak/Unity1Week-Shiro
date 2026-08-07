@@ -8,7 +8,7 @@ public class RockSwitchTrap : TrapBase
 
     public override void OnHeroHit(HeroController hero)
     {
-        // The switch only starts the rock; touching it never damages a hero.
+        // スイッチは岩を動かすだけで、勇者が触れてもダメージは受けない
     }
 
     private void OnTriggerEnter2D(Collider2D other)
