@@ -1,9 +1,11 @@
 using System;
-using System.Collections.Generic;
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Coordinates game-wide flow while delegating presentation, placement history,
+/// and rewind state to focused runtime components.
+/// </summary>
 [DefaultExecutionOrder(-1000)]
 public class GameController : MonoBehaviour
 {
@@ -29,6 +31,8 @@ public class GameController : MonoBehaviour
         AllPlaced = 1
     }
 
+    // These serialized fields intentionally stay on GameController. Existing scenes
+    // keep their assigned references while the composed components receive them in Awake.
     [SerializeField] private GameObject successObject;
     [SerializeField] private GameObject failureObject;
     [SerializeField] private GameObject maouObject;
@@ -40,7 +44,12 @@ public class GameController : MonoBehaviour
     [SerializeField] private Button returnButton;
     [SerializeField] private ReturnMode returnMode = ReturnMode.LastPlaced;
     [SerializeField, Min(0f)] private float rewindDuration = 0.45f;
-    [SerializeField] private Ease rewindEase = Ease.OutCubic;
+    [SerializeField] private DG.Tweening.Ease rewindEase = DG.Tweening.Ease.OutCubic;
+
+    private GamePhasePresentation phasePresentation;
+    private GamePlacementHistory placementHistory;
+    private GameRewindService rewindService;
+    private GameResult? currentResult;
 
     public static GameController Instance { get; private set; }
     public GamePhase CurrentPhase { get; private set; }
@@ -48,12 +57,6 @@ public class GameController : MonoBehaviour
     public event Action<GameResult> ResultShown;
     public event Action<GameObject> TrapPlaced;
     public event Action<GameObject, GameObject> TrapReturned;
-
-    private readonly List<HeroSnapshot> heroSnapshots = new List<HeroSnapshot>();
-    private readonly List<TrapSnapshot> trapSnapshots = new List<TrapSnapshot>();
-    private readonly List<PlacedTrapRecord> placedTrapHistory = new List<PlacedTrapRecord>();
-    private Sequence rewindSequence;
-    private GameResult? currentResult;
 
     private void Awake()
     {
@@ -65,10 +68,26 @@ public class GameController : MonoBehaviour
 
         Instance = this;
         CurrentPhase = GamePhase.Title;
+
+        phasePresentation = GetOrAddComponent<GamePhasePresentation>();
+        placementHistory = GetOrAddComponent<GamePlacementHistory>();
+        rewindService = GetOrAddComponent<GameRewindService>();
+
+        phasePresentation.Initialize(
+            successObject,
+            failureObject,
+            maouObject,
+            titleCanvasObject,
+            preparationUiObject,
+            invasionUiObject);
+        placementHistory.Initialize(returnButton, returnMode == ReturnMode.AllPlaced);
+        rewindService.Initialize(rewindDuration, rewindEase);
     }
 
     private void OnDestroy()
     {
+        rewindService?.Cancel();
+
         if (Instance == this)
         {
             Instance = null;
@@ -77,15 +96,15 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        SetResultObjectsActive(false, false);
+        phasePresentation.SetResultObjectsActive(false, false);
         dialogueController?.ResetState();
-        ApplyPhaseUi(CurrentPhase);
-        UpdateReturnButtonState();
+        phasePresentation.ApplyPhase(CurrentPhase);
+        placementHistory.Refresh(CurrentPhase);
     }
 
     public void StartInvasion()
     {
-        CaptureInvasionSnapshot();
+        rewindService.CaptureSnapshot();
         ChangePhase(GamePhase.Invasion);
     }
 
@@ -99,23 +118,21 @@ public class GameController : MonoBehaviour
 
     public void BeginPreparation()
     {
-        SetResultObjectsActive(false, false);
+        phasePresentation.SetResultObjectsActive(false, false);
         ChangePhase(GamePhase.Preparation);
     }
 
     public void BeginOpening()
     {
-        if (CurrentPhase != GamePhase.Title)
+        if (CurrentPhase == GamePhase.Title)
         {
-            return;
+            StartGameFlow();
         }
-
-        StartGameFlow();
     }
 
     public void PlayDialogue(TextAsset dialogue, Action completed)
     {
-        SetResultObjectsActive(false, false);
+        phasePresentation.SetResultObjectsActive(false, false);
         ChangePhase(GamePhase.Dialogue);
         dialogueController?.Play(dialogue, completed);
     }
@@ -124,7 +141,6 @@ public class GameController : MonoBehaviour
     {
         ResetForTitle();
     }
-
 
     public void ShowSuccess()
     {
@@ -146,7 +162,7 @@ public class GameController : MonoBehaviour
         ChangePhase(GamePhase.Result);
         currentResult = result;
         bool isSuccess = result == GameResult.Success;
-        SetResultObjectsActive(isSuccess, !isSuccess);
+        phasePresentation.SetResultObjectsActive(isSuccess, !isSuccess);
         ResultShown?.Invoke(result);
         Debug.Log(isSuccess ? "Success" : "Defeat");
     }
@@ -169,7 +185,7 @@ public class GameController : MonoBehaviour
 
         return true;
     }
-    
+
     public void RegisterPlacedTrap(GameObject placedTrap, GameObject trapPrefab)
     {
         if (placedTrap == null || CurrentPhase != GamePhase.Preparation)
@@ -177,87 +193,45 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        placedTrapHistory.Add(new PlacedTrapRecord(placedTrap, trapPrefab));
+        placementHistory.Register(placedTrap, trapPrefab);
         TrapPlaced?.Invoke(placedTrap);
-        UpdateReturnButtonState();
     }
 
     public void ClearCurrentStageUndoHistory()
     {
-        placedTrapHistory.Clear();
-        UpdateReturnButtonState();
+        placementHistory.Clear(CurrentPhase);
     }
 
     public void ReturnPlacedTrap()
     {
-        if (CurrentPhase != GamePhase.Preparation)
-        {
-            return;
-        }
-
-        if (returnMode == ReturnMode.AllPlaced)
-        {
-            ReturnAllPlacedTraps();
-            return;
-        }
-
-        ReturnLastPlacedTrap();
+        placementHistory.Return(CurrentPhase, OnPlacedTrapReturned);
     }
 
     public void RewindInvasion()
     {
-        if (CurrentPhase != GamePhase.Invasion)
+        if (CurrentPhase == GamePhase.Invasion)
         {
-            return;
+            BeginInvasionRewind();
         }
-
-        BeginInvasionRewind();
     }
 
     public void RetryInvasion()
     {
-        if (CurrentPhase != GamePhase.Result)
+        if (CurrentPhase == GamePhase.Result)
         {
-            return;
+            BeginInvasionRewind();
         }
-
-        BeginInvasionRewind();
     }
 
     private void BeginInvasionRewind()
     {
-        if (rewindSequence != null && rewindSequence.IsActive())
-        {
-            return;
-        }
-
-        if (heroSnapshots.Count == 0)
-        {
-            return;
-        }
-
-        SetResultObjectsActive(false, false);
-        ChangePhase(GamePhase.Rewinding);
-
-        rewindSequence = DOTween.Sequence();
-        RestoreHeroesForRewind();
-        RestoreTrapsForRewind();
-
-        if (rewindSequence.Duration() <= 0f)
-        {
-            rewindSequence.Kill();
-            rewindSequence = null;
-            CompleteHeroesRewindRestore();
-            ChangePhase(GamePhase.Preparation);
-            return;
-        }
-
-        rewindSequence.OnComplete(() =>
-        {
-            rewindSequence = null;
-            CompleteHeroesRewindRestore();
-            ChangePhase(GamePhase.Preparation);
-        });
+        rewindService.TryBeginRewind(
+            () =>
+            {
+                phasePresentation.SetResultObjectsActive(false, false);
+                ChangePhase(GamePhase.Rewinding);
+            },
+            () => ChangePhase(GamePhase.Preparation));
     }
 
     private void ChangePhase(GamePhase nextPhase)
@@ -268,45 +242,9 @@ public class GameController : MonoBehaviour
         }
 
         CurrentPhase = nextPhase;
-        ApplyPhaseUi(CurrentPhase);
-        UpdateReturnButtonState();
+        phasePresentation.ApplyPhase(CurrentPhase);
+        placementHistory.Refresh(CurrentPhase);
         PhaseChanged?.Invoke(CurrentPhase);
-    }
-
-    private void SetResultObjectsActive(bool showSuccess, bool showFailure)
-    {
-        if (successObject != null)
-        {
-            successObject.SetActive(showSuccess);
-        }
-
-        if (failureObject != null)
-        {
-            failureObject.SetActive(showFailure);
-        }
-    }
-
-    private void ApplyPhaseUi(GamePhase phase)
-    {
-        if (maouObject != null)
-        {
-            maouObject.SetActive(phase != GamePhase.Title && phase != GamePhase.Dialogue);
-        }
-
-        if (titleCanvasObject != null)
-        {
-            titleCanvasObject.SetActive(phase == GamePhase.Title);
-        }
-
-        if (preparationUiObject != null)
-        {
-            preparationUiObject.SetActive(phase == GamePhase.Preparation);
-        }
-
-        if (invasionUiObject != null)
-        {
-            invasionUiObject.SetActive(phase == GamePhase.Invasion);
-        }
     }
 
     private void StartGameFlow()
@@ -322,180 +260,14 @@ public class GameController : MonoBehaviour
         ChangePhase(GamePhase.Title);
     }
 
-    private void ReturnLastPlacedTrap()
+    private void OnPlacedTrapReturned(GameObject trap, GameObject trapPrefab)
     {
-        // RemoveMissingPlacedTraps();
-
-        if (placedTrapHistory.Count == 0)
-        {
-            UpdateReturnButtonState();
-            return;
-        }
-
-        int lastIndex = placedTrapHistory.Count - 1;
-        PlacedTrapRecord placedTrap = placedTrapHistory[lastIndex];
-        placedTrapHistory.RemoveAt(lastIndex);
-
-        if (placedTrap.Instance != null)
-        {
-            TrapReturned?.Invoke(placedTrap.Instance, placedTrap.Prefab);
-            Destroy(placedTrap.Instance);
-        }
-
-        UpdateReturnButtonState();
+        TrapReturned?.Invoke(trap, trapPrefab);
     }
 
-    private void ReturnAllPlacedTraps()
+    private T GetOrAddComponent<T>() where T : Component
     {
-        for (int i = placedTrapHistory.Count - 1; i >= 0; i--)
-        {
-            PlacedTrapRecord placedTrap = placedTrapHistory[i];
-            if (placedTrap.Instance != null)
-            {
-                TrapReturned?.Invoke(placedTrap.Instance, placedTrap.Prefab);
-                Destroy(placedTrap.Instance);
-            }
-        }
-
-        placedTrapHistory.Clear();
-        UpdateReturnButtonState();
-    }
-
-    private void UpdateReturnButtonState()
-    {
-        if (returnButton == null)
-        {
-            return;
-        }
-
-        // RemoveMissingPlacedTraps();
-        returnButton.interactable = CurrentPhase == GamePhase.Preparation && placedTrapHistory.Count > 0;
-    }
-
-    // 別口でトラップが消えた場合の処理。現状不要なのでコメントアウト
-    // private void RemoveMissingPlacedTraps()
-    // {
-    //     for (int i = placedTrapHistory.Count - 1; i >= 0; i--)
-    //     {
-    //         if (placedTrapHistory[i] == null)
-    //         {
-    //             placedTrapHistory.RemoveAt(i);
-    //         }
-    //     }
-    // }
-
-    private readonly struct PlacedTrapRecord
-    {
-        public GameObject Instance { get; }
-        public GameObject Prefab { get; }
-
-        public PlacedTrapRecord(GameObject instance, GameObject prefab)
-        {
-            Instance = instance;
-            Prefab = prefab;
-        }
-    }
-
-    private void CaptureInvasionSnapshot()
-    {
-        heroSnapshots.Clear();
-        trapSnapshots.Clear();
-
-        foreach (HeroController hero in FindObjectsByType<HeroController>(FindObjectsSortMode.None))
-        {
-            heroSnapshots.Add(new HeroSnapshot(hero));
-        }
-
-        foreach (TrapBase trap in FindObjectsByType<TrapBase>(FindObjectsSortMode.None))
-        {
-            trapSnapshots.Add(new TrapSnapshot(trap));
-        }
-    }
-
-    private void RestoreHeroesForRewind()
-    {
-        foreach (HeroSnapshot snapshot in heroSnapshots)
-        {
-            if (snapshot.Hero == null)
-            {
-                continue;
-            }
-
-            snapshot.Hero.RestoreForRewind(snapshot.Hp);
-            AppendTransformRewind(snapshot.Hero.transform, snapshot.Position, snapshot.Rotation, snapshot.Scale);
-        }
-    }
-
-    private void RestoreTrapsForRewind()
-    {
-        foreach (TrapSnapshot snapshot in trapSnapshots)
-        {
-            if (snapshot.Trap == null)
-            {
-                continue;
-            }
-
-            snapshot.Trap.RestoreForRewind();
-            AppendTransformRewind(snapshot.Trap.transform, snapshot.Position, snapshot.Rotation, snapshot.Scale);
-        }
-    }
-
-    private void CompleteHeroesRewindRestore()
-    {
-        foreach (HeroSnapshot snapshot in heroSnapshots)
-        {
-            if (snapshot.Hero != null)
-            {
-                snapshot.Hero.CompleteRewindRestore();
-            }
-        }
-    }
-
-    private void AppendTransformRewind(Transform target, Vector3 position, Quaternion rotation, Vector3 scale)
-    {
-        if (rewindDuration <= 0f)
-        {
-            target.SetPositionAndRotation(position, rotation);
-            target.localScale = scale;
-            return;
-        }
-
-        rewindSequence.Join(target.DOMove(position, rewindDuration).SetEase(rewindEase));
-        rewindSequence.Join(target.DORotateQuaternion(rotation, rewindDuration).SetEase(rewindEase));
-        rewindSequence.Join(target.DOScale(scale, rewindDuration).SetEase(rewindEase));
-    }
-
-    private readonly struct HeroSnapshot
-    {
-        public HeroSnapshot(HeroController hero)
-        {
-            Hero = hero;
-            Position = hero.transform.position;
-            Rotation = hero.transform.rotation;
-            Scale = hero.transform.localScale;
-            Hp = hero.CurrentHp;
-        }
-
-        public readonly HeroController Hero;
-        public readonly Vector3 Position;
-        public readonly Quaternion Rotation;
-        public readonly Vector3 Scale;
-        public readonly int Hp;
-    }
-
-    private readonly struct TrapSnapshot
-    {
-        public TrapSnapshot(TrapBase trap)
-        {
-            Trap = trap;
-            Position = trap.transform.position;
-            Rotation = trap.transform.rotation;
-            Scale = trap.transform.localScale;
-        }
-
-        public readonly TrapBase Trap;
-        public readonly Vector3 Position;
-        public readonly Quaternion Rotation;
-        public readonly Vector3 Scale;
+        T component = GetComponent<T>();
+        return component != null ? component : gameObject.AddComponent<T>();
     }
 }
