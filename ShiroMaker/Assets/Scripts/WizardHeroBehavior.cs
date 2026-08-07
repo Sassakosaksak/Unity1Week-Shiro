@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WizardHeroBehavior : HeroJobBehavior
@@ -30,7 +31,7 @@ public class WizardHeroBehavior : HeroJobBehavior
     [SerializeField] private Color magicRangeGizmoColor = new Color(0.35f, 0.65f, 1f, 0.35f);
     [SerializeField] private Color spikeProbeGizmoColor = new Color(1f, 0.85f, 0.2f, 0.55f);
 
-    private readonly Collider2D[] trapResults = new Collider2D[12];
+    private readonly Collider2D[] pitfallResults = new Collider2D[12];
 
     private CastKind castKind;
     private float castRemainingTime;
@@ -389,15 +390,15 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     private PitfallTrap FindPitfallInRange()
     {
-        ContactFilter2D contactFilter = CreateTrapFilter();
-        int count = Physics2D.OverlapCircle(Hero.transform.position, magicRange, contactFilter, trapResults);
+        ContactFilter2D contactFilter = CreatePitfallFilter();
+        int count = Physics2D.OverlapCircle(Hero.transform.position, magicRange, contactFilter, pitfallResults);
 
         PitfallTrap rightmostPit = null;
         float rightmostX = float.NegativeInfinity;
 
         for (int i = 0; i < count; i++)
         {
-            Collider2D hit = trapResults[i];
+            Collider2D hit = pitfallResults[i];
             PitfallTrap pit = hit != null ? hit.GetComponentInParent<PitfallTrap>() : null;
             if (pit == null || !pit.CanBeSealed)
             {
@@ -417,14 +418,12 @@ public class WizardHeroBehavior : HeroJobBehavior
 
     private SpikeTrap FindSpikeAt(Vector3 position)
     {
-        ContactFilter2D contactFilter = CreateTrapFilter();
-        int count = Physics2D.OverlapBox(position, trapProbeSize, 0f, contactFilter, trapResults);
-
-        for (int i = 0; i < count; i++)
+        Bounds probeBounds = new Bounds(position, trapProbeSize);
+        IReadOnlyList<SpikeTrap> spikes = SpikeTrap.ActiveSpikes;
+        for (int i = 0; i < spikes.Count; i++)
         {
-            Collider2D hit = trapResults[i];
-            SpikeTrap spike = hit != null ? hit.GetComponentInParent<SpikeTrap>() : null;
-            if (spike != null)
+            SpikeTrap spike = spikes[i];
+            if (spike != null && spike.IsBlockingProbe(probeBounds))
             {
                 return spike;
             }
@@ -433,7 +432,7 @@ public class WizardHeroBehavior : HeroJobBehavior
         return null;
     }
 
-    private ContactFilter2D CreateTrapFilter()
+    private ContactFilter2D CreatePitfallFilter()
     {
         ContactFilter2D contactFilter = new ContactFilter2D();
         contactFilter.NoFilter();

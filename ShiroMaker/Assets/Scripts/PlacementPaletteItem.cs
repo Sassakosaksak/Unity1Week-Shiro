@@ -288,9 +288,19 @@ public class PlacementPaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandl
     /// </summary>
     private void ApplyPreviewAlpha()
     {
+        if (previewRenderers == null || previewBaseColors == null)
+        {
+            return;
+        }
+
         for (int i = 0; i < previewRenderers.Length; i++)
         {
             SpriteRenderer spriteRenderer = previewRenderers[i];
+            if (spriteRenderer == null)
+            {
+                continue;
+            }
+
             Color color = previewBaseColors[i];
             color.a = previewAlpha;
             spriteRenderer.color = color;

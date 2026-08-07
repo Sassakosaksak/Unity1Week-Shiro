@@ -24,9 +24,8 @@ MonoBehaviour:
     probeSamplingDebugMesh: {fileID: -3555484719484374845, guid: 57d7c4c16e2765b47a4d2069b311bffe, type: 3}
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
     probeVolumeBlendStatesCS: {fileID: 0}
-  m_RendererFeatures:
-  - {fileID: 4549434836420565677}
-  m_RendererFeatureMap: ad9aa239e1d6223f
+  m_RendererFeatures: []
+  m_RendererFeatureMap: []
   m_UseNativeRenderPass: 0
   m_LayerMask:
     serializedVersion: 2
@@ -57,32 +56,3 @@ MonoBehaviour:
   m_PostProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   m_DefaultMaterialType: 0
   m_DefaultCustomMaterial: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
---- !u!114 &4549434836420565677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 177ddeadd26a80641ad757c51fb7f5d1, type: 3}
-  m_Name: OutlineFxFeature
-  m_EditorClassIdentifier: 
-  m_Active: 1
-  _event: 600
-  _solid: 0
-  _thickness: 0.1
-  _alphaCutout: 0.5
-  _mode: 0
-  _filter: 1
-  _attachDepth: 0
-  _output:
-    enabled: 0
-    value: _globalTex
-  _solidMask:
-    _enabled: 0
-    _pattern: {fileID: 2800000, guid: 41acea03acbaebe4a9dc26dd8264449e, type: 3}
-    _scale: 50
-    _velocity: {x: 0, y: 0}
-  _shader: {fileID: 4800000, guid: 9a902e6d68fe8344890c5926c684e820, type: 3}

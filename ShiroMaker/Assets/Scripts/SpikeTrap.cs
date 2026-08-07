@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
 public class SpikeTrap : TrapBase
 {
+    private static readonly List<SpikeTrap> activeSpikes = new List<SpikeTrap>();
+
     [SerializeField] private Sprite previewImage;
-    [SerializeField] private LayerMask heroLayer;
     [SerializeField] private Collider2D damageCollider;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private float detectionRadius = 1f;
@@ -11,13 +14,13 @@ public class SpikeTrap : TrapBase
     [SerializeField] private float detectCooldown = 3f;
 
     private static readonly int DetectHash = Animator.StringToHash("Detect");
-    private readonly Collider2D[] detectResults = new Collider2D[8];
-
     private PlaceableAnchor placeableAnchor;
     private float nextDetectTime;
+    private bool isActivationCycleRunning;
 
     public Sprite PreviewImage => previewImage;
-    public bool IsSafeToEnter => damageCollider == null || !damageCollider.enabled;
+    public bool IsSafeToEnter => !isActivationCycleRunning;
+    public static IReadOnlyList<SpikeTrap> ActiveSpikes => activeSpikes;
 
     protected override void Awake()
     {
@@ -29,6 +32,25 @@ public class SpikeTrap : TrapBase
         {
             damageCollider = GetComponent<Collider2D>();
         }
+    }
+
+    private void OnEnable()
+    {
+        if (!activeSpikes.Contains(this))
+        {
+            activeSpikes.Add(this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        activeSpikes.Remove(this);
+    }
+
+    public bool IsBlockingProbe(Bounds probeBounds)
+    {
+        return !IsSafeToEnter
+            && GetDetectionBounds().Intersects(probeBounds);
     }
 
     private void Update()
@@ -43,19 +65,29 @@ public class SpikeTrap : TrapBase
             return;
         }
 
+        isActivationCycleRunning = true;
         nextDetectTime = Time.time + detectCooldown;
         TrapSEController.Instance?.PlaySpikeActivation();
 
         if (TrapAnimator != null)
         {
             TrapAnimator.SetTrigger(DetectHash);
+            return;
         }
+
+        isActivationCycleRunning = false;
     }
 
     public override void RestoreForRewind()
     {
         base.RestoreForRewind();
         nextDetectTime = 0f;
+        isActivationCycleRunning = false;
+    }
+
+    public void FinishActivationFromAnimation()
+    {
+        isActivationCycleRunning = false;
     }
 
     /// <summary>
@@ -63,7 +95,9 @@ public class SpikeTrap : TrapBase
     /// </summary>
     private bool CanDetect()
     {
-        return CanRun && Time.time >= nextDetectTime;
+        return CanRun
+            && !isActivationCycleRunning
+            && Time.time >= nextDetectTime;
     }
 
     /// <summary>
@@ -71,21 +105,12 @@ public class SpikeTrap : TrapBase
     /// </summary>
     private bool TryDetectHero()
     {
-        Vector2 center = GetDetectionCenter();
-        ContactFilter2D contactFilter = new ContactFilter2D();
-        contactFilter.NoFilter();
-
-        if (heroLayer.value != 0)
+        Bounds detectionBounds = GetDetectionBounds();
+        IReadOnlyList<HeroController> heroes = HeroController.ActiveHeroes;
+        for (int i = 0; i < heroes.Count; i++)
         {
-            contactFilter.SetLayerMask(heroLayer);
-        }
-
-        int count = Physics2D.OverlapCircle(center, detectionRadius, contactFilter, detectResults);
-
-        for (int i = 0; i < count; i++)
-        {
-            Collider2D hit = detectResults[i];
-            if (hit != null && hit.GetComponentInParent<HeroController>() != null)
+            HeroController hero = heroes[i];
+            if (hero != null && !hero.IsDead && hero.IsBodyOverlappingBounds(detectionBounds))
             {
                 return true;
             }
@@ -113,9 +138,14 @@ public class SpikeTrap : TrapBase
             : placementPoint;
     }
 
+    private Bounds GetDetectionBounds()
+    {
+        return new Bounds(GetDetectionCenter(), Vector2.one * (detectionRadius * 2f));
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.8f);
-        Gizmos.DrawWireSphere(GetDetectionCenter(), detectionRadius);
+        Gizmos.DrawWireCube(GetDetectionBounds().center, GetDetectionBounds().size);
     }
 }

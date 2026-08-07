@@ -58,7 +58,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: d9c21bac50a5b7148814122a7e6933d5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -121,10 +121,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1803181607693064331}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4218d78ef2d54d0898b7514e121a781f, type: 3}
+  m_Script: {fileID: 11500000, guid: 97d4d33ab90a490cb638747aa91c3595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _color: {r: 0.8018868, g: 0.094562106, b: 0.094562106, a: 1}
+  useSourceColor: 1
+  outlineColor: {r: 0.8018868, g: 0.094562106, b: 0.094562106, a: 1}
+  thickness: 0.035
 --- !u!114 &1884752389301123461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,6 +373,8 @@ MonoBehaviour:
   footstepInterval: 1
   attackClip: {fileID: 0}
   attackVolume: 0.7
+  rockBreakAttackClip: {fileID: 0}
+  rockBreakAttackVolume: 0.7
   hurtClip: {fileID: 8300000, guid: 2a214e22049446a42a885b49709a84e6, type: 3}
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: f5b62aada482c54449a75ec7ca3758ab, type: 3}

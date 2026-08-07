@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
 public class HeroController : MonoBehaviour
 {
+    private static readonly List<HeroController> activeHeroes = new List<HeroController>();
+
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField, Range(1, 5)] private int maxHp = 3;
     [SerializeField] private HeroJobBehavior jobBehavior;
@@ -12,7 +15,6 @@ public class HeroController : MonoBehaviour
     [SerializeField] private SpriteRenderer blinkRenderer;
     [SerializeField, Min(0f)] private float flinchDuration = 1f;
     [SerializeField, Min(0f)] private float invincibilityDuration = 5f;
-    [SerializeField, Range(0f, 1f)] private float invincibilityBlinkAlpha = 0.1f;
     [SerializeField, Min(0.01f)] private float invincibilityBlinkInterval = 0.2f;
     [SerializeField, Min(0f)] private float knockbackDistance = 0.45f;
     [SerializeField, Min(0.01f)] private float knockbackDuration = 0.18f;
@@ -40,6 +42,7 @@ public class HeroController : MonoBehaviour
     private Tween greenFlashTween;
     private Tween greenFlashStopTween;
     private float blinkRendererDefaultAlpha = 1f;
+    private bool blinkRendererDefaultEnabled = true;
     private Color greenFlashDefaultColor = Color.white;
     private bool isGreenFlashing;
 
@@ -50,6 +53,40 @@ public class HeroController : MonoBehaviour
     public bool IsFlinching => isFlinching;
     public bool IsMoving => isMoving;
     public Vector3 MoveDirection => Vector3.right;
+    public Collider2D BodyCollider => bodyCollider;
+    public static IReadOnlyList<HeroController> ActiveHeroes => activeHeroes;
+
+    /// <summary>
+    /// 現在の Transform 座標を基準に、身体の当たり判定が指定範囲へ入っているかを返す。
+    /// Physics2D のクエリを使わないため、Update 中に transform を動かした直後でも判定が遅れない。
+    /// </summary>
+    public bool IsBodyOverlappingBounds(Bounds detectionBounds)
+    {
+        if (bodyCollider == null || !bodyCollider.enabled)
+        {
+            return false;
+        }
+
+        if (bodyCollider is BoxCollider2D boxCollider)
+        {
+            return GetBoxColliderBounds(boxCollider).Intersects(detectionBounds);
+        }
+
+        return bodyCollider.bounds.Intersects(detectionBounds);
+    }
+
+    private static Bounds GetBoxColliderBounds(BoxCollider2D boxCollider)
+    {
+        Transform colliderTransform = boxCollider.transform;
+        Vector2 halfSize = boxCollider.size * 0.5f;
+        Vector3 right = colliderTransform.TransformVector(Vector3.right);
+        Vector3 up = colliderTransform.TransformVector(Vector3.up);
+        Vector2 extents = new Vector2(
+            Mathf.Abs(right.x) * halfSize.x + Mathf.Abs(up.x) * halfSize.y,
+            Mathf.Abs(right.y) * halfSize.x + Mathf.Abs(up.y) * halfSize.y);
+        Vector3 center = colliderTransform.TransformPoint(boxCollider.offset);
+        return new Bounds(center, extents * 2f);
+    }
 
     public event Action<int, int> HealthChanged;
 
@@ -75,14 +112,24 @@ public class HeroController : MonoBehaviour
         if (blinkRenderer != null)
         {
             blinkRendererDefaultAlpha = blinkRenderer.color.a;
+            blinkRendererDefaultEnabled = blinkRenderer.enabled;
         }
 
         bodyCollider = GetComponent<Collider2D>();
         bodyRigidbody = GetComponent<Rigidbody2D>();
     }
 
+    private void OnEnable()
+    {
+        if (!activeHeroes.Contains(this))
+        {
+            activeHeroes.Add(this);
+        }
+    }
+
     private void OnDisable()
     {
+        activeHeroes.Remove(this);
         StopInvincibilityBlink();
         StopGreenFlash();
     }
@@ -511,14 +558,16 @@ public class HeroController : MonoBehaviour
         Bounds ownBounds = bodyCollider.bounds;
         float safeMovementX = requestedMovement.x;
 
-        foreach (HeroController otherHero in FindObjectsByType<HeroController>(FindObjectsSortMode.None))
+        IReadOnlyList<HeroController> heroes = ActiveHeroes;
+        for (int i = 0; i < heroes.Count; i++)
         {
+            HeroController otherHero = heroes[i];
             if (otherHero == null || otherHero == this || otherHero.IsDead)
             {
                 continue;
             }
 
-            Collider2D otherCollider = otherHero.GetComponent<Collider2D>();
+            Collider2D otherCollider = otherHero.BodyCollider;
             if (otherCollider == null || !otherCollider.enabled || !IsVerticallyOverlapping(ownBounds, otherCollider.bounds))
             {
                 continue;
@@ -617,9 +666,13 @@ public class HeroController : MonoBehaviour
 
         invincibilityBlinkTween?.Kill();
         blinkRendererDefaultAlpha = blinkRenderer.color.a;
-        invincibilityBlinkTween = blinkRenderer
-            .DOFade(invincibilityBlinkAlpha, invincibilityBlinkInterval)
-            .SetLoops(-1, LoopType.Yoyo);
+        blinkRendererDefaultEnabled = blinkRenderer.enabled;
+        invincibilityBlinkTween = DOTween.Sequence()
+            .AppendInterval(invincibilityBlinkInterval)
+            .AppendCallback(() => blinkRenderer.enabled = false)
+            .AppendInterval(invincibilityBlinkInterval)
+            .AppendCallback(() => blinkRenderer.enabled = blinkRendererDefaultEnabled)
+            .SetLoops(-1);
     }
 
     private void StopInvincibilityBlink()
@@ -635,6 +688,7 @@ public class HeroController : MonoBehaviour
         Color color = blinkRenderer.color;
         color.a = blinkRendererDefaultAlpha;
         blinkRenderer.color = color;
+        blinkRenderer.enabled = blinkRendererDefaultEnabled;
     }
 
     private void Stop()
