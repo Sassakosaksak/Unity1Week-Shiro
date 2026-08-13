@@ -129,7 +129,7 @@ public class WarriorHeroBehavior : HeroJobBehavior
         targetRock = null;
     }
 
-    // Called by the final Animation Event on the Warrior Attack02 clip.
+    // WarriorのAttack02クリップの最後のアニメーションイベントから呼び出される
     public void OnRockAttackAnimationFinished()
     {
         if (!isRockAttacking)

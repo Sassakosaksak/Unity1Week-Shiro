@@ -18,38 +18,38 @@ public class HeroAnimationEventRelay : MonoBehaviour
         warriorBehavior = GetComponentInParent<WarriorHeroBehavior>();
     }
 
-    // Called by the Defeat Animation Event on the Warrior Attack01 clip.
+    // WarriorのAttack01クリップにあるDefeatアニメーションイベントから呼び出されます。
     public void Defeat()
     {
         hero?.OnAttackDefeatAnimationEvent();
     }
 
-    // Called by the BreakRock Animation Event on the Warrior Attack02 clip.
+    // WarriorのAttack02クリップにあるBreakRockアニメーションイベントから呼び出されます。
     public void BreakRock()
     {
         heroSeController?.PlayRockBreakAttack();
         hero?.OnRockBreakAnimationEvent();
     }
 
-    // Called by the final Animation Event on the Warrior Attack02 clip.
+    // WarriorのAttack02クリップの最後のアニメーションイベントから呼び出されます。
     public void FinishRockAttack()
     {
         warriorBehavior?.OnRockAttackAnimationFinished();
     }
 
-    // Called by the Attack01 Animation Event on the Warrior Visual.
+    // WarriorのVisualにあるAttack01アニメーションイベントから呼び出されます。
     public void PlayAttack()
     {
         heroSeController?.PlayAttack();
     }
 
-    // Called by the Hurt Animation Event on the Hero Visual.
+    // HeroのVisualにあるHurtアニメーションイベントから呼び出されます。
     public void PlayHurt()
     {
         heroSeController?.PlayHurt();
     }
 
-    // Called by the Death Animation Event on the Hero Visual.
+    // HeroのVisualにあるDeathアニメーションイベントから呼び出されます。
     public void PlayDeath()
     {
         heroSeController?.PlayDeath();

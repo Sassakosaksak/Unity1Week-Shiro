@@ -9,7 +9,7 @@ public class IceAttackEffect : MonoBehaviour
         owner = wizard;
     }
 
-    // Called by the final Hit Animation Event in the IceAttack clip.
+    // IceAttackクリップの最後のHitアニメーションイベントから呼び出される
     public void Hit()
     {
         owner?.OnIceAttackHit(this);

@@ -158,7 +158,7 @@ public class PitfallTrap : TrapBase
 
     public override void OnHeroHit(HeroController hero)
     {
-        // Unsealed pitfalls are real holes; falling is resolved by DeathZone.
+        // 封鎖されていない落とし穴は実際の穴として扱い、落下判定はDeathZoneが処理
     }
 
     public override void RestoreForRewind()
